@@ -195,6 +195,7 @@ export function mergeChannelContent(value: Partial<ChannelContent> | null | unde
     }
   }
   if (value.translations && typeof value.translations === "object") merged.translations = value.translations;
+  merged.brand.youtubeUrl = safeYouTubeHref(merged.brand.youtubeUrl) ?? defaultChannelContent.brand.youtubeUrl;
   return merged;
 }
 
@@ -236,6 +237,15 @@ export function safeInstagramHref(value: string): string | null {
   try {
     const url = new URL(value.trim());
     return url.protocol === "https:" && ["instagram.com", "www.instagram.com"].includes(url.hostname) && !url.username && !url.password
+      ? url.href : null;
+  } catch { return null; }
+}
+
+export function safeYouTubeHref(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "https:" && ["youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"].includes(url.hostname) && !url.username && !url.password
       ? url.href : null;
   } catch { return null; }
 }
