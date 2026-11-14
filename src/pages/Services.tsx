@@ -1,0 +1,50 @@
+import { Layout } from "@/components/layout";
+import SEO from "@/components/SEO";
+import { Link } from "react-router-dom";
+import { ArrowRight, Leaf, Bug, Sprout } from "lucide-react";
+import heroImage from "@/assets/farmer-consultation.jpg";
+
+const services = [
+  { icon: Leaf, title: "Crop Advisory", desc: "Expert guidance on crop selection and cultivation.", href: "/services/crop-advisory" },
+  { icon: Bug, title: "Pest Management", desc: "Integrated pest management solutions.", href: "/services/pest-management" },
+  { icon: Sprout, title: "Organic Farming", desc: "Guidance on organic practices and certification.", href: "/services/organic-farming" },
+];
+
+const Services = () => (
+  <Layout>
+    <SEO
+      title="Our Services"
+      description="Comprehensive agricultural services from Shiva Agri Clinic: Crop Advisory, Pest Management, and Organic Farming. Expert guidance for modern farmers across India."
+      keywords="agricultural services, crop advisory, pest management, organic farming, farming services India"
+    />
+    <section className="relative pt-32 pb-20 text-white overflow-hidden">
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${heroImage})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-primary/70" />
+      <div className="container mx-auto px-4 text-center relative z-10">
+        <h1 className="text-4xl md:text-5xl font-heading font-bold mb-6">Our Services</h1>
+        <p className="text-xl text-white/90 max-w-2xl mx-auto">Comprehensive agricultural services for modern farmers.</p>
+      </div>
+    </section>
+    <section className="py-20 bg-background">
+      <div className="container mx-auto px-4">
+        <div className="grid md:grid-cols-2 gap-8">
+          {services.map((s) => (
+            <Link key={s.title} to={s.href} className="group p-8 bg-card rounded-2xl border border-border hover:border-accent transition-all">
+              <div className="w-14 h-14 bg-accent/10 rounded-xl flex items-center justify-center mb-4">
+                <s.icon className="w-7 h-7 text-accent" />
+              </div>
+              <h3 className="text-xl font-heading font-semibold mb-2 group-hover:text-accent transition-colors">{s.title}</h3>
+              <p className="text-muted-foreground mb-4">{s.desc}</p>
+              <span className="flex items-center text-accent font-medium">Learn More <ArrowRight className="w-4 h-4 ml-1" /></span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  </Layout>
+);
+
+export default Services;

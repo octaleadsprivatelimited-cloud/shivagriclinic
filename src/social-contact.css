@@ -1,0 +1,67 @@
+.channel-site .channel-instagram-link {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 42px;
+  min-height: 42px;
+  color: var(--ink);
+  background: #fffefa;
+  border: 1px solid var(--ink);
+  border-radius: 7px;
+  box-shadow: 2px 3px 0 var(--ink);
+  transition: transform .18s, box-shadow .18s;
+}
+.channel-site .channel-instagram-link:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+.channel-site .channel-instagram-link--mobile,
+.channel-site .channel-social-row { display: none; }
+
+.channel-site .channel-contact-card:nth-child(3) { background: var(--lavender); }
+.channel-site .channel-contact-card:nth-child(4) { background: var(--blue); }
+
+@media (max-width: 760px) {
+  .channel-site .channel-instagram-link--desktop { display: none; }
+  .channel-site .channel-social-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    background: var(--yellow);
+  }
+  .channel-site .channel-social-row.has-instagram { grid-template-columns: minmax(0, 1fr) 48px; }
+  .channel-site .channel-social-row .channel-mobile-cta {
+    display: flex;
+    min-width: 0;
+    width: 100%;
+    border-bottom: 1px solid var(--ink);
+  }
+  .channel-site .channel-social-row .channel-mobile-cta span { overflow: hidden; text-overflow: ellipsis; }
+  .channel-site .channel-instagram-link--mobile {
+    display: inline-grid;
+    width: 48px;
+    min-height: 36px;
+    border: 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    border-left: 1px solid var(--ink);
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--yellow);
+  }
+  .channel-site .channel-instagram-link--mobile:hover { transform: none; box-shadow: none; }
+}
+
+@media (max-width: 360px) {
+  .channel-site .channel-header-inner { gap: 6px; }
+  .channel-site .channel-brand { gap: 5px; font-size: 9px; letter-spacing: -.07em; min-width: 0; }
+  .channel-site .channel-brand > span:last-child { min-width: 0; white-space: nowrap; }
+  .channel-site .channel-brand small { font-size: 5px; }
+  .channel-site .channel-brand-logo-frame { width: 39px; height: 39px; }
+  .channel-site .channel-language-picker select { max-width: 84px; min-height: 36px; padding-inline: 4px; font-size: 10px; }
+  .channel-site .channel-menu-toggle { width: 36px; height: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .channel-site .channel-instagram-link { transition: none; }
+}

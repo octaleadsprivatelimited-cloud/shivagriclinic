@@ -1,0 +1,41 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "outputDirectory": "dist",
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/services/crop-advisory", "destination": "/crop-management", "permanent": true },
+    { "source": "/services/crop-management", "destination": "/crop-management", "permanent": true },
+    { "source": "/services/(.*)", "destination": "/videos", "permanent": true },
+    { "source": "/products/(.*)", "destination": "/videos", "permanent": true },
+    { "source": "/solutions/(.*)", "destination": "/videos", "permanent": true },
+    { "source": "/blog/(.*)", "destination": "/videos", "permanent": true },
+    { "source": "/resources", "destination": "/videos", "permanent": true },
+    { "source": "/gallery", "destination": "/videos", "permanent": true },
+    { "source": "/knowledge-base", "destination": "/videos", "permanent": true },
+    { "source": "/case-studies", "destination": "/videos", "permanent": true },
+    { "source": "/team", "destination": "/about", "permanent": true },
+    { "source": "/careers", "destination": "/about", "permanent": true }
+  ],
+  "headers": [
+    { "source": "/(.*)", "headers": [
+      { "key": "Content-Security-Policy", "value": "frame-ancestors 'none'" },
+      { "key": "X-Frame-Options", "value": "DENY" },
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+    ] },
+    { "source": "/admin", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }] },
+    { "source": "/admin/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }] },
+    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] }
+  ],
+  "rewrites": [
+    { "source": "/videos", "destination": "/videos/index.html" },
+    { "source": "/about", "destination": "/about/index.html" },
+    { "source": "/crop-management", "destination": "/crop-management/index.html" },
+    { "source": "/contact", "destination": "/contact/index.html" },
+    { "source": "/privacy-policy", "destination": "/privacy-policy/index.html" },
+    { "source": "/terms", "destination": "/terms/index.html" },
+    { "source": "/watch/(.*)", "destination": "/watch/index.html" },
+    { "source": "/(.*)", "destination": "/spa-fallback.html" }
+  ]
+}

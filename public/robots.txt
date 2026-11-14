@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://www.shivaagriclinic.com/sitemap.xml
+
+# Admin and API routes are not public content.
+Disallow: /admin
+Disallow: /api/

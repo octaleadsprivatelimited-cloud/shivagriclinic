@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Grant the admin claim only from a trusted Firebase Admin SDK environment.
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    // The public channel site reads its editable content from this one document.
+    match /settings/channel {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Video records contain public YouTube IDs and editor-supplied display settings.
+    match /videos/{videoId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin()
+        && videoId.matches('[A-Za-z0-9_-]{11}');
+    }
+
+    // Legacy product, inquiry, blog, staff, and seed collections are not used by
+    // the new site. Do not deploy these narrowed rules until the old site is retired.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
