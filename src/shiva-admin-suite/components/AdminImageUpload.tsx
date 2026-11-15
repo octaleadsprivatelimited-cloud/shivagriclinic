@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -12,6 +12,9 @@ type AdminImageUploadProps = {
   disabled?: boolean;
   helperText?: string;
   maxChars?: number;
+  preserveTransparency?: boolean;
+  minEdge?: number;
+  onBusyChange?: (busy: boolean) => void;
 };
 
 export function AdminImageUpload({
@@ -22,27 +25,49 @@ export function AdminImageUpload({
   disabled,
   helperText,
   maxChars = MAX_IMAGE_DATA_URL_CHARS,
+  preserveTransparency = false,
+  minEdge,
+  onBusyChange,
 }: AdminImageUploadProps) {
   const inputId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
+  const activeRef = useRef(true);
   const [busy, setBusy] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  useEffect(() => {
+    activeRef.current = true;
+    return () => {
+      activeRef.current = false;
+      onBusyChange?.(false);
+    };
+  }, [onBusyChange]);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+    setUploadError("");
     setBusy(true);
+    onBusyChange?.(true);
     try {
-      const dataUrl = await compressImageFileToDataUrl(file, maxChars);
+      const dataUrl = await compressImageFileToDataUrl(file, maxChars, { minEdge, preserveTransparency });
       if (dataUrl.length > maxChars) {
         throw new Error("Compressed image is still too large. Try a smaller original file.");
       }
+      if (!activeRef.current) return;
       onChange(dataUrl);
-      toast.success("Image compressed and attached.");
+      toast.success("Image ready to save.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not process image.");
+      if (!activeRef.current) return;
+      const message = err instanceof Error ? err.message : "Could not process image.";
+      setUploadError(message);
+      toast.error(message);
     } finally {
-      setBusy(false);
+      if (activeRef.current) {
+        setBusy(false);
+        onBusyChange?.(false);
+      }
     }
   };
 
@@ -51,7 +76,7 @@ export function AdminImageUpload({
       <Label htmlFor={inputId}>{label}</Label>
       {value ? (
         <div className="rounded-md border bg-muted overflow-hidden max-h-52 flex items-center justify-center">
-          <img src={value} alt="" className="max-h-52 w-full object-contain" />
+          <img src={value} alt={`${label} preview`} className="max-h-52 w-full object-contain" />
         </div>
       ) : (
         <p className="text-xs text-muted-foreground border border-dashed rounded-md p-4 text-center">No image yet</p>
@@ -81,6 +106,7 @@ export function AdminImageUpload({
         />
       </div>
       {helperText ? <p className="text-xs text-muted-foreground">{helperText}</p> : null}
+      {uploadError ? <p role="alert" className="text-xs text-destructive">{uploadError}</p> : null}
     </div>
   );
 }

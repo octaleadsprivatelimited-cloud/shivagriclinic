@@ -21,6 +21,12 @@ export default function FeaturedInManagement() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
   const [form, setForm] = useState<FirestoreFeaturedIn>(emptyForm());
+  const [clippingBusy, setClippingBusy] = useState(false);
+  const [logoBusy, setLogoBusy] = useState(false);
+  const imageBusy = clippingBusy || logoBusy;
+  // Both images live in one Firestore document. Reserve space for the fields and
+  // the clipping so a successful logo upload can also be saved.
+  const logoMaxChars = Math.min(300_000, Math.max(24_000, 880_000 - form.imageUrl.length));
 
   function startNew() { setEditingId(undefined); setForm(emptyForm()); setOpen(true); }
   function startEdit(row: FeaturedInRow) {
@@ -29,6 +35,10 @@ export default function FeaturedInManagement() {
     setOpen(true);
   }
   async function save() {
+    if (imageBusy) {
+      toast.error("Wait for the image upload to finish before saving.");
+      return;
+    }
     try {
       await saveItem.mutateAsync({ id: editingId, data: form });
       toast.success(editingId ? "Clipping updated" : "Clipping added");
@@ -52,7 +62,7 @@ export default function FeaturedInManagement() {
       {!isPending && rows.length === 0 && <p className="text-sm text-muted-foreground">No clippings have been added yet.</p>}
       <div className="grid gap-4 md:grid-cols-2">{rows.map((row) => <Card key={row.id}><CardContent className="flex gap-3 p-4">
         {row.imageUrl ? <img src={row.imageUrl} alt="" className="h-20 w-24 shrink-0 rounded-md border bg-muted object-contain" /> : <div className="grid h-20 w-24 shrink-0 place-items-center rounded-md border bg-muted text-xs text-muted-foreground">No clipping</div>}
-        <div className="min-w-0 flex-1"><h3 className="font-semibold">{row.title}</h3><p className="text-sm text-muted-foreground">{row.source}{row.date ? ` · ${row.date}` : ""}</p>{safeEditorialLink(row.linkUrl) && <a href={safeEditorialLink(row.linkUrl)!} target="_blank" rel="noopener noreferrer" className="text-sm underline">Open article</a>}</div>
+        <div className="min-w-0 flex-1"><h3 className="font-semibold">{row.title}</h3><div className="flex items-center gap-2"><p className="text-sm text-muted-foreground">{row.source}{row.date ? ` · ${row.date}` : ""}</p>{row.logoUrl ? <img src={row.logoUrl} alt={`${row.source} logo`} className="h-8 w-16 rounded border bg-white object-contain p-0.5" /> : null}</div>{safeEditorialLink(row.linkUrl) && <a href={safeEditorialLink(row.linkUrl)!} target="_blank" rel="noopener noreferrer" className="text-sm underline">Open article</a>}</div>
         <div className="flex shrink-0 gap-1"><Button variant="ghost" size="icon" aria-label={`Edit ${row.title}`} title={`Edit ${row.title}`} onClick={() => startEdit(row)}><Edit className="h-4 w-4" /></Button><Button variant="ghost" size="icon" aria-label={`Delete ${row.title}`} title={`Delete ${row.title}`} onClick={() => void remove(row.id)}><Trash2 className="h-4 w-4" /></Button></div>
       </CardContent></Card>)}</div>
     </div>
@@ -60,15 +70,15 @@ export default function FeaturedInManagement() {
       <div className="space-y-4">
         <label className="block space-y-1"><Label htmlFor="featured-title">Title</Label><Input id="featured-title" value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} /></label>
         <label className="block space-y-1"><Label htmlFor="featured-source">Publication or source</Label><Input id="featured-source" value={form.source} onChange={(event) => setForm((current) => ({ ...current, source: event.target.value }))} /></label>
-        <AdminImageUpload label="Clipping image" value={form.imageUrl} onChange={(imageUrl) => setForm((current) => ({ ...current, imageUrl }))} onClear={() => setForm((current) => ({ ...current, imageUrl: "" }))} helperText="Preview updates here immediately. Save to replace or remove the previous uploaded image." />
+        <AdminImageUpload label="Clipping image" value={form.imageUrl} onChange={(imageUrl) => setForm((current) => ({ ...current, imageUrl }))} onClear={() => setForm((current) => ({ ...current, imageUrl: "" }))} onBusyChange={setClippingBusy} helperText="Preview updates here immediately. Save to replace or remove the previous uploaded image." />
         <label className="block space-y-1"><Label htmlFor="featured-image-url">Image URL</Label><Input id="featured-image-url" type="url" placeholder="https://example.com/clipping.jpg" value={form.imageUrl.startsWith("data:") ? "" : form.imageUrl} onChange={(event) => setForm((current) => ({ ...current, imageUrl: event.target.value }))} /></label>
-        <AdminImageUpload label="Publication logo for homepage slider" value={form.logoUrl ?? ""} onChange={(logoUrl) => setForm((current) => ({ ...current, logoUrl }))} onClear={() => setForm((current) => ({ ...current, logoUrl: "" }))} maxChars={180_000} helperText="Optional. The full logo appears in the news slider after you save." />
+        <AdminImageUpload label="Publication logo for homepage slider" value={form.logoUrl ?? ""} onChange={(logoUrl) => setForm((current) => ({ ...current, logoUrl }))} onClear={() => setForm((current) => ({ ...current, logoUrl: "" }))} onBusyChange={setLogoBusy} maxChars={logoMaxChars} minEdge={48} preserveTransparency helperText="Optional. PNG, JPEG, WebP, and SVG logos are supported. Preview the logo here, then save to publish it in the news slider." />
         <label className="block space-y-1"><Label htmlFor="featured-logo-url">Publication logo URL (optional)</Label><Input id="featured-logo-url" type="url" placeholder="https://example.com/logo.png" value={form.logoUrl?.startsWith("data:") ? "" : form.logoUrl ?? ""} onChange={(event) => setForm((current) => ({ ...current, logoUrl: event.target.value }))} /></label>
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.showInSlider !== false} onChange={(event) => setForm((current) => ({ ...current, showInSlider: event.target.checked }))} />Show publication in homepage slider</label>
         <label className="block space-y-1"><Label htmlFor="featured-link">Article URL (optional)</Label><Input id="featured-link" type="url" placeholder="https://example.com/article" value={form.linkUrl ?? ""} onChange={(event) => setForm((current) => ({ ...current, linkUrl: event.target.value }))} /><small className="text-muted-foreground">Leave blank to display the clipping without a link.</small></label>
         <label className="block space-y-1"><Label htmlFor="featured-date">Date (optional)</Label><Input id="featured-date" type="date" value={form.date ?? ""} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} /></label>
       </div>
-      <DialogFooter><Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button disabled={saveItem.isPending} onClick={() => void save()}>{saveItem.isPending ? "Saving…" : "Save"}</Button></DialogFooter>
+      <DialogFooter><Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button disabled={saveItem.isPending || imageBusy} onClick={() => void save()}>{saveItem.isPending ? "Saving…" : imageBusy ? "Preparing image…" : "Save"}</Button></DialogFooter>
     </DialogContent></Dialog>
   </AdminLayout>;
 }
