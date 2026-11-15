@@ -12,6 +12,7 @@ export default function FeaturedIn() {
   const { language } = useLanguage();
   const t = editorialText(language);
   const { data: features = [], isPending, isError } = useFeaturedIn();
+  const stories = features.filter((feature) => feature.imageUrl?.trim() || safeEditorialLink(feature.linkUrl));
   const [openClipping, setOpenClipping] = useState<FeaturedInRow | null>(null);
   const articleUrl = safeEditorialLink(openClipping?.linkUrl);
 
@@ -23,9 +24,9 @@ export default function FeaturedIn() {
       </section>
       <section className="channel-editorial-content">
         <div className="channel-shell">
-          {isPending ? <p className="channel-editorial-empty" role="status">{t.loading}</p> : isError ? <p className="channel-editorial-empty" role="alert">{t.unable}</p> : features.length ? (
+          {isPending ? <p className="channel-editorial-empty" role="status">{t.loading}</p> : isError ? <p className="channel-editorial-empty" role="alert">{t.unable}</p> : stories.length ? (
             <div className="channel-feature-grid">
-              {features.map((feature) => {
+              {stories.map((feature) => {
                 const href = safeEditorialLink(feature.linkUrl);
                 return <article className="channel-feature-card" key={feature.id}>
                   {feature.imageUrl ? <button className="channel-feature-clipping channel-feature-image-button" type="button" onClick={() => setOpenClipping(feature)} aria-label={`${t.openClipping}: ${feature.title}`}>

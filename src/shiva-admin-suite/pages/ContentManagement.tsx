@@ -6,7 +6,10 @@ import { AdminImageUpload } from "../components/AdminImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { channelStorageMode, useChannelContent, useSaveChannelContent } from "@/hooks/useChannelContent";
+import { useDeleteFeaturedIn, useFeaturedIn, useSaveFeaturedIn, type FeaturedInRow } from "@/hooks/useCmsFirestore";
+import type { FirestoreFeaturedIn } from "@/types/cms";
 import { defaultChannelContent, normalizeHeroFade, normalizeSocialCount, safeFacebookHref, safeInstagramHref, safeTelephoneHref, safeWhatsAppHref, type ChannelContent, type ChannelCopy, type Language, type SocialCountKey } from "@/data/channelContent";
 import { localizeContent } from "@/i18n/channelI18n";
 import { fontOptions, isFontId, normalizeHeaderColor, sectionFontOptions, type FontId } from "@/data/fontOptions";
@@ -203,6 +206,103 @@ function SocialEditor({ social, copy, language, onChange, onCountChange, onModeC
   </div>;
 }
 
+const emptyNewsLogo = (): FirestoreFeaturedIn => ({ title: "", source: "", imageUrl: "", logoUrl: "", showInSlider: true, linkUrl: "", date: "" });
+
+function publicationName(row: FeaturedInRow): string {
+  const source = row.source?.trim() ?? "";
+  const name = /[\p{L}\p{N}]/u.test(source) ? source : row.title?.trim() ?? "";
+  if (name.toLowerCase() === "sakhi paper") return "Sakshi";
+  if (name.toLowerCase() === "hansindia") return "The Hans India";
+  return name;
+}
+
+function bundledNewsLogo(name: string): string {
+  const normalized = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (normalized.includes("sakshi")) return "/images/news/sakshi.png";
+  if (normalized.includes("eenadu")) return "/images/news/eenadu.png";
+  if (normalized.includes("hansindia")) return "/images/news/the-hans-india.png";
+  return "";
+}
+
+function NewsSliderEditor({ copy, language, onChange }: { copy: ChannelCopy["press"]; language: Language; onChange: (path: Path, value: unknown) => void }) {
+  const { data: rows = [], isPending, isError, error, refetch } = useFeaturedIn();
+  const saveLogo = useSaveFeaturedIn();
+  const deleteLogo = useDeleteFeaturedIn();
+  const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | undefined>();
+  const [form, setForm] = useState<FirestoreFeaturedIn>(emptyNewsLogo());
+  const [imageBusy, setImageBusy] = useState(false);
+
+  const publications = new Map<string, FeaturedInRow>();
+  for (const row of rows) {
+    const name = publicationName(row);
+    if (!name) continue;
+    const key = name.toLocaleLowerCase();
+    const current = publications.get(key);
+    const rank = (candidate: FeaturedInRow) => (candidate.showInSlider === false ? 0 : 2) + (candidate.logoUrl ? 1 : 0);
+    if (!current || rank(row) > rank(current)) publications.set(key, row);
+  }
+
+  const startNew = () => { setEditingId(undefined); setForm(emptyNewsLogo()); setOpen(true); };
+  const startEdit = (row: FeaturedInRow) => {
+    setEditingId(row.id);
+    setForm({ title: row.title, source: publicationName(row), imageUrl: row.imageUrl ?? "", logoUrl: row.logoUrl ?? "", showInSlider: row.showInSlider !== false, linkUrl: row.linkUrl ?? "", date: row.date ?? "" });
+    setOpen(true);
+  };
+  const save = async () => {
+    if (imageBusy) return;
+    const name = form.source.trim();
+    if (!name || (!editingId && !form.logoUrl?.trim())) { toast.error("Enter a publication name and upload its logo."); return; }
+    try {
+      await saveLogo.mutateAsync({ id: editingId, data: { ...form, title: editingId ? form.title : name, source: name, logoUrl: form.logoUrl?.trim() ?? "" } });
+      toast.success("News logo saved separately from the website text.");
+      setOpen(false);
+    } catch (cause) { toast.error(cause instanceof Error ? cause.message : "Could not save news logo."); }
+  };
+  const removeLogoOnly = async (row: FeaturedInRow) => {
+    if (!window.confirm(`Remove ${publicationName(row)} from the news slider?`)) return;
+    try { await deleteLogo.mutateAsync(row.id); toast.success("Publication removed."); }
+    catch (cause) { toast.error(cause instanceof Error ? cause.message : "Could not remove publication."); }
+  };
+  const logoMaxChars = Math.min(300_000, Math.max(24_000, 880_000 - form.imageUrl.length));
+
+  return <div className="space-y-6">
+    <EditorField name="press" value={copy} path={["press"]} onChange={onChange} translationMode={language !== "en"} />
+    <div className="border-t pt-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div><h4 className="text-base font-semibold">Publication logos</h4><p className="mt-1 text-sm text-muted-foreground">Upload logos here for the homepage IN THE NEWS slider. Each logo saves to its publication record separately from the Save changes button above. Existing clippings stay intact.</p></div>
+        <Button type="button" variant="outline" onClick={startNew}>Add publication logo</Button>
+      </div>
+      {isPending && <p className="mt-4 text-sm text-muted-foreground">Loading publications…</p>}
+      {isError && <p role="alert" className="mt-4 text-sm text-destructive">{error instanceof Error ? error.message : "Could not load publications."} <Button type="button" variant="outline" size="sm" onClick={() => void refetch()}>Retry</Button></p>}
+      {!isPending && !isError && publications.size === 0 && <p className="mt-4 text-sm text-muted-foreground">No publications yet. Add the first logo above.</p>}
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {[...publications.values()].map((row) => {
+          const name = publicationName(row);
+          const fallback = bundledNewsLogo(name);
+          const logo = row.logoUrl || fallback;
+          const isLogoOnly = !row.imageUrl?.trim() && !row.linkUrl?.trim() && row.title?.trim().toLocaleLowerCase() === row.source?.trim().toLocaleLowerCase();
+          return <div key={row.id} className="space-y-3 rounded-lg border bg-muted/20 p-4">
+            <div className="flex min-h-20 items-center justify-center rounded-md border bg-white p-3">{logo ? <img src={logo} alt={`${name} logo`} className="max-h-16 max-w-full object-contain" /> : <span className="text-sm text-muted-foreground">No logo yet</span>}</div>
+            <div><strong className="block text-sm">{name}</strong><small className="text-muted-foreground">{row.showInSlider === false ? "Hidden from homepage" : row.logoUrl ? "Uploaded logo" : fallback ? "Bundled logo — upload to replace" : "Text appears until a logo is uploaded"}</small></div>
+            <div className="flex flex-wrap gap-2"><Button type="button" variant="outline" size="sm" onClick={() => startEdit(row)}>Edit logo</Button>{isLogoOnly && <Button type="button" variant="ghost" size="sm" disabled={deleteLogo.isPending} onClick={() => void removeLogoOnly(row)}>Remove publication</Button>}</div>
+          </div>;
+        })}
+      </div>
+    </div>
+    <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{editingId ? "Edit publication logo" : "Add publication logo"}</DialogTitle></DialogHeader>
+      <div className="space-y-4">
+        <label className="block space-y-1 text-sm font-medium"><span>Publication name</span><Input value={form.source} onChange={(event) => setForm((current) => ({ ...current, source: event.target.value }))} placeholder="Publication name" /></label>
+        <AdminImageUpload label="Publication logo" value={form.logoUrl ?? ""} onChange={(logoUrl) => setForm((current) => ({ ...current, logoUrl }))} onClear={() => setForm((current) => ({ ...current, logoUrl: "" }))} onBusyChange={setImageBusy} maxChars={logoMaxChars} minEdge={48} preserveTransparency helperText="PNG, JPEG, WebP, and SVG logos are supported. The preview appears here before you save." />
+        <label className="block space-y-1 text-sm font-medium"><span>Logo URL (optional alternative to upload)</span><Input value={form.logoUrl?.startsWith("data:") ? "" : form.logoUrl ?? ""} disabled={imageBusy} onChange={(event) => setForm((current) => ({ ...current, logoUrl: event.target.value }))} placeholder="https://example.com/logo.png" /></label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.showInSlider !== false} disabled={imageBusy} onChange={(event) => setForm((current) => ({ ...current, showInSlider: event.target.checked }))} />Show in homepage slider</label>
+        {editingId && !form.logoUrl && bundledNewsLogo(form.source) && <p className="text-xs text-muted-foreground">The bundled publication logo remains visible until you upload a replacement. To hide this publication, uncheck the box above.</p>}
+      </div>
+      <DialogFooter><Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button type="button" disabled={imageBusy || saveLogo.isPending} onClick={() => void save()}>{imageBusy ? "Preparing logo…" : saveLogo.isPending ? "Saving…" : "Save logo"}</Button></DialogFooter>
+    </DialogContent></Dialog>
+  </div>;
+}
+
 export default function ContentManagement() {
   const { data: saved = defaultChannelContent, isPending, isError, error } = useChannelContent();
   const saveContent = useSaveChannelContent();
@@ -292,7 +392,7 @@ export default function ContentManagement() {
   }
 
   return <AdminLayout title="Website content"><div className="mx-auto max-w-6xl space-y-6">
-    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold">Edit the channel website</h2><p className="mt-1 text-sm text-muted-foreground">Use Appearance for colors and fonts, Brand & links for the logo, contact details and social URLs, Social counts for subscriber and follower totals, Logo showcase for partners, and Farmer testimonials for quotes and photos. The public site updates after saving.</p></div><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}><Save className="mr-2 h-4 w-4" />{saveContent.isPending ? "Saving…" : "Save changes"}</Button></div>
+    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold">Edit the channel website</h2><p className="mt-1 text-sm text-muted-foreground">Use Appearance for colors and fonts, Brand & links for the logo, contact details and social URLs, Social counts for subscriber and follower totals, Logo showcase for partners, Farmer testimonials for quotes and photos, and News slider for publication logos. The public site updates after saving.</p></div><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}><Save className="mr-2 h-4 w-4" />{saveContent.isPending ? "Saving…" : "Save changes"}</Button></div>
     <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Content language">{(["en", "te", "hi"] as const).map((code) => <button key={code} type="button" aria-pressed={language === code} className={`rounded-lg border px-4 py-2 text-sm font-semibold ${language === code ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`} onClick={() => setLanguage(code)}>{code === "en" ? "English" : code === "te" ? "తెలుగు" : "हिन्दी"}</button>)}</div>
     {language !== "en" && <p className="text-sm text-muted-foreground">Edit translated text for {language === "te" ? "Telugu" : "Hindi"}. Links, images, video selection, and list structure are shared with English. Unedited text uses the built-in translation or English fallback.</p>}
     {mode === "local" && <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Local preview mode: edits are saved only in this browser on localhost. Configure Firebase for shared, persistent production editing.</p>}
@@ -300,7 +400,7 @@ export default function ContentManagement() {
     {isPending && <p className="text-sm text-muted-foreground">Loading content…</p>}
     <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
       <nav className="flex gap-2 overflow-x-auto lg:flex-col" aria-label="Content sections">{sections.map((item) => <button key={item.key} type="button" className={`whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm ${section === item.key ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70"}`} onClick={() => setSection(item.key)}>{item.name}</button>)}</nav>
-      <section className="min-w-0 rounded-xl border bg-card p-5 shadow-sm"><h3 className="mb-5 text-xl font-semibold">{sections.find((item) => item.key === section)?.name}</h3>{section === "appearance" ? <AppearanceEditor appearance={draft.appearance} heroBackgroundUrl={draft.hero.backgroundUrl} onChange={onChange} /> : section === "social" ? <SocialEditor social={draft.social} copy={localizeContent(draft, language).social} language={language} onChange={onChange} onCountChange={onSocialCountChange} onModeChange={onSocialModeChange} /> : <EditorField name={section} value={getAtPath(localizeContent(draft, language), [section])} path={[section]} onChange={onChange} translationMode={language !== "en"} />}</section>
+      <section className="min-w-0 rounded-xl border bg-card p-5 shadow-sm"><h3 className="mb-5 text-xl font-semibold">{sections.find((item) => item.key === section)?.name}</h3>{section === "appearance" ? <AppearanceEditor appearance={draft.appearance} heroBackgroundUrl={draft.hero.backgroundUrl} onChange={onChange} /> : section === "social" ? <SocialEditor social={draft.social} copy={localizeContent(draft, language).social} language={language} onChange={onChange} onCountChange={onSocialCountChange} onModeChange={onSocialModeChange} /> : section === "press" ? <NewsSliderEditor copy={localizeContent(draft, language).press} language={language} onChange={onChange} /> : <EditorField name={section} value={getAtPath(localizeContent(draft, language), [section])} path={[section]} onChange={onChange} translationMode={language !== "en"} />}</section>
     </div>
     <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4"><Button type="button" variant="outline" disabled={!dirty} onClick={() => setEditedDraft(null)}><RotateCcw className="mr-2 h-4 w-4" />Discard unsaved changes</Button><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}>Save changes</Button></div>
   </div></AdminLayout>;
