@@ -7,6 +7,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthProvider";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import ScrollToTop from "@/components/ScrollToTop";
+import AnalyticsTracking from "@/components/analytics/AnalyticsTracking";
 import Index from "@/pages/Index";
 import Videos from "@/pages/Videos";
 import Watch from "@/pages/Watch";
@@ -54,6 +55,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AnalyticsTracking />
           <ScrollToTop />
           <Suspense fallback={<div className="channel-loading" role="status">Loading...</div>}>
           <Routes>

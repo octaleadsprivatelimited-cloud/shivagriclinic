@@ -1,14 +1,15 @@
-import { ArrowUpRight, Instagram, Mail, MessageCircle, Phone, Youtube } from "lucide-react";
+import { ArrowUpRight, Facebook, Instagram, Mail, MessageCircle, Phone, Youtube } from "lucide-react";
 import { Layout } from "@/components/layout";
 import SEO from "@/components/SEO";
 import { useLocalizedChannelContent } from "@/i18n/channelI18n";
-import { safeInstagramHref, safeTelephoneHref, safeWhatsAppHref } from "@/data/channelContent";
+import { safeFacebookHref, safeInstagramHref, safeTelephoneHref, safeWhatsAppHref } from "@/data/channelContent";
 
 export default function Contact() {
   const content = useLocalizedChannelContent();
   const phoneHref = safeTelephoneHref(content.brand.phone);
   const whatsappHref = safeWhatsAppHref(content.brand.whatsappPhone);
   const instagramHref = safeInstagramHref(content.brand.instagramUrl);
+  const facebookHref = safeFacebookHref(content.brand.facebookUrl);
 
   return (
     <Layout>
@@ -41,6 +42,11 @@ export default function Contact() {
             {instagramHref && <a className="channel-contact-card" href={instagramHref} target="_blank" rel="noopener noreferrer">
               <Instagram size={35} strokeWidth={1.8} aria-hidden="true" />
               <span><strong>{content.contact.instagramLabel}</strong><small>{content.brand.instagramUrl}</small></span>
+              <ArrowUpRight size={24} aria-hidden="true" />
+            </a>}
+            {facebookHref && <a className="channel-contact-card" href={facebookHref} target="_blank" rel="noopener noreferrer">
+              <Facebook size={35} strokeWidth={1.8} aria-hidden="true" />
+              <span><strong>{content.contact.facebookLabel}</strong><small>{content.brand.facebookUrl}</small></span>
               <ArrowUpRight size={24} aria-hidden="true" />
             </a>}
             <a className="channel-contact-card" href={content.brand.youtubeUrl} target="_blank" rel="noopener noreferrer">

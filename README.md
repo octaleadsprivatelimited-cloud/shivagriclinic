@@ -2,7 +2,7 @@
 
 A Vite, React and TypeScript website for the Shiva Agri Clinic YouTube channel. The original round green and gold logo is retained. The hero uses a farm landscape and a featured channel video.
 
-The homepage shows two continuously scrolling rows of partner logos immediately after the hero, plus YouTube subscriber, Facebook follower and Instagram follower cards. The header links to YouTube and Instagram, every public page has a floating WhatsApp link, and the footer includes the current-year copyright and an Octaleads development credit. The main and partner logos, contact details, social profile URLs, WhatsApp number, follower totals and credit link are editable in `/admin/content`. The server can fetch available counts from official platform APIs once credentials are configured; editor-entered totals remain a fallback. Until a total is available, its card shows a dash rather than an invented number.
+The homepage shows two continuously scrolling rows of partner logos immediately after the hero, plus YouTube subscriber, Facebook follower and Instagram follower cards. The header links to YouTube and Instagram, every public page has a floating WhatsApp link, and the footer includes the current-year copyright and an Octaleads development credit. The main and partner logos, contact details, social profile URLs, WhatsApp number, follower totals and credit link are editable in `/admin/content`. The server can fetch available counts from official platform APIs once credentials are configured; editor-entered totals remain a fallback. Built-in estimates are 338K YouTube subscribers and 159K Facebook followers observed on 15 November 2026, plus the previous site's last published 190K Instagram followers. Estimated totals carry a tilde and a note on the site; replace them in the admin editor or connect official APIs for current counts.
 
 The browser favicon, Apple touch icon and web manifest use a cropped version of the round header logo. The production HTML also includes crawlable homepage Organization logo metadata. See `SEO_SETUP.md` for the deployment and Google recrawl checks; changing a logo in the admin editor alone does not regenerate these static search assets.
 
@@ -39,6 +39,12 @@ The latest uploads come from the official YouTube channel's public RSS feed thro
 
 Meta access requires a valid app/token and the relevant Page or Instagram permissions. Set IDs to numeric platform IDs, and keep tokens out of `VITE_*` variables and Git. Restart the local Vite server after changing `.env.local`. The first request after a seven-day cache expires refreshes the counts; a site with no visitors does not run a scheduled refresh. Temporary platform failures preserve the last good count in a running server and retry after five minutes. Without credentials, the endpoint returns an empty object, so the admin-entered totals remain visible; if those are also blank, the cards show a dash. Static-only Firebase Hosting cannot run this endpoint without an additional function or proxy.
 YouTube reports its public subscriber count rounded to three significant figures, so the card shows that public figure rather than an exact private total.
+
+### GA4 and Microsoft Clarity
+
+The existing Shiva Agri Clinic GA4 web stream (`G-FJ3MP87NPS`) and Shiva Chrome profile Clarity project (`zdx0tofpqx`) are configured as defaults. Both IDs and the consent text are editable in `/admin/content` → Analytics tracking. The site does not load either tracking script until the visitor accepts analytics. A visitor can reopen Analytics settings and reject later. GA4 records one page view per public route navigation; admin pages are excluded. The old Firebase Analytics startup call was removed so it cannot track before consent. The Privacy page describes the tracking and browser storage.
+
+The local preview can test that the consent banner and scripts behave correctly, but GA4 and Clarity reporting for the replacement site should be checked after the reviewed site is deployed. Browser storage and analytics preferences are per browser. The IDs are public identifiers, while social API access tokens must stay server-side. The sitemap and robots policy are documented in `SEO_SETUP.md`.
 
 ## Production CMS setup
 

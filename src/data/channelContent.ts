@@ -17,7 +17,8 @@ export type ChannelCopy = {
     featuredLabel: string; watchLabel: string; scrollLabel: string;
   };
   highlights: { items: TextCard[] };
-  social: { eyebrow: string; title: string; youtubeSubscribers: string; facebookFollowers: string; instagramFollowers: string; subscribersLabel: string; followersLabel: string; unavailableLabel: string };
+  social: { eyebrow: string; title: string; youtubeSubscribers: string; facebookFollowers: string; instagramFollowers: string; subscribersLabel: string; followersLabel: string; unavailableLabel: string; approximateLabel: string; estimatesNote: string };
+  analytics: { ga4MeasurementId: string; clarityProjectId: string; consentTitle: string; consentDescription: string; acceptLabel: string; rejectLabel: string; settingsLabel: string };
   partners: { eyebrow: string; title: string; items: PartnerLogo[] };
   testimonials: { eyebrow: string; title: string; items: FarmerTestimonial[] };
   featured: { eyebrow: string; title: string; description: string; viewAllLabel: string };
@@ -31,7 +32,7 @@ export type ChannelCopy = {
     creatorTitle: string; paragraphOne: string; paragraphTwo: string; buttonLabel: string;
     videosEyebrow: string; videosTitle: string; videosDescription: string; videosLinkLabel: string;
   };
-  contact: { eyebrow: string; title: string; intro: string; emailLabel: string; phoneLabel: string; youtubeLabel: string; whatsappLabel: string; instagramLabel: string; note: string };
+  contact: { eyebrow: string; title: string; intro: string; emailLabel: string; phoneLabel: string; youtubeLabel: string; whatsappLabel: string; instagramLabel: string; facebookLabel: string; note: string };
   watch: { backLabel: string; youtubeLabel: string; relatedEyebrow: string; relatedTitle: string };
   ui: { watchVideoLabel: string; selectVideoLabel: string; videoSingular: string; videoPlural: string; clearSearchLabel: string; emptyFeatureLabel: string; emptyVideosLabel: string; skipLabel: string; mainNavLabel: string; mobileNavLabel: string; openMenuLabel: string; closeMenuLabel: string; filterLabel: string; loadingVideoLabel: string; siteInformationLabel: string; latestUploadsLabel: string; languageLabel: string };
   notFound: { eyebrow: string; title: string; description: string; buttonLabel: string };
@@ -58,7 +59,7 @@ export const defaultChannelContent: ChannelContent = {
     email: "info@shivaagriclinic.com",
     phone: "+91 70135 70447", whatsappPhone: "917013570447",
     instagramUrl: "https://www.instagram.com/shiva_agriclinic/",
-    facebookUrl: "",
+    facebookUrl: "https://www.facebook.com/shiva.agriclinic",
     developerName: "Octaleads", developerUrl: "https://www.octaleads.com/",
     copyrightText: "All rights reserved.", developedByLabel: "Developed By",
     footerDescription: "Watch stories from the field and explore farming videos from Shiva Agri Clinic.",
@@ -87,8 +88,15 @@ export const defaultChannelContent: ChannelContent = {
   ] },
   social: {
     eyebrow: "FOLLOW THE FIELD STORIES", title: "Our growing community.",
-    youtubeSubscribers: "", facebookFollowers: "", instagramFollowers: "",
-    subscribersLabel: "Subscribers", followersLabel: "Followers", unavailableLabel: "Count not available",
+    youtubeSubscribers: "338000", facebookFollowers: "159000", instagramFollowers: "190000",
+    subscribersLabel: "Subscribers", followersLabel: "Followers", unavailableLabel: "Count not available", approximateLabel: "Approximately",
+    estimatesNote: "Approximate figures from public profiles and the previous site. Official API totals replace them when connected.",
+  },
+  analytics: {
+    ga4MeasurementId: "G-FJ3MP87NPS", clarityProjectId: "zdx0tofpqx",
+    consentTitle: "Help us improve this website",
+    consentDescription: "With your permission, Google Analytics and Microsoft Clarity help us understand how visitors use this site. You can change your choice at any time.",
+    acceptLabel: "Accept analytics", rejectLabel: "Reject analytics", settingsLabel: "Analytics settings",
   },
   partners: {
     eyebrow: "LOGO SHOWCASE", title: "A few familiar marks.",
@@ -166,7 +174,7 @@ export const defaultChannelContent: ChannelContent = {
   contact: {
     eyebrow: "GET IN TOUCH", title: "Contact the channel.",
     intro: "Questions about a video or want to connect with Shiva Agri Clinic? Choose the best way to reach us.",
-    emailLabel: "Send an email", phoneLabel: "Call us", youtubeLabel: "Visit YouTube", whatsappLabel: "Chat on WhatsApp", instagramLabel: "Follow on Instagram", note: "For a question about a video, include its link in your message.",
+    emailLabel: "Send an email", phoneLabel: "Call us", youtubeLabel: "Visit YouTube", whatsappLabel: "Chat on WhatsApp", instagramLabel: "Follow on Instagram", facebookLabel: "Follow on Facebook", note: "For a question about a video, include its link in your message.",
   },
   watch: { backLabel: "Back to videos", youtubeLabel: "Open on YouTube", relatedEyebrow: "KEEP EXPLORING", relatedTitle: "More from the channel" },
   ui: { watchVideoLabel: "Watch video", selectVideoLabel: "SELECT A VIDEO TO WATCH", videoSingular: "video", videoPlural: "videos", clearSearchLabel: "Clear search", emptyFeatureLabel: "New videos will appear here.", emptyVideosLabel: "Videos will appear here when available.", skipLabel: "Skip to content", mainNavLabel: "Main navigation", mobileNavLabel: "Mobile navigation", openMenuLabel: "Open menu", closeMenuLabel: "Close menu", filterLabel: "Filter videos by topic", loadingVideoLabel: "Loading video...", siteInformationLabel: "SITE INFORMATION", latestUploadsLabel: "Latest uploads", languageLabel: "Language" },
@@ -175,7 +183,7 @@ export const defaultChannelContent: ChannelContent = {
     privacy: { title: "Privacy policy.", intro: "Last updated: 14 November 2026", sections: [
       { heading: "How this website works", body: "This website presents Shiva Agri Clinic videos and channel information. The public video library may load entries from Firebase or the public YouTube channel. The website does not offer an account for visitors or a contact form." },
       { heading: "Video content", body: "Video thumbnails are loaded from YouTube. When you choose to play a video, the embedded YouTube player loads from YouTube's privacy-enhanced domain. YouTube may process information about your visit according to its own policies." },
-      { heading: "Analytics and local storage", body: "Where configured, Firebase Analytics may collect usage information about this website. Browser storage may also be used for essential application behavior." },
+      { heading: "Analytics and local storage", body: "If configured, Google Analytics 4 and Microsoft Clarity load only after you accept analytics. They may process usage and interaction data under their privacy terms. You can change your choice using Analytics settings. This website stores your language and analytics choices in your browser." },
       { heading: "Questions", body: "For privacy questions, use the email address in the footer." },
     ] },
     terms: { title: "Terms of use.", intro: "Last updated: 14 November 2026", sections: [
@@ -197,7 +205,7 @@ export const defaultChannelContent: ChannelContent = {
 
 export function mergeChannelContent(value: Partial<ChannelContent> | null | undefined): ChannelContent {
   if (!value || typeof value !== "object") return defaultChannelContent;
-  const merged = { ...defaultChannelContent } as ChannelContent;
+  const merged = structuredClone(defaultChannelContent);
   for (const key of Object.keys(defaultChannelContent) as (keyof ChannelContent)[]) {
     const section = value[key];
     if (section && typeof section === "object" && !Array.isArray(section)) {
@@ -218,10 +226,30 @@ export function mergeChannelContent(value: Partial<ChannelContent> | null | unde
       removeRetiredField(translation.nav, "cropManagement");
       removeRetiredField(translation.seo, "cropManagementTitle");
       removeRetiredField(translation.seo, "cropManagementDescription");
+      const privacySections = translation.legal?.privacy?.sections;
+      if (Array.isArray(privacySections)) {
+        for (const item of privacySections) {
+          if (item?.body?.includes("Firebase Analytics")) item.body = "";
+        }
+      }
     }
   }
+  if (Array.isArray(merged.legal?.privacy?.sections)) {
+    merged.legal.privacy.sections = merged.legal.privacy.sections.map((item) =>
+      item.body.includes("Firebase Analytics")
+        ? defaultChannelContent.legal.privacy.sections.find((section) => section.heading === "Analytics and local storage")!
+        : item,
+    );
+  }
   merged.brand.youtubeUrl = safeYouTubeHref(merged.brand.youtubeUrl) ?? defaultChannelContent.brand.youtubeUrl;
-  merged.brand.facebookUrl = safeFacebookHref(merged.brand.facebookUrl) ?? "";
+  // Drafts saved before the Facebook and social baseline launch have empty fields.
+  const legacyDraft = !value.analytics;
+  merged.brand.facebookUrl = safeFacebookHref(merged.brand.facebookUrl) ?? (legacyDraft ? defaultChannelContent.brand.facebookUrl : "");
+  if (legacyDraft) {
+    for (const key of ["youtubeSubscribers", "facebookFollowers", "instagramFollowers"] as const) {
+      if (!merged.social[key]) merged.social[key] = defaultChannelContent.social[key];
+    }
+  }
   merged.social.youtubeSubscribers = normalizeSocialCount(merged.social.youtubeSubscribers);
   merged.social.facebookFollowers = normalizeSocialCount(merged.social.facebookFollowers);
   merged.social.instagramFollowers = normalizeSocialCount(merged.social.instagramFollowers);
@@ -254,6 +282,8 @@ export function resolveChannelContent(content: ChannelContent, language: Languag
   translated.brand.whatsappPhone = content.brand.whatsappPhone;
   translated.brand.instagramUrl = content.brand.instagramUrl;
   translated.brand.facebookUrl = content.brand.facebookUrl;
+  translated.analytics.ga4MeasurementId = content.analytics.ga4MeasurementId;
+  translated.analytics.clarityProjectId = content.analytics.clarityProjectId;
   translated.brand.developerName = content.brand.developerName;
   translated.brand.developerUrl = content.brand.developerUrl;
   translated.hero.backgroundUrl = content.hero.backgroundUrl;

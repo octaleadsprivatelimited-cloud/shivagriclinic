@@ -93,7 +93,7 @@ export function SEO({ title, description, keywords, image, type = "website", noi
     setMeta("twitter:url", currentUrl);
 
     document.head.querySelectorAll('script[data-channel-schema="true"]').forEach((script) => script.remove());
-    const sameAs = [content.brand.youtubeUrl, content.brand.instagramUrl].filter((url) => /^https:\/\//.test(url));
+    const sameAs = [content.brand.youtubeUrl, content.brand.instagramUrl, content.brand.facebookUrl].filter((url) => /^https:\/\//.test(url));
     if (pathname === "/") {
       addSchema("channel-organization-schema", {
         "@context": "https://schema.org", "@type": "Organization",
@@ -115,7 +115,7 @@ export function SEO({ title, description, keywords, image, type = "website", noi
       });
     }
     return () => { document.head.querySelectorAll('script[data-channel-schema="true"]').forEach((script) => script.remove()); };
-  }, [fullTitle, pageDescription, pageKeywords, fullImage, currentUrl, type, noindex, pathname, language, content.brand.name, content.brand.logoUrl, content.brand.youtubeUrl, content.brand.instagramUrl, videoId, videoTitle, videoThumbnail, publishedAt]);
+  }, [fullTitle, pageDescription, pageKeywords, fullImage, currentUrl, type, noindex, pathname, language, content.brand.name, content.brand.logoUrl, content.brand.youtubeUrl, content.brand.instagramUrl, content.brand.facebookUrl, videoId, videoTitle, videoThumbnail, publishedAt]);
 
   return null;
 }

@@ -15,6 +15,7 @@ const sections: { key: keyof ChannelCopy; name: string }[] = [
   { key: "brand", name: "Brand & links" }, { key: "nav", name: "Navigation" },
   { key: "hero", name: "Hero" }, { key: "highlights", name: "Highlights" },
   { key: "social", name: "Social counts" },
+  { key: "analytics", name: "Analytics tracking" },
   { key: "partners", name: "Logo showcase" },
   { key: "testimonials", name: "Farmer testimonials" },
   { key: "featured", name: "Featured videos" }, { key: "library", name: "Video library" },
@@ -27,7 +28,7 @@ const sections: { key: keyof ChannelCopy; name: string }[] = [
   { key: "legal", name: "Privacy & terms" }, { key: "seo", name: "Search metadata" },
 ];
 
-const label = (key: string) => ({ logoUrl: "Main logo", youtubeUrl: "YouTube channel URL", instagramUrl: "Instagram URL", facebookUrl: "Facebook profile URL", whatsappPhone: "WhatsApp number", phone: "Contact phone number", email: "Contact email", youtubeSubscribers: "YouTube subscribers", facebookFollowers: "Facebook followers", instagramFollowers: "Instagram followers" })[key] ?? key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (letter) => letter.toUpperCase());
+const label = (key: string) => ({ logoUrl: "Main logo", youtubeUrl: "YouTube channel URL", instagramUrl: "Instagram URL", facebookUrl: "Facebook profile URL", whatsappPhone: "WhatsApp number", phone: "Contact phone number", email: "Contact email", youtubeSubscribers: "YouTube subscribers", facebookFollowers: "Facebook followers", instagramFollowers: "Instagram followers", ga4MeasurementId: "GA4 measurement ID", clarityProjectId: "Microsoft Clarity project ID" })[key] ?? key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (letter) => letter.toUpperCase());
 const imageField = (key: string) => /^(logoUrl|backgroundUrl|imageUrl)$/.test(key);
 const longField = (key: string, value: string) => /description|paragraph|body|intro|bio|note/i.test(key) || value.length > 110;
 
@@ -73,7 +74,7 @@ function emptyItem(path: Path): Record<string, string> {
 
 const sharedField = (path: Path) => {
   const last = String(path[path.length - 1]);
-  return ["logoUrl", "youtubeUrl", "email", "phone", "whatsappPhone", "instagramUrl", "facebookUrl", "youtubeSubscribers", "facebookFollowers", "instagramFollowers", "developerName", "developerUrl", "backgroundUrl", "featuredVideoId", "imageUrl", "icon", "website"].includes(last) || path[0] === "partners" && path.includes("items");
+  return ["logoUrl", "youtubeUrl", "email", "phone", "whatsappPhone", "instagramUrl", "facebookUrl", "youtubeSubscribers", "facebookFollowers", "instagramFollowers", "ga4MeasurementId", "clarityProjectId", "developerName", "developerUrl", "backgroundUrl", "featuredVideoId", "imageUrl", "icon", "website"].includes(last) || path[0] === "partners" && path.includes("items");
 };
 type EditorProps = { name: string; value: unknown; path: Path; onChange: (path: Path, value: unknown) => void; translationMode?: boolean };
 
@@ -104,6 +105,8 @@ function EditorField({ name, value, path, onChange, translationMode = false }: E
     {name === "whatsappPhone" && <small className="block text-muted-foreground">Include country code. This number powers the floating WhatsApp button and Contact page. Leave blank to hide both.</small>}
     {name === "instagramUrl" && <small className="block text-muted-foreground">Use an HTTPS instagram.com profile URL. Leave blank to hide Instagram links.</small>}
     {name === "facebookUrl" && <small className="block text-muted-foreground">Use an HTTPS facebook.com profile URL. Leave blank to show the Facebook count without a link.</small>}
+    {name === "ga4MeasurementId" && <small className="block text-muted-foreground">Enter the GA4 web stream measurement ID (G-...). Leave blank until the correct property is available.</small>}
+    {name === "clarityProjectId" && <small className="block text-muted-foreground">Enter the Clarity project ID. Leave blank until the correct project is available.</small>}
     {/^(youtubeSubscribers|facebookFollowers|instagramFollowers)$/.test(name) && <small className="block text-muted-foreground">Enter the current total using digits only. Leave blank if unavailable; the website will show a dash instead of an invented count.</small>}
   </label>;
 }
@@ -159,6 +162,10 @@ export default function ContentManagement() {
         return;
       }
     }
+    const ga4Id = draft.analytics.ga4MeasurementId.trim();
+    if (ga4Id && !/^G-[A-Z0-9]{4,20}$/.test(ga4Id)) { toast.error("Enter a valid GA4 measurement ID beginning G-, or leave it blank."); return; }
+    const clarityId = draft.analytics.clarityProjectId.trim();
+    if (clarityId && !/^[a-z0-9]{4,32}$/.test(clarityId)) { toast.error("Enter a valid Microsoft Clarity project ID, or leave it blank."); return; }
     if (JSON.stringify(draft).length > 850_000) { toast.error("Content is too large for one Firestore document. Use smaller images or image URLs."); return; }
     try {
       await saveContent.mutateAsync(draft);
@@ -168,7 +175,7 @@ export default function ContentManagement() {
   }
 
   return <AdminLayout title="Website content"><div className="mx-auto max-w-6xl space-y-6">
-    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold">Edit the channel website</h2><p className="mt-1 text-sm text-muted-foreground">Use Brand & links for the main logo, contact details, social profile URLs and floating WhatsApp number. Use Social counts for subscriber and follower totals, Logo showcase for partner logos, and Farmer testimonials for quotes and photos. The public site updates after saving.</p></div><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}><Save className="mr-2 h-4 w-4" />{saveContent.isPending ? "Saving…" : "Save changes"}</Button></div>
+    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold">Edit the channel website</h2><p className="mt-1 text-sm text-muted-foreground">Use Brand & links for the main logo, contact details, social profile URLs and floating WhatsApp number. Use Social counts for subscriber and follower totals, Analytics tracking for GA4 and Clarity IDs, Logo showcase for partner logos, and Farmer testimonials for quotes and photos. The public site updates after saving.</p></div><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}><Save className="mr-2 h-4 w-4" />{saveContent.isPending ? "Saving…" : "Save changes"}</Button></div>
     <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Content language">{(["en", "te", "hi"] as const).map((code) => <button key={code} type="button" aria-pressed={language === code} className={`rounded-lg border px-4 py-2 text-sm font-semibold ${language === code ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`} onClick={() => setLanguage(code)}>{code === "en" ? "English" : code === "te" ? "తెలుగు" : "हिन्दी"}</button>)}</div>
     {language !== "en" && <p className="text-sm text-muted-foreground">Edit translated text for {language === "te" ? "Telugu" : "Hindi"}. Links, images, video selection, and list structure are shared with English. Unedited text uses the built-in translation or English fallback.</p>}
     {mode === "local" && <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Local preview mode: edits are saved only in this browser on localhost. Configure Firebase for shared, persistent production editing.</p>}

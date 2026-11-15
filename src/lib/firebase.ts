@@ -1,9 +1,6 @@
 import { type FirebaseApp, getApp, getApps, initializeApp } from "firebase/app";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAuth, type Auth } from "firebase/auth";
-import { type Analytics, getAnalytics, isSupported } from "firebase/analytics";
-
-const measurementId = import.meta.env.VITE_FIREBASE_MEASUREMENT_ID;
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,7 +9,6 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  ...(measurementId ? { measurementId } : {}),
 };
 
 /**
@@ -62,24 +58,4 @@ export function getFirebaseAuth(): Auth | null {
     authInstance = getAuth(app);
   }
   return authInstance;
-}
-
-let analyticsInstance: Analytics | null | undefined;
-
-/**
- * Call once from the client entry (e.g. main.tsx). No-ops when Firebase env is missing.
- */
-export async function initFirebaseAnalytics(): Promise<Analytics | null> {
-  if (analyticsInstance !== undefined) return analyticsInstance;
-  const app = getFirebaseApp();
-  if (!app || typeof window === "undefined") {
-    analyticsInstance = null;
-    return null;
-  }
-  if (!(await isSupported())) {
-    analyticsInstance = null;
-    return null;
-  }
-  analyticsInstance = getAnalytics(app);
-  return analyticsInstance;
 }

@@ -10,9 +10,9 @@ const formatCount = (value: string): string =>
 export function SocialCounts({ content }: SocialCountsProps) {
   const { data: liveCounts } = useSocialCounts();
   const cards = [
-    { platform: "YouTube", count: liveCounts?.youtubeSubscribers ?? content.social.youtubeSubscribers, label: content.social.subscribersLabel, href: content.brand.youtubeUrl, icon: Youtube },
-    { platform: "Facebook", count: liveCounts?.facebookFollowers ?? content.social.facebookFollowers, label: content.social.followersLabel, href: safeFacebookHref(content.brand.facebookUrl), icon: Facebook },
-    { platform: "Instagram", count: liveCounts?.instagramFollowers ?? content.social.instagramFollowers, label: content.social.followersLabel, href: safeInstagramHref(content.brand.instagramUrl), icon: Instagram },
+    { platform: "YouTube", count: liveCounts?.youtubeSubscribers ?? content.social.youtubeSubscribers, estimate: !liveCounts?.youtubeSubscribers, label: content.social.subscribersLabel, href: content.brand.youtubeUrl, icon: Youtube },
+    { platform: "Facebook", count: liveCounts?.facebookFollowers ?? content.social.facebookFollowers, estimate: !liveCounts?.facebookFollowers, label: content.social.followersLabel, href: safeFacebookHref(content.brand.facebookUrl), icon: Facebook },
+    { platform: "Instagram", count: liveCounts?.instagramFollowers ?? content.social.instagramFollowers, estimate: !liveCounts?.instagramFollowers, label: content.social.followersLabel, href: safeInstagramHref(content.brand.instagramUrl), icon: Instagram },
   ];
 
   return <section className="channel-social-counts" aria-labelledby="channel-social-title">
@@ -20,11 +20,12 @@ export function SocialCounts({ content }: SocialCountsProps) {
       <div className="channel-social-heading">
         <span className="channel-eyebrow">{content.social.eyebrow}</span>
         <h2 id="channel-social-title">{content.social.title}</h2>
+        {cards.some((card) => card.estimate && card.count) && <p>{content.social.estimatesNote}</p>}
       </div>
       <div className="channel-social-grid">
-        {cards.map(({ platform, count, label, href, icon: Icon }) => {
-          const number = count ? formatCount(count) : "—";
-          const accessibleCount = count ? new Intl.NumberFormat("en-IN").format(Number(count)) : content.social.unavailableLabel;
+        {cards.map(({ platform, count, estimate, label, href, icon: Icon }) => {
+          const number = count ? `${estimate ? "~" : ""}${formatCount(count)}` : "—";
+          const accessibleCount = count ? `${estimate ? `${content.social.approximateLabel} ` : ""}${new Intl.NumberFormat("en-IN").format(Number(count))}` : content.social.unavailableLabel;
           const body = <>
             <span className="channel-social-card-top"><Icon size={26} strokeWidth={1.8} aria-hidden="true" /><span>{platform}</span>{href && <ArrowUpRight size={19} aria-hidden="true" />}</span>
             <span className="channel-social-card-number" title={count ? accessibleCount : undefined}>{number}</span>
