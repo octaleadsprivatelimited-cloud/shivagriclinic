@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { ArrowDownRight, ArrowUpRight, Clapperboard, Flower2, Play, Sprout, Waves, Youtube, Apple } from "lucide-react";
 import { Layout } from "@/components/layout";
@@ -10,6 +11,7 @@ import { Testimonials } from "@/components/channel/Testimonials";
 import { videoThumbnail } from "@/data/channelVideos";
 import { useChannelSite } from "@/hooks/useChannelSite";
 import { defaultChannelContent, type TopicCard } from "@/data/channelContent";
+import "@/hero-appearance.css";
 
 const topicIcons = { flower: Flower2, story: Clapperboard, water: Waves, sprout: Sprout, fruit: Apple };
 const stepIcons = [Flower2, Play, Youtube];
@@ -18,12 +20,25 @@ export default function Index() {
   const { content, videos, featured } = useChannelSite();
   const remainingVideos = featured ? videos.filter((video) => video.id !== featured.id) : videos;
   const topicCards = content.topics.items.filter((item): item is TopicCard => Boolean(item?.title));
+  const desktopFade = content.appearance.heroFadeDesktop / 100;
+  const mobileFade = content.appearance.heroFadeMobile / 100;
+  const heroStyle = {
+    backgroundImage: `url(${JSON.stringify(content.hero.backgroundUrl)})`,
+    "--channel-hero-desktop-alpha-1": String(.96 * desktopFade),
+    "--channel-hero-desktop-alpha-2": String(.87 * desktopFade),
+    "--channel-hero-desktop-alpha-3": String(.45 * desktopFade),
+    "--channel-hero-desktop-alpha-4": String(.2 * desktopFade),
+    "--channel-hero-mobile-alpha-1": String(.6 * mobileFade),
+    "--channel-hero-mobile-alpha-2": String(.72 * mobileFade),
+    "--channel-hero-mobile-alpha-3": String(.9 * mobileFade),
+    "--channel-hero-mobile-alpha-4": String(mobileFade),
+  } as CSSProperties;
 
   return (
     <Layout>
       <SEO title={content.seo.homeTitle} description={content.seo.homeDescription} />
 
-      <section className="channel-hero channel-hero-farm" style={{ backgroundImage: `url(${JSON.stringify(content.hero.backgroundUrl)})` }}>
+      <section className="channel-hero channel-hero-farm" style={heroStyle}>
         <div className="channel-shell channel-hero-grid">
           <div className="channel-hero-copy">
             <span className="channel-eyebrow"><span className="channel-live-dot" /> {content.hero.eyebrow}</span>

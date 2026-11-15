@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "shiva-agri-clinic"
+    "default": "shiva-agri-clinic-preview",
+    "production": "shiva-agri-clinic"
   }
 }

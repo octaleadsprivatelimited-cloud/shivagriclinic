@@ -1,15 +1,10 @@
 import { useAuth } from "@/contexts/AuthProvider";
 import { isFirebaseConfigured } from "@/lib/firebase";
-import { isLocalChannelPreview } from "@/hooks/useChannelContent";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 
 export function RequireAdmin() {
   const { user, isAdmin, loading, signOut } = useAuth();
   const location = useLocation();
-
-  // Local editing is available only on loopback in Vite dev mode. Production
-  // always requires Firebase Authentication and Firestore rules.
-  if (!isFirebaseConfigured() && isLocalChannelPreview()) return <Outlet />;
 
   if (!isFirebaseConfigured()) {
     return (
@@ -17,11 +12,10 @@ export function RequireAdmin() {
         <div className="max-w-md text-center space-y-4 rounded-xl border bg-card p-8 shadow-sm">
           <h1 className="text-lg font-semibold">Admin panel unavailable</h1>
           <p className="text-sm text-muted-foreground">
-            Firebase environment variables are missing. In Vercel open{" "}
-            <strong>Project → Settings → Environment Variables</strong> and add every{" "}
-            <code className="text-xs bg-muted px-1 rounded">VITE_FIREBASE_*</code> key from{" "}
-            <code className="text-xs bg-muted px-1 rounded">.env.example</code>. Apply to{" "}
-            <strong>Production</strong>, then redeploy.
+            Google administrator sign-in requires the Shiva Firebase project's{" "}
+            <code className="text-xs bg-muted px-1 rounded">VITE_FIREBASE_*</code> configuration and enabled Google provider.
+            Add the values to <code className="text-xs bg-muted px-1 rounded">.env.local</code> for localhost, or to the host's
+            environment for deployment.
           </p>
           <Link to="/" className="text-primary text-sm font-medium underline underline-offset-2">
             Back to website
@@ -48,7 +42,7 @@ export function RequireAdmin() {
       <div className="min-h-screen flex items-center justify-center bg-background p-6">
         <div className="max-w-md space-y-4 rounded-xl border bg-card p-8 text-center shadow-sm">
           <h1 className="text-lg font-semibold">Administrator access required</h1>
-          <p className="text-sm text-muted-foreground">This Firebase account is signed in but does not have the admin claim. Ask the site owner to grant access, then sign out and sign in again.</p>
+          <p className="text-sm text-muted-foreground">Access requires the verified Shiva Google account and its Firebase admin claim. Sign out and choose the authorized account.</p>
           <button type="button" className="text-primary text-sm font-medium underline underline-offset-2" onClick={() => void signOut()}>Sign out</button>
           <div><Link to="/" className="text-primary text-sm font-medium underline underline-offset-2">Back to website</Link></div>
         </div>

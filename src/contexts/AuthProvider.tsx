@@ -9,18 +9,31 @@ import {
 } from "react";
 import {
   getIdTokenResult,
+  GoogleAuthProvider,
   onIdTokenChanged,
-  signInWithEmailAndPassword,
+  signInWithPopup,
   signOut as firebaseSignOut,
+  type IdTokenResult,
   type User,
 } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
+
+const ADMIN_EMAIL = "shivaagriclinic@gmail.com";
+
+function isVerifiedGoogleAdmin(user: User, token: IdTokenResult): boolean {
+  const provider = token.claims.firebase as { sign_in_provider?: unknown } | undefined;
+  return token.claims.admin === true &&
+    token.claims.email === ADMIN_EMAIL &&
+    token.claims.email_verified === true &&
+    provider?.sign_in_provider === "google.com" &&
+    user.email?.toLowerCase() === ADMIN_EMAIL;
+}
 
 type AuthContextValue = {
   user: User | null;
   isAdmin: boolean;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -47,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       void getIdTokenResult(u).then((result) => {
         if (version !== current) return;
         setUser(u);
-        setIsAdmin(result.claims.admin === true);
+        setIsAdmin(isVerifiedGoogleAdmin(u, result));
       }).catch(() => {
         if (version !== current) return;
         setUser(u);
@@ -59,14 +72,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => { current++; unsub(); };
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
+  const signIn = useCallback(async () => {
     const auth = getFirebaseAuth();
     if (!auth) {
       throw new Error(
         "Firebase is not configured. In Vercel, add all VITE_FIREBASE_* variables from .env.example and redeploy.",
       );
     }
-    const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ login_hint: ADMIN_EMAIL, prompt: "select_account" });
+    const credential = await signInWithPopup(auth, provider);
     let token: Awaited<ReturnType<typeof getIdTokenResult>>;
     try {
       token = await getIdTokenResult(credential.user, true);
@@ -74,9 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await firebaseSignOut(auth);
       throw new Error("Could not verify administrator access. Please try signing in again.");
     }
-    if (token.claims.admin !== true) {
+    if (!isVerifiedGoogleAdmin(credential.user, token)) {
       await firebaseSignOut(auth);
-      throw new Error("This account does not have administrator access. Ask the site owner to grant the admin claim, then sign in again.");
+      throw new Error("Access is limited to the verified Shiva Google account with the administrator claim. Sign in with shivaagriclinic@gmail.com after the site owner grants that claim.");
     }
     setUser(credential.user);
     setIsAdmin(true);

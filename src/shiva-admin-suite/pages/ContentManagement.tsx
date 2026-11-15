@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { channelStorageMode, useChannelContent, useSaveChannelContent } from "@/hooks/useChannelContent";
-import { defaultChannelContent, normalizeSocialCount, safeFacebookHref, safeInstagramHref, safeTelephoneHref, safeWhatsAppHref, type ChannelContent, type ChannelCopy, type Language } from "@/data/channelContent";
+import { defaultChannelContent, normalizeHeroFade, normalizeSocialCount, safeFacebookHref, safeInstagramHref, safeTelephoneHref, safeWhatsAppHref, type ChannelContent, type ChannelCopy, type Language } from "@/data/channelContent";
 import { localizeContent } from "@/i18n/channelI18n";
 import { fontOptions, isFontId, normalizeHeaderColor, sectionFontOptions, type FontId } from "@/data/fontOptions";
 
@@ -33,6 +33,12 @@ const sections: { key: keyof ChannelCopy; name: string }[] = [
 const label = (key: string) => ({ logoUrl: "Main logo", youtubeUrl: "YouTube channel URL", instagramUrl: "Instagram URL", facebookUrl: "Facebook profile URL", whatsappPhone: "WhatsApp number", phone: "Contact phone number", email: "Contact email", youtubeSubscribers: "YouTube subscribers", facebookFollowers: "Facebook followers", instagramFollowers: "Instagram followers", ga4MeasurementId: "GA4 measurement ID", clarityProjectId: "Microsoft Clarity project ID" })[key] ?? key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (letter) => letter.toUpperCase());
 const imageField = (key: string) => /^(logoUrl|backgroundUrl|imageUrl)$/.test(key);
 const longField = (key: string, value: string) => /description|paragraph|body|intro|bio|note/i.test(key) || value.length > 110;
+const validHeroBackgroundUrl = (value: string) => {
+  const url = value.trim();
+  if (/^\/(?!\/)[^\s<>"']+$/.test(url)) return true;
+  if (url.length <= 180_000 && /^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+$/i.test(url)) return true;
+  try { return new URL(url).protocol === "https:"; } catch { return false; }
+};
 
 function updateAtPath(content: ChannelContent, path: Path, value: unknown): ChannelContent {
   const copy = structuredClone(content);
@@ -80,7 +86,7 @@ const sharedField = (path: Path) => {
   return ["logoUrl", "youtubeUrl", "email", "phone", "whatsappPhone", "instagramUrl", "facebookUrl", "youtubeSubscribers", "facebookFollowers", "instagramFollowers", "ga4MeasurementId", "clarityProjectId", "developerName", "developerUrl", "backgroundUrl", "featuredVideoId", "imageUrl", "icon", "website"].includes(last) || path[0] === "partners" && path.includes("items");
 };
 
-function AppearanceEditor({ appearance, onChange }: { appearance: ChannelCopy["appearance"]; onChange: (path: Path, value: unknown) => void }) {
+function AppearanceEditor({ appearance, heroBackgroundUrl, onChange }: { appearance: ChannelCopy["appearance"]; heroBackgroundUrl: string; onChange: (path: Path, value: unknown) => void }) {
   const fontSelect = (name: string, value: FontId | "", path: Path, optional = false) => <label className="block space-y-1.5 text-sm font-medium">
     <span>{name}</span>
     <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={value} onChange={(event) => onChange(path, event.target.value)}>
@@ -102,6 +108,23 @@ function AppearanceEditor({ appearance, onChange }: { appearance: ChannelCopy["a
       {fontSelect("Logo and brand name font", appearance.logoFont, ["appearance", "logoFont"])}
       {fontSelect("Site body font", appearance.bodyFont, ["appearance", "bodyFont"])}
       {fontSelect("Site heading font", appearance.headingFont, ["appearance", "headingFont"])}
+    </div>
+    <div className="space-y-4">
+      <div><h4 className="text-base font-semibold">Hero background and fade</h4><p className="mt-1 text-sm text-muted-foreground">Choose the farming photograph and how strongly the page color fades over it. The current look is the default at 100%.</p></div>
+      <AdminImageUpload label="Hero background image" value={heroBackgroundUrl} onChange={(value) => onChange(["hero", "backgroundUrl"], value)} maxChars={180_000} helperText="Upload a compressed image or use an HTTPS image URL. This background appears behind the hero on desktop and mobile." />
+      <Input aria-label="Hero background image URL" value={heroBackgroundUrl.startsWith("data:") ? "" : heroBackgroundUrl} onChange={(event) => onChange(["hero", "backgroundUrl"], event.target.value)} placeholder="/images/hero-farmland.jpg or https://..." />
+      <div className="grid gap-4 sm:grid-cols-2">
+        {(["heroFadeDesktop", "heroFadeMobile"] as const).map((key) => <label key={key} className="block space-y-2 text-sm font-medium">
+          <span>{key === "heroFadeDesktop" ? "Desktop background fade" : "Mobile background fade"}: {appearance[key]}%</span>
+          <input type="range" min="0" max="100" step="1" value={appearance[key]} onChange={(event) => onChange(["appearance", key], Number(event.target.value))} className="w-full accent-primary" />
+          <small className="block text-muted-foreground">0% shows the image clearly; 100% matches the current fade.</small>
+        </label>)}
+      </div>
+      <Button type="button" variant="outline" onClick={() => {
+        onChange(["hero", "backgroundUrl"], defaultChannelContent.hero.backgroundUrl);
+        onChange(["appearance", "heroFadeDesktop"], defaultChannelContent.appearance.heroFadeDesktop);
+        onChange(["appearance", "heroFadeMobile"], defaultChannelContent.appearance.heroFadeMobile);
+      }}>Restore current hero look</Button>
     </div>
     <div className="space-y-4">
       <div><h4 className="text-base font-semibold">Section fonts</h4><p className="mt-1 text-sm text-muted-foreground">Choose a font for a section, or leave it on the site fonts above.</p></div>
@@ -157,7 +180,7 @@ export default function ContentManagement() {
   const mode = channelStorageMode();
 
   function onChange(path: Path, value: unknown) {
-    setEditedDraft((current) => language === "en" || path[0] === "appearance" ? updateAtPath(current ?? saved, path, value) : updateTranslationAtPath(current ?? saved, language, path, value));
+    setEditedDraft((current) => language === "en" || path[0] === "appearance" || path[0] === "hero" && path[1] === "backgroundUrl" ? updateAtPath(current ?? saved, path, value) : updateTranslationAtPath(current ?? saved, language, path, value));
   }
 
   async function save() {
@@ -205,6 +228,10 @@ export default function ContentManagement() {
     if (![draft.appearance.logoFont, draft.appearance.bodyFont, draft.appearance.headingFont].every(isFontId) || sectionFontOptions.some(({ id }) => draft.appearance.sectionFonts[id] !== "" && !isFontId(draft.appearance.sectionFonts[id]))) {
       toast.error("Choose fonts from the available list."); return;
     }
+    if ([draft.appearance.heroFadeDesktop, draft.appearance.heroFadeMobile].some((value) => typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 100 || normalizeHeroFade(value) !== value)) {
+      toast.error("Choose hero fade values from 0 to 100%."); return;
+    }
+    if (!validHeroBackgroundUrl(draft.hero.backgroundUrl)) { toast.error("Use a hero background image from this site, an HTTPS URL, or an uploaded image."); return; }
     if (JSON.stringify(draft).length > 850_000) { toast.error("Content is too large for one Firestore document. Use smaller images or image URLs."); return; }
     try {
       await saveContent.mutateAsync(draft);
@@ -222,7 +249,7 @@ export default function ContentManagement() {
     {isPending && <p className="text-sm text-muted-foreground">Loading content…</p>}
     <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
       <nav className="flex gap-2 overflow-x-auto lg:flex-col" aria-label="Content sections">{sections.map((item) => <button key={item.key} type="button" className={`whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm ${section === item.key ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70"}`} onClick={() => setSection(item.key)}>{item.name}</button>)}</nav>
-      <section className="min-w-0 rounded-xl border bg-card p-5 shadow-sm"><h3 className="mb-5 text-xl font-semibold">{sections.find((item) => item.key === section)?.name}</h3>{section === "appearance" ? <AppearanceEditor appearance={draft.appearance} onChange={onChange} /> : <EditorField name={section} value={getAtPath(localizeContent(draft, language), [section])} path={[section]} onChange={onChange} translationMode={language !== "en"} />}</section>
+      <section className="min-w-0 rounded-xl border bg-card p-5 shadow-sm"><h3 className="mb-5 text-xl font-semibold">{sections.find((item) => item.key === section)?.name}</h3>{section === "appearance" ? <AppearanceEditor appearance={draft.appearance} heroBackgroundUrl={draft.hero.backgroundUrl} onChange={onChange} /> : <EditorField name={section} value={getAtPath(localizeContent(draft, language), [section])} path={[section]} onChange={onChange} translationMode={language !== "en"} />}</section>
     </div>
     <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4"><Button type="button" variant="outline" disabled={!dirty} onClick={() => setEditedDraft(null)}><RotateCcw className="mr-2 h-4 w-4" />Discard unsaved changes</Button><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}>Save changes</Button></div>
   </div></AdminLayout>;

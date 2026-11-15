@@ -1,0 +1,18 @@
+/* A value of 1 reproduces the original desktop and mobile hero gradients. */
+.channel-site .channel-hero-farm::after {
+  background: linear-gradient(90deg,
+    rgb(246 241 230 / var(--channel-hero-desktop-alpha-1)) 0%,
+    rgb(246 241 230 / var(--channel-hero-desktop-alpha-2)) 39%,
+    rgb(246 241 230 / var(--channel-hero-desktop-alpha-3)) 72%,
+    rgb(246 241 230 / var(--channel-hero-desktop-alpha-4)) 100%);
+}
+
+@media (max-width: 760px) {
+  .channel-site .channel-hero-farm::after {
+    background: linear-gradient(to bottom,
+      rgb(246 241 230 / var(--channel-hero-mobile-alpha-1)) 0,
+      rgb(246 241 230 / var(--channel-hero-mobile-alpha-2)) 190px,
+      rgb(246 241 230 / var(--channel-hero-mobile-alpha-3)) 480px,
+      rgb(246 241 230 / var(--channel-hero-mobile-alpha-4)) 700px);
+  }
+}

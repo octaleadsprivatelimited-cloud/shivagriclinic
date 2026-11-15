@@ -11,6 +11,8 @@ export type ChannelAppearance = {
   logoFont: FontId;
   bodyFont: FontId;
   headingFont: FontId;
+  heroFadeDesktop: number;
+  heroFadeMobile: number;
   sectionFonts: SectionFonts;
 };
 
@@ -67,6 +69,8 @@ export const defaultChannelContent: ChannelContent = {
     logoFont: "inter",
     bodyFont: "inter",
     headingFont: "anton",
+    heroFadeDesktop: 100,
+    heroFadeMobile: 100,
     sectionFonts: { ...defaultSectionFonts },
   },
   brand: {
@@ -232,8 +236,14 @@ export function normalizeAppearance(value: unknown): ChannelAppearance {
     logoFont: isFontId(appearance.logoFont) ? appearance.logoFont : defaultChannelContent.appearance.logoFont,
     bodyFont: isFontId(appearance.bodyFont) ? appearance.bodyFont : defaultChannelContent.appearance.bodyFont,
     headingFont: isFontId(appearance.headingFont) ? appearance.headingFont : defaultChannelContent.appearance.headingFont,
+    heroFadeDesktop: normalizeHeroFade(appearance.heroFadeDesktop),
+    heroFadeMobile: normalizeHeroFade(appearance.heroFadeMobile),
     sectionFonts,
   };
+}
+
+export function normalizeHeroFade(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.min(100, Math.round(value))) : 100;
 }
 
 export function mergeChannelContent(value: Partial<ChannelContent> | null | undefined): ChannelContent {
