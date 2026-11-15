@@ -1,0 +1,11 @@
+{
+  "name": "Shiva Agri Clinic",
+  "short_name": "Shiva Agri Clinic",
+  "icons": [
+    { "src": "/favicon-shiva-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon-shiva-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "display": "browser",
+  "background_color": "#fffefa",
+  "theme_color": "#111d1e"
+}

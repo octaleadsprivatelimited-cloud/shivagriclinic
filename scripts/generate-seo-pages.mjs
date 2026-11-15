@@ -36,6 +36,16 @@ function renderPage(route, page) {
   html = replaceMeta(html, "name", "twitter:url", canonical);
   html = replaceMeta(html, "name", "twitter:image", `${siteUrl}/og-image.png`);
   html = html.replace(/<link\s+[^>]*rel=["']canonical["'][^>]*>/i, `<link rel="canonical" href="${escapeHtml(canonical)}" />`);
+  if (route === "/") {
+    const organization = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Shiva Agri Clinic",
+      url: `${siteUrl}/`,
+      logo: `${siteUrl}/favicon-shiva-512.png`,
+    }).replace(/</g, "\\u003c");
+    html = html.replace("</head>", `  <script id="channel-organization-schema" data-channel-schema="true" type="application/ld+json">${organization}</script>\n  </head>`);
+  }
   return html;
 }
 

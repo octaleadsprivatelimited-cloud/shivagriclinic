@@ -9,6 +9,7 @@ type SEOProps = { title?: string; description?: string; keywords?: string; image
 
 const siteUrl = (import.meta.env.VITE_SITE_URL || "https://www.shivaagriclinic.com").replace(/\/$/, "");
 const defaultImage = `${siteUrl}/og-image.png`;
+const defaultOrganizationLogo = `${siteUrl}/favicon-shiva-512.png`;
 const routePages: Record<string, { title: string; description: string; keywords: string }> = seoPages;
 
 function absoluteImage(value?: string): string {
@@ -17,6 +18,14 @@ function absoluteImage(value?: string): string {
     const url = new URL(value, siteUrl);
     return url.protocol === "https:" ? url.href : defaultImage;
   } catch { return defaultImage; }
+}
+
+function organizationLogo(value?: string): string {
+  if (!value) return defaultOrganizationLogo;
+  try {
+    const url = new URL(value, siteUrl);
+    return url.protocol === "https:" && !url.username && !url.password ? url.href : defaultOrganizationLogo;
+  } catch { return defaultOrganizationLogo; }
 }
 
 function setMeta(key: string, value: string, attribute: "name" | "property" = "name") {
@@ -88,7 +97,7 @@ export function SEO({ title, description, keywords, image, type = "website", noi
     if (pathname === "/") {
       addSchema("channel-organization-schema", {
         "@context": "https://schema.org", "@type": "Organization",
-        name: content.brand.name, url: `${siteUrl}/`, logo: absoluteImage(content.brand.logoUrl),
+        name: content.brand.name, url: `${siteUrl}/`, logo: organizationLogo(content.brand.logoUrl),
         description: pageDescription, sameAs,
       });
       addSchema("channel-website-schema", {

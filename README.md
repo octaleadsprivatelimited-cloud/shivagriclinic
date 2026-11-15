@@ -4,6 +4,8 @@ A Vite, React and TypeScript website for the Shiva Agri Clinic YouTube channel. 
 
 The homepage shows two continuously scrolling rows of partner logos immediately after the hero, plus YouTube subscriber, Facebook follower and Instagram follower cards. The header links to YouTube and Instagram, every public page has a floating WhatsApp link, and the footer includes the current-year copyright and an Octaleads development credit. The main and partner logos, contact details, social profile URLs, WhatsApp number, follower totals and credit link are editable in `/admin/content`. The server can fetch available counts from official platform APIs once credentials are configured; editor-entered totals remain a fallback. Until a total is available, its card shows a dash rather than an invented number.
 
+The browser favicon, Apple touch icon and web manifest use a cropped version of the round header logo. The production HTML also includes crawlable homepage Organization logo metadata. See `SEO_SETUP.md` for the deployment and Google recrawl checks; changing a logo in the admin editor alone does not regenerate these static search assets.
+
 ## Run locally
 
 Requires Node.js 24 (the same major version configured for Vercel).
