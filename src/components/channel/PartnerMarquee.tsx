@@ -13,10 +13,11 @@ function safeWebsite(value: string): string | null {
 }
 
 function PartnerTile({ partner, duplicate }: { partner: PartnerLogo; duplicate: boolean }) {
-  const [imageFailed, setImageFailed] = useState(false);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const imageFailed = failedImageUrl === partner.logoUrl;
   const website = safeWebsite(partner.website);
   const content = <>
-    {!partner.logoUrl || imageFailed ? <span className="channel-partner-name">{partner.name}</span> : <img src={partner.logoUrl} alt={partner.name} loading="lazy" onError={() => setImageFailed(true)} />}
+    {!partner.logoUrl || imageFailed ? <span className="channel-partner-name">{partner.name}</span> : <img src={partner.logoUrl} alt={partner.name} loading="lazy" onError={() => setFailedImageUrl(partner.logoUrl)} />}
   </>;
 
   if (!website) return <div className="channel-partner-tile" aria-hidden={duplicate || undefined}>{content}</div>;
