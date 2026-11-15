@@ -18,7 +18,7 @@ type CountTask = { key: SocialCountKey; get: () => Promise<string> };
 
 const WEEK_SECONDS = 7 * 24 * 60 * 60;
 const RETRY_SECONDS = 5 * 60;
-const DEFAULT_CHANNEL_ID = "UC4sM0bI1rdvlUAL4bUqkSPQ";
+const DEFAULT_CHANNEL_ID = "UC2FhRhxSEAjEO9e0H94G5Wg";
 const META_VERSION = "v27.0";
 
 let cached: { expiresAt: number; values: SocialCountValues; cacheable: boolean } | null = null;

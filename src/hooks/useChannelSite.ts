@@ -15,7 +15,9 @@ export function useChannelSite() {
   const feed = feedQuery.data || [];
   const managed = videosQuery.data || [];
   const videos = getChannelVideos(managed, feed);
-  const featured = videos.find((video) => video.id === content.hero.featuredVideoId) || videos[0];
+  const featured = videos.find((video) => video.id === content.hero.featuredVideoId)
+    || videos.filter((video) => video.source === "youtube").sort((a, b) => (b.publishedAt || "").localeCompare(a.publishedAt || ""))[0]
+    || videos[0];
 
   return { content, videos, featured, managed, feed, contentQuery, videosQuery, feedQuery };
 }

@@ -1,4 +1,4 @@
-.channel-site .channel-instagram-link {
+.channel-site .channel-social-link {
   display: inline-grid;
   flex: 0 0 auto;
   place-items: center;
@@ -11,25 +11,26 @@
   box-shadow: 2px 3px 0 var(--ink);
   transition: transform .18s, box-shadow .18s;
 }
-.channel-site .channel-instagram-link:hover {
+.channel-site .channel-social-link:hover {
   transform: translate(2px, 2px);
   box-shadow: 0 1px 0 var(--ink);
 }
-.channel-site .channel-instagram-link--mobile,
+.channel-site .channel-social-link--mobile,
 .channel-site .channel-social-row { display: none; }
 
 .channel-site .channel-contact-card:nth-child(3) { background: var(--lavender); }
 .channel-site .channel-contact-card:nth-child(4) { background: var(--blue); }
 
 @media (max-width: 760px) {
-  .channel-site .channel-instagram-link--desktop { display: none; }
+  .channel-site .channel-social-link--desktop { display: none; }
   .channel-site .channel-social-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
     background: var(--yellow);
   }
-  .channel-site .channel-social-row.has-instagram { grid-template-columns: minmax(0, 1fr) 48px; }
+  .channel-site .channel-social-row.has-social { grid-template-columns: minmax(0, 1fr) 48px; }
+  .channel-site .channel-social-row.has-two-social { grid-template-columns: minmax(0, 1fr) 48px 48px; }
   .channel-site .channel-social-row .channel-mobile-cta {
     display: flex;
     min-width: 0;
@@ -37,7 +38,7 @@
     border-bottom: 1px solid var(--ink);
   }
   .channel-site .channel-social-row .channel-mobile-cta span { overflow: hidden; text-overflow: ellipsis; }
-  .channel-site .channel-instagram-link--mobile {
+  .channel-site .channel-social-link--mobile {
     display: inline-grid;
     width: 48px;
     min-height: 36px;
@@ -49,7 +50,7 @@
     box-shadow: none;
     background: var(--yellow);
   }
-  .channel-site .channel-instagram-link--mobile:hover { transform: none; box-shadow: none; }
+  .channel-site .channel-social-link--mobile:hover { transform: none; box-shadow: none; }
 }
 
 @media (max-width: 360px) {
@@ -63,5 +64,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .channel-site .channel-instagram-link { transition: none; }
+  .channel-site .channel-social-link { transition: none; }
 }

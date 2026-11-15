@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { ArrowUpRight, Instagram, Menu, X } from "lucide-react";
+import { ArrowUpRight, Facebook, Instagram, Menu, X } from "lucide-react";
 import { useLocalizedChannelContent } from "@/i18n/channelI18n";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { safeInstagramHref, type Language } from "@/data/channelContent";
+import { safeFacebookHref, safeInstagramHref, type Language } from "@/data/channelContent";
 import { editorialText } from "@/components/channel/editorialCopy";
 import "@/social-contact.css";
 
@@ -20,6 +20,8 @@ export function Header() {
   const { language, setLanguage } = useLanguage();
   const t = editorialText(language);
   const instagramHref = safeInstagramHref(content.brand.instagramUrl);
+  const facebookHref = safeFacebookHref(content.brand.facebookUrl);
+  const socialLinks = Number(Boolean(instagramHref)) + Number(Boolean(facebookHref));
   const nav = [
     { label: content.nav.home, to: "/" },
     { label: content.nav.videos, to: "/videos" },
@@ -60,7 +62,8 @@ export function Header() {
             <option value="en">English</option><option value="te">తెలుగు</option><option value="hi">हिन्दी</option>
           </select>
         </label>
-        {instagramHref && <a className="channel-instagram-link channel-instagram-link--desktop" href={instagramHref} target="_blank" rel="noopener noreferrer" aria-label={`${content.contact.instagramLabel}: ${content.brand.name}`} title="Instagram"><Instagram size={20} strokeWidth={2} aria-hidden="true" /></a>}
+        {instagramHref && <a className="channel-social-link channel-social-link--desktop" href={instagramHref} target="_blank" rel="noopener noreferrer" aria-label={`${content.contact.instagramLabel}: ${content.brand.name}`} title="Instagram"><Instagram size={20} strokeWidth={2} aria-hidden="true" /></a>}
+        {facebookHref && <a className="channel-social-link channel-social-link--desktop" href={facebookHref} target="_blank" rel="noopener noreferrer" aria-label={`${content.contact.facebookLabel}: ${content.brand.name}`} title="Facebook"><Facebook size={20} strokeWidth={2} aria-hidden="true" /></a>}
         <a className="channel-header-cta" href={content.brand.youtubeUrl} target="_blank" rel="noopener noreferrer" aria-label={`${content.nav.youtube}: ${content.brand.name}`}>
           <YouTubeMark /><span>{content.brand.name}</span><ArrowUpRight size={17} aria-hidden="true" />
         </a>
@@ -68,9 +71,10 @@ export function Header() {
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
-      <div className={`channel-social-row${instagramHref ? " has-instagram" : ""}`}>
+      <div className={`channel-social-row${socialLinks === 1 ? " has-social" : ""}${socialLinks === 2 ? " has-two-social" : ""}`}>
         <a className="channel-mobile-cta" href={content.brand.youtubeUrl} target="_blank" rel="noopener noreferrer" aria-label={`${content.nav.youtube}: ${content.brand.name}`}><YouTubeMark /><span>{content.brand.name}</span><ArrowUpRight size={15} aria-hidden="true" /></a>
-        {instagramHref && <a className="channel-instagram-link channel-instagram-link--mobile" href={instagramHref} target="_blank" rel="noopener noreferrer" aria-label={`${content.contact.instagramLabel}: ${content.brand.name}`} title="Instagram"><Instagram size={20} strokeWidth={2} aria-hidden="true" /></a>}
+        {instagramHref && <a className="channel-social-link channel-social-link--mobile" href={instagramHref} target="_blank" rel="noopener noreferrer" aria-label={`${content.contact.instagramLabel}: ${content.brand.name}`} title="Instagram"><Instagram size={20} strokeWidth={2} aria-hidden="true" /></a>}
+        {facebookHref && <a className="channel-social-link channel-social-link--mobile" href={facebookHref} target="_blank" rel="noopener noreferrer" aria-label={`${content.contact.facebookLabel}: ${content.brand.name}`} title="Facebook"><Facebook size={20} strokeWidth={2} aria-hidden="true" /></a>}
       </div>
       {open && (
         <nav id="channel-mobile-nav" className="channel-mobile-nav" aria-label={content.ui.mobileNavLabel}>

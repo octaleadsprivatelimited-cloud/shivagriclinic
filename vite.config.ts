@@ -2,7 +2,7 @@ import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import fs from "fs";
-import { GET as youtubeFeed } from "./api/youtube.ts";
+import { youtubeFeedResponse } from "./api/youtube.ts";
 import { socialCountsResponse } from "./api/social-counts.ts";
 
 // https://vitejs.dev/config/
@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
             response.end();
             return;
           }
-          const result = route === "/api/youtube" ? await youtubeFeed() : await socialCountsResponse(serverEnv);
+          const result = route === "/api/youtube" ? await youtubeFeedResponse(serverEnv) : await socialCountsResponse(serverEnv);
           response.statusCode = result.status;
           result.headers.forEach((value, key) => response.setHeader(key, value));
           response.end(await result.text());
