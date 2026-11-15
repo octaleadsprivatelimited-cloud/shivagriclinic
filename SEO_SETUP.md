@@ -1,6 +1,6 @@
 # SEO setup
 
-The public pages are `/`, `/videos`, `/about`, `/crop-management`, `/contact`, `/team`, `/featured-in`, `/blog`, `/case-studies`, `/privacy-policy`, and `/terms`. Their English fallback titles, descriptions, and keyword phrases live in `src/data/seoPages.json`. The site editor at `/admin/content` can change public page titles and descriptions at runtime. The build also generates route-specific HTML heads from the fallback values so link previews can read titles and descriptions without running JavaScript.
+The public pages are `/`, `/videos`, `/about`, `/contact`, `/team`, `/featured-in`, `/blog`, `/case-studies`, `/privacy-policy`, and `/terms`. Their English fallback titles, descriptions, and keyword phrases live in `src/data/seoPages.json`. The site editor at `/admin/content` can change public page titles and descriptions at runtime. The build also generates route-specific HTML heads from the fallback values so link previews can read titles and descriptions without running JavaScript. The retired `/crop-management` URL redirects to `/videos` and is absent from the sitemap.
 
 The canonical host is `https://www.shivaagriclinic.com`. Its apex currently redirects to `www`. Set `VITE_SITE_URL` to this HTTPS origin for production builds if the host changes. `public/sitemap.xml` lists public static routes, and `public/robots.txt` points to it. The admin and API paths are excluded from crawling; production hosting should also send `X-Robots-Tag: noindex` for admin pages.
 

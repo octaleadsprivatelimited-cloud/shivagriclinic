@@ -3,8 +3,9 @@
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "redirects": [
-      { "source": "/services/crop-advisory", "destination": "/crop-management", "type": 301 },
-      { "source": "/services/crop-management", "destination": "/crop-management", "type": 301 },
+      { "source": "/crop-management", "destination": "/videos", "type": 301 },
+      { "source": "/services/crop-advisory", "destination": "/videos", "type": 301 },
+      { "source": "/services/crop-management", "destination": "/videos", "type": 301 },
       { "source": "/services/**", "destination": "/videos", "type": 301 },
       { "source": "/products/**", "destination": "/videos", "type": 301 },
       { "source": "/solutions/**", "destination": "/videos", "type": 301 },
@@ -35,7 +36,6 @@
     "rewrites": [
       { "source": "/videos", "destination": "/videos/index.html" },
       { "source": "/about", "destination": "/about/index.html" },
-      { "source": "/crop-management", "destination": "/crop-management/index.html" },
       { "source": "/contact", "destination": "/contact/index.html" },
       { "source": "/team", "destination": "/team/index.html" },
       { "source": "/featured-in", "destination": "/featured-in/index.html" },

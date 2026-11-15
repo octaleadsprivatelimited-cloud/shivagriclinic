@@ -23,7 +23,6 @@ export function Header() {
   const nav = [
     { label: content.nav.home, to: "/" },
     { label: content.nav.videos, to: "/videos" },
-    { label: content.nav.cropManagement, to: "/crop-management" },
     { label: content.nav.about, to: "/about" },
     { label: content.nav.contact, to: "/contact" },
   ];

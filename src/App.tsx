@@ -12,7 +12,6 @@ import Videos from "@/pages/Videos";
 import Watch from "@/pages/Watch";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
-import CropManagement from "@/pages/CropManagement";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Terms from "@/pages/Terms";
 import NotFound from "@/pages/NotFound";
@@ -62,9 +61,9 @@ const App = () => (
             <Route path="/videos" element={<Videos />} />
             <Route path="/watch/:id" element={<Watch />} />
             <Route path="/about" element={<About />} />
-            <Route path="/crop-management" element={<CropManagement />} />
-            <Route path="/services/crop-advisory" element={<Navigate to="/crop-management" replace />} />
-            <Route path="/services/crop-management" element={<Navigate to="/crop-management" replace />} />
+            <Route path="/crop-management" element={<Navigate to="/videos" replace />} />
+            <Route path="/services/crop-advisory" element={<Navigate to="/videos" replace />} />
+            <Route path="/services/crop-management" element={<Navigate to="/videos" replace />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/team" element={<Team />} />
             <Route path="/featured-in" element={<FeaturedIn />} />

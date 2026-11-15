@@ -4,8 +4,9 @@
   "outputDirectory": "dist",
   "trailingSlash": false,
   "redirects": [
-    { "source": "/services/crop-advisory", "destination": "/crop-management", "permanent": true },
-    { "source": "/services/crop-management", "destination": "/crop-management", "permanent": true },
+    { "source": "/crop-management", "destination": "/videos", "permanent": true },
+    { "source": "/services/crop-advisory", "destination": "/videos", "permanent": true },
+    { "source": "/services/crop-management", "destination": "/videos", "permanent": true },
     { "source": "/services/(.*)", "destination": "/videos", "permanent": true },
     { "source": "/products/(.*)", "destination": "/videos", "permanent": true },
     { "source": "/solutions/(.*)", "destination": "/videos", "permanent": true },
@@ -28,7 +29,6 @@
   "rewrites": [
     { "source": "/videos", "destination": "/videos/index.html" },
     { "source": "/about", "destination": "/about/index.html" },
-    { "source": "/crop-management", "destination": "/crop-management/index.html" },
     { "source": "/contact", "destination": "/contact/index.html" },
     { "source": "/team", "destination": "/team/index.html" },
     { "source": "/featured-in", "destination": "/featured-in/index.html" },

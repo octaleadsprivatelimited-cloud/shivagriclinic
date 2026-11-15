@@ -14,11 +14,6 @@
     "description": "Meet G. Shiva Kumar and discover the field visits and farming stories behind the Shiva Agri Clinic YouTube channel.",
     "keywords": "G. Shiva Kumar, Shiva Agri Clinic, agriculture YouTuber, farming channel, field stories"
   },
-  "/crop-management": {
-    "title": "Crop management videos",
-    "description": "Watch crop cultivation, irrigation and farm management videos from real fields on the Shiva Agri Clinic YouTube channel.",
-    "keywords": "crop management videos, crop cultivation, irrigation videos, Telugu farming, Shiva Agri Clinic"
-  },
   "/contact": {
     "title": "Contact Shiva Agri Clinic",
     "description": "Connect with Shiva Agri Clinic about its farming videos by phone, email, WhatsApp, Instagram or YouTube.",
@@ -42,7 +37,7 @@
   "/case-studies": {
     "title": "Farmer case studies",
     "description": "Explore published farmer case studies and field experiences shared by Shiva Agri Clinic.",
-    "keywords": "Shiva Agri Clinic case studies, farmer stories, crop management examples"
+    "keywords": "Shiva Agri Clinic case studies, farmer stories, agriculture examples"
   },
   "/privacy-policy": {
     "title": "Privacy policy",

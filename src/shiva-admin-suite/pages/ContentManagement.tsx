@@ -20,7 +20,7 @@ const sections: { key: keyof ChannelCopy; name: string }[] = [
   { key: "featured", name: "Featured videos" }, { key: "library", name: "Video library" },
   { key: "topics", name: "Topics" }, { key: "story", name: "Creator story" },
   { key: "steps", name: "Steps" }, { key: "subscribe", name: "Subscribe" },
-  { key: "about", name: "About page" }, { key: "cropManagement", name: "Crop management page" },
+  { key: "about", name: "About page" },
   { key: "contact", name: "Contact page" }, { key: "watch", name: "Watch page" },
   { key: "notFound", name: "404 page" },
   { key: "ui", name: "Interface labels" },

@@ -8,7 +8,7 @@ export type FarmerTestimonial = { name: string; role: string; quote: string; ima
 
 export type ChannelCopy = {
   brand: { name: string; tagline: string; logoUrl: string; youtubeUrl: string; email: string; phone: string; whatsappPhone: string; instagramUrl: string; facebookUrl: string; developerName: string; developerUrl: string; copyrightText: string; developedByLabel: string; footerDescription: string; footerPoster: string; footerPosterAccent: string };
-  nav: { home: string; videos: string; cropManagement: string; about: string; contact: string; youtube: string; exploreHeading: string; connectHeading: string; emailLabel: string; privacyLabel: string; termsLabel: string };
+  nav: { home: string; videos: string; about: string; contact: string; youtube: string; exploreHeading: string; connectHeading: string; emailLabel: string; privacyLabel: string; termsLabel: string };
   hero: {
     eyebrow: string; title: string; accent: string; description: string;
     backgroundUrl: string; featuredVideoId: string;
@@ -31,7 +31,6 @@ export type ChannelCopy = {
     creatorTitle: string; paragraphOne: string; paragraphTwo: string; buttonLabel: string;
     videosEyebrow: string; videosTitle: string; videosDescription: string; videosLinkLabel: string;
   };
-  cropManagement: { eyebrow: string; title: string; intro: string; videosEyebrow: string; videosTitle: string; emptyLabel: string; contactLabel: string };
   contact: { eyebrow: string; title: string; intro: string; emailLabel: string; phoneLabel: string; youtubeLabel: string; whatsappLabel: string; instagramLabel: string; note: string };
   watch: { backLabel: string; youtubeLabel: string; relatedEyebrow: string; relatedTitle: string };
   ui: { watchVideoLabel: string; selectVideoLabel: string; videoSingular: string; videoPlural: string; clearSearchLabel: string; emptyFeatureLabel: string; emptyVideosLabel: string; skipLabel: string; mainNavLabel: string; mobileNavLabel: string; openMenuLabel: string; closeMenuLabel: string; filterLabel: string; loadingVideoLabel: string; siteInformationLabel: string; latestUploadsLabel: string; languageLabel: string };
@@ -42,7 +41,7 @@ export type ChannelCopy = {
   };
   seo: {
     homeTitle: string; homeDescription: string; videosTitle: string; videosDescription: string;
-    aboutTitle: string; aboutDescription: string; cropManagementTitle: string; cropManagementDescription: string;
+    aboutTitle: string; aboutDescription: string;
     contactTitle: string; contactDescription: string; privacyTitle: string; privacyDescription: string;
     termsTitle: string; termsDescription: string;
   };
@@ -65,7 +64,7 @@ export const defaultChannelContent: ChannelContent = {
     footerDescription: "Watch stories from the field and explore farming videos from Shiva Agri Clinic.",
     footerPoster: "GOOD STORIES.", footerPosterAccent: "GROWING TOGETHER.",
   },
-  nav: { home: "Home", videos: "Videos", cropManagement: "Crop Management", about: "About", contact: "Contact", youtube: "Watch on YouTube", exploreHeading: "Explore", connectHeading: "Connect", emailLabel: "Email the channel", privacyLabel: "Privacy", termsLabel: "Terms" },
+  nav: { home: "Home", videos: "Videos", about: "About", contact: "Contact", youtube: "Watch on YouTube", exploreHeading: "Explore", connectHeading: "Connect", emailLabel: "Email the channel", privacyLabel: "Privacy", termsLabel: "Terms" },
   hero: {
     eyebrow: "THE AGRICULTURE VIDEO CHANNEL",
     title: "Farming stories,",
@@ -164,12 +163,6 @@ export const defaultChannelContent: ChannelContent = {
     videosDescription: "Browse the library for flower farming, field stories, irrigation and organic practices.",
     videosLinkLabel: "Explore all videos",
   },
-  cropManagement: {
-    eyebrow: "CROP MANAGEMENT", title: "Learn from the field.",
-    intro: "Explore cultivation and irrigation videos from Shiva Agri Clinic. Each video shows real farming practices and experiences from the channel.",
-    videosEyebrow: "CROP VIDEOS", videosTitle: "Watch crop stories.",
-    emptyLabel: "Crop videos will appear here when available.", contactLabel: "Contact the channel",
-  },
   contact: {
     eyebrow: "GET IN TOUCH", title: "Contact the channel.",
     intro: "Questions about a video or want to connect with Shiva Agri Clinic? Choose the best way to reach us.",
@@ -196,7 +189,6 @@ export const defaultChannelContent: ChannelContent = {
     homeTitle: seoPages["/"].title, homeDescription: seoPages["/"].description,
     videosTitle: seoPages["/videos"].title, videosDescription: seoPages["/videos"].description,
     aboutTitle: seoPages["/about"].title, aboutDescription: seoPages["/about"].description,
-    cropManagementTitle: seoPages["/crop-management"].title, cropManagementDescription: seoPages["/crop-management"].description,
     contactTitle: seoPages["/contact"].title, contactDescription: seoPages["/contact"].description,
     privacyTitle: seoPages["/privacy-policy"].title, privacyDescription: seoPages["/privacy-policy"].description,
     termsTitle: seoPages["/terms"].title, termsDescription: seoPages["/terms"].description,
@@ -212,7 +204,22 @@ export function mergeChannelContent(value: Partial<ChannelContent> | null | unde
       (merged as unknown as Record<string, unknown>)[key] = { ...defaultChannelContent[key], ...section };
     }
   }
-  if (value.translations && typeof value.translations === "object") merged.translations = value.translations;
+  if (value.translations && typeof value.translations === "object") merged.translations = structuredClone(value.translations);
+  // Older browser/Firebase drafts may still contain fields from the retired page.
+  const removeRetiredField = (section: unknown, key: string) => {
+    if (section && typeof section === "object" && !Array.isArray(section)) delete (section as Record<string, unknown>)[key];
+  };
+  removeRetiredField(merged.nav, "cropManagement");
+  removeRetiredField(merged.seo, "cropManagementTitle");
+  removeRetiredField(merged.seo, "cropManagementDescription");
+  for (const translation of Object.values(merged.translations ?? {})) {
+    removeRetiredField(translation, "cropManagement");
+    if (translation && typeof translation === "object") {
+      removeRetiredField(translation.nav, "cropManagement");
+      removeRetiredField(translation.seo, "cropManagementTitle");
+      removeRetiredField(translation.seo, "cropManagementDescription");
+    }
+  }
   merged.brand.youtubeUrl = safeYouTubeHref(merged.brand.youtubeUrl) ?? defaultChannelContent.brand.youtubeUrl;
   merged.brand.facebookUrl = safeFacebookHref(merged.brand.facebookUrl) ?? "";
   merged.social.youtubeSubscribers = normalizeSocialCount(merged.social.youtubeSubscribers);
