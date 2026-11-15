@@ -5,7 +5,7 @@ export type YouTubeFeedVideo = {
   thumbnail: string;
 };
 
-const DEFAULT_CHANNEL_ID = "UC2FhRhxSEAjEO9e0H94G5Wg";
+const DEFAULT_CHANNEL_ID = "UC4sM0bI1rdvlUAL4bUqkSPQ";
 const CACHE_MS = 5 * 60 * 1000;
 const MAX_FEED_CHARS = 1_000_000;
 const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
