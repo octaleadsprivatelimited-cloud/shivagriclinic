@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useLocalizedChannelContent } from "@/i18n/channelI18n";
 import "./analytics.css";
@@ -65,7 +65,8 @@ function loadGa4(id: string) {
     ad_personalization: "denied",
   });
   trackingWindow.gtag("js", new Date());
-  trackingWindow.gtag("config", id, { send_page_view: false });
+  // GA4 Enhanced measurement sends the initial view and SPA history views.
+  trackingWindow.gtag("config", id);
 
   const script = document.createElement("script");
   script.id = scriptId;
@@ -102,7 +103,6 @@ export default function AnalyticsTracking() {
   const location = useLocation();
   const [consent, setConsent] = useState<Consent>(readConsent);
   const [showChoice, setShowChoice] = useState(false);
-  const lastPageView = useRef("");
   const ga4Id = validGa4Id(analytics?.ga4MeasurementId ?? "");
   const clarityId = validClarityId(analytics?.clarityProjectId ?? "");
   const configured = Boolean(ga4Id || clarityId);
@@ -128,28 +128,6 @@ export default function AnalyticsTracking() {
     if (ga4Id) loadGa4(ga4Id);
     if (clarityId) loadClarity(clarityId);
   }, [accepted, ga4Id, clarityId, isAdmin]);
-
-  useEffect(() => {
-    if (isAdmin) {
-      lastPageView.current = "";
-      return;
-    }
-    if (!accepted || !ga4Id) return;
-    const pagePath = `${location.pathname}${location.search}`;
-    const pageKey = `${ga4Id}:${pagePath}`;
-    if (lastPageView.current === pageKey) return;
-    const frame = window.requestAnimationFrame(() => {
-      if (lastPageView.current === pageKey) return;
-      lastPageView.current = pageKey;
-      (window as TrackingWindow).gtag?.("event", "page_view", {
-        send_to: ga4Id,
-        page_location: `${window.location.origin}${pagePath}`,
-        page_path: pagePath,
-        page_title: document.title,
-      });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [accepted, ga4Id, isAdmin, location.pathname, location.search]);
 
   if (!configured || isAdmin || !analytics) return null;
 

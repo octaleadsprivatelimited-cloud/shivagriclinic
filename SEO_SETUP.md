@@ -10,4 +10,4 @@ The favicon files at `/favicon.ico` and `/favicon-shiva-48.png` (plus larger PNG
 
 The pages include a small, relevant `meta keywords` field because it was requested. [Google ignores this field for indexing and ranking](https://developers.google.com/search/docs/crawling-indexing/special-tags); titles, descriptive page copy, internal links, and crawlable HTML matter more.
 
-After the replacement site is live on the production domain, verify the domain in [Google Search Console](https://search.google.com/search-console), submit `https://www.shivaagriclinic.com/sitemap.xml`, and inspect the homepage, videos page, and representative watch pages. Search Console access and ranking data are outside this repository.
+The `shivaagriclinic.com` domain property was verified in Shiva's [Google Search Console](https://search.google.com/search-console) using its existing DNS record on 15 November 2026. The canonical `https://www.shivaagriclinic.com/sitemap.xml` was submitted successfully. Inspect the homepage, videos page, and representative watch pages as Google processes the new site. Search Console access and ranking data are outside this repository.
