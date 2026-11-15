@@ -456,6 +456,7 @@
 .channel-footer .channel-brand small { color: #c4c0b7; }
 .channel-footer .channel-brand-icon { color: var(--ink); }
 .channel-footer-main p, .channel-footer-links a { color: #dbd7ce; }
+.channel-footer-main .channel-footer-gst { margin-top: 9px; font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
 .channel-footer-links h2 { color: #fffefa; }
 .channel-footer-bottom { border-color: #ffffff50; color: #dbd7ce; }
 .channel-footer-bottom a { color: #dbd7ce; }
@@ -637,6 +638,8 @@ html[lang="hi"] .channel-site .channel-brand, html[lang="hi"] .channel-site .cha
 .channel-contact-card:hover { transform: translate(2px, 2px); box-shadow: 2px 3px 0 var(--ink); }
 .channel-contact-card strong { display: block; font-size: 24px; line-height: 1.2; }
 .channel-contact-card small { display: block; margin-top: 7px; font-size: 13px; overflow-wrap: anywhere; }
+.channel-contact-business { background: var(--lavender); }
+.channel-contact-business:hover { transform: none; box-shadow: 4px 5px 0 var(--ink); }
 .channel-contact-note { margin-top: 27px; color: var(--muted); font-size: 14px; }
 .channel-crop-section { background: #fffefa; }
 

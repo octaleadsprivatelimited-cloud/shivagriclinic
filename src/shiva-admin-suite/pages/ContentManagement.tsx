@@ -31,7 +31,7 @@ const sections: { key: keyof ChannelCopy; name: string }[] = [
   { key: "legal", name: "Privacy & terms" }, { key: "seo", name: "Search metadata" },
 ];
 
-const label = (key: string) => ({ logoUrl: "Main logo", youtubeUrl: "YouTube channel URL", instagramUrl: "Instagram URL", facebookUrl: "Facebook profile URL", whatsappPhone: "WhatsApp number", phone: "Contact phone number", email: "Contact email", youtubeSubscribers: "YouTube subscribers", facebookFollowers: "Facebook followers", instagramFollowers: "Instagram followers", ga4MeasurementId: "GA4 measurement ID", clarityProjectId: "Microsoft Clarity project ID" })[key] ?? key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (letter) => letter.toUpperCase());
+const label = (key: string) => ({ logoUrl: "Main logo", youtubeUrl: "YouTube channel URL", instagramUrl: "Instagram URL", facebookUrl: "Facebook profile URL", whatsappPhone: "WhatsApp number", phone: "Contact phone number", email: "Contact email", gstin: "GSTIN", youtubeSubscribers: "YouTube subscribers", facebookFollowers: "Facebook followers", instagramFollowers: "Instagram followers", ga4MeasurementId: "GA4 measurement ID", clarityProjectId: "Microsoft Clarity project ID" })[key] ?? key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (letter) => letter.toUpperCase());
 const imageField = (key: string) => /^(logoUrl|backgroundUrl|imageUrl)$/.test(key);
 const longField = (key: string, value: string) => /description|paragraph|body|intro|bio|note/i.test(key) || value.length > 110;
 const validHeroBackgroundUrl = (value: string) => {
@@ -84,7 +84,7 @@ function emptyItem(path: Path): Record<string, string> {
 const sharedField = (path: Path) => {
   if (path[0] === "appearance") return true;
   const last = String(path[path.length - 1]);
-  return ["logoUrl", "youtubeUrl", "email", "phone", "whatsappPhone", "instagramUrl", "facebookUrl", "youtubeSubscribers", "facebookFollowers", "instagramFollowers", "ga4MeasurementId", "clarityProjectId", "developerName", "developerUrl", "backgroundUrl", "featuredVideoId", "imageUrl", "icon", "website"].includes(last) || path[0] === "partners" && path.includes("items");
+  return ["logoUrl", "youtubeUrl", "email", "phone", "whatsappPhone", "instagramUrl", "facebookUrl", "gstin", "youtubeSubscribers", "facebookFollowers", "instagramFollowers", "ga4MeasurementId", "clarityProjectId", "developerName", "developerUrl", "backgroundUrl", "featuredVideoId", "imageUrl", "icon", "website"].includes(last) || path[0] === "partners" && path.includes("items");
 };
 
 function AppearanceEditor({ appearance, heroBackgroundUrl, onChange }: { appearance: ChannelCopy["appearance"]; heroBackgroundUrl: string; onChange: (path: Path, value: unknown) => void }) {
@@ -158,12 +158,13 @@ function EditorField({ name, value, path, onChange, translationMode = false }: E
   </div>;
   return <label className={`block space-y-1 text-sm font-medium ${longField(name, text) ? "sm:col-span-2" : ""}`}>
     <span>{label(name)}</span>
-    {longField(name, text) ? <Textarea rows={Math.min(7, Math.max(3, Math.ceil(text.length / 80)))} value={text} onChange={(event) => onChange(path, event.target.value)} /> : <Input value={text} inputMode={/^(youtubeSubscribers|facebookFollowers|instagramFollowers)$/.test(name) ? "numeric" : undefined} onChange={(event) => onChange(path, event.target.value)} />}
+    {longField(name, text) ? <Textarea rows={Math.min(7, Math.max(3, Math.ceil(text.length / 80)))} value={text} onChange={(event) => onChange(path, event.target.value)} /> : <Input value={text} inputMode={/^(youtubeSubscribers|facebookFollowers|instagramFollowers)$/.test(name) ? "numeric" : undefined} onChange={(event) => onChange(path, name === "gstin" ? event.target.value.toUpperCase() : event.target.value)} />}
     {name === "featuredVideoId" && <small className="block text-muted-foreground">Leave blank to feature the newest visible upload. Enter a YouTube video ID to pin one.</small>}
     {name === "phone" && path[0] === "brand" && <small className="block text-muted-foreground">Shown on the Contact page. Leave blank to hide the call link.</small>}
     {name === "whatsappPhone" && <small className="block text-muted-foreground">Include country code. This number powers the floating WhatsApp button and Contact page. Leave blank to hide both.</small>}
     {name === "instagramUrl" && <small className="block text-muted-foreground">Use an HTTPS instagram.com profile URL. Leave blank to hide Instagram links.</small>}
     {name === "facebookUrl" && <small className="block text-muted-foreground">Use an HTTPS facebook.com profile URL. Leave blank to show the Facebook count without a link.</small>}
+    {name === "gstin" && <small className="block text-muted-foreground">Shown with the business name on Contact and in the footer. Leave blank to hide it.</small>}
     {name === "ga4MeasurementId" && <small className="block text-muted-foreground">Enter the GA4 web stream measurement ID (G-...). Leave blank until the correct property is available.</small>}
     {name === "clarityProjectId" && <small className="block text-muted-foreground">Enter the Clarity project ID. Leave blank until the correct project is available.</small>}
     {/^(youtubeSubscribers|facebookFollowers|instagramFollowers)$/.test(name) && <small className="block text-muted-foreground">Enter the current total using digits only. Leave blank if unavailable; the website will show a dash instead of an invented count.</small>}
@@ -256,6 +257,11 @@ export default function ContentManagement() {
     const facebook = draft.brand.facebookUrl.trim();
     if (facebook && !safeFacebookHref(facebook)) {
       toast.error("Use an HTTPS facebook.com profile URL, or leave Facebook blank.");
+      return;
+    }
+    const gstin = draft.brand.gstin.trim();
+    if (gstin && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(gstin)) {
+      toast.error("Enter a valid 15-character GSTIN, or leave it blank.");
       return;
     }
     for (const key of ["youtubeSubscribers", "facebookFollowers", "instagramFollowers"] as const) {

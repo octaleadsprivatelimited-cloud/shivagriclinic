@@ -27,6 +27,7 @@ export function Footer() {
             <span>{content.brand.name}<small>{content.brand.tagline}</small></span>
           </Link>
           <p>{content.brand.footerDescription}</p>
+          {content.brand.gstin && <p className="channel-footer-gst">{content.brand.name} · GSTIN: {content.brand.gstin}</p>}
         </div>
         <div className="channel-footer-links">
           <div>

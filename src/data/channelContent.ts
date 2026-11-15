@@ -18,7 +18,7 @@ export type ChannelAppearance = {
 
 export type ChannelCopy = {
   appearance: ChannelAppearance;
-  brand: { name: string; tagline: string; logoUrl: string; youtubeUrl: string; email: string; phone: string; whatsappPhone: string; instagramUrl: string; facebookUrl: string; developerName: string; developerUrl: string; copyrightText: string; developedByLabel: string; footerDescription: string; footerPoster: string; footerPosterAccent: string };
+  brand: { name: string; tagline: string; logoUrl: string; youtubeUrl: string; email: string; phone: string; whatsappPhone: string; instagramUrl: string; facebookUrl: string; gstin: string; developerName: string; developerUrl: string; copyrightText: string; developedByLabel: string; footerDescription: string; footerPoster: string; footerPosterAccent: string };
   nav: { home: string; videos: string; about: string; contact: string; youtube: string; exploreHeading: string; connectHeading: string; emailLabel: string; privacyLabel: string; termsLabel: string };
   hero: {
     eyebrow: string; title: string; accent: string; description: string;
@@ -82,6 +82,7 @@ export const defaultChannelContent: ChannelContent = {
     phone: "+91 70135 70447", whatsappPhone: "917013570447",
     instagramUrl: "https://www.instagram.com/shiva_agriclinic/",
     facebookUrl: "https://www.facebook.com/shiva.agriclinic",
+    gstin: "36FVDPK0126G1ZW",
     developerName: "Octaleads", developerUrl: "https://www.octaleads.com/",
     copyrightText: "All rights reserved.", developedByLabel: "Developed By",
     footerDescription: "Watch stories from the field and explore farming videos from Shiva Agri Clinic.",
@@ -342,6 +343,7 @@ export function resolveChannelContent(content: ChannelContent, language: Languag
   translated.brand.whatsappPhone = content.brand.whatsappPhone;
   translated.brand.instagramUrl = content.brand.instagramUrl;
   translated.brand.facebookUrl = content.brand.facebookUrl;
+  translated.brand.gstin = content.brand.gstin;
   translated.analytics.ga4MeasurementId = content.analytics.ga4MeasurementId;
   translated.analytics.clarityProjectId = content.analytics.clarityProjectId;
   translated.brand.developerName = content.brand.developerName;

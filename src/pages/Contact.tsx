@@ -1,4 +1,4 @@
-import { ArrowUpRight, Facebook, Instagram, Mail, MessageCircle, Phone, Youtube } from "lucide-react";
+import { ArrowUpRight, BadgeCheck, Facebook, Instagram, Mail, MessageCircle, Phone, Youtube } from "lucide-react";
 import { Layout } from "@/components/layout";
 import SEO from "@/components/SEO";
 import { useLocalizedChannelContent } from "@/i18n/channelI18n";
@@ -54,6 +54,10 @@ export default function Contact() {
               <span><strong>{content.contact.youtubeLabel}</strong><small>{content.brand.name}</small></span>
               <ArrowUpRight size={24} aria-hidden="true" />
             </a>
+            {content.brand.gstin && <div className="channel-contact-card channel-contact-business">
+              <BadgeCheck size={35} strokeWidth={1.8} aria-hidden="true" />
+              <span><strong>{content.brand.name}</strong><small>GSTIN: {content.brand.gstin}</small></span>
+            </div>}
           </div>
           <p className="channel-contact-note">{content.contact.note}</p>
         </div>
