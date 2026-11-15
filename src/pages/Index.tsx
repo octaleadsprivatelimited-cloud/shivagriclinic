@@ -5,6 +5,7 @@ import SEO from "@/components/SEO";
 import { VideoCard } from "@/components/channel/VideoCard";
 import { SubscribeBanner } from "@/components/channel/SubscribeBanner";
 import { PartnerMarquee } from "@/components/channel/PartnerMarquee";
+import { SocialCounts } from "@/components/channel/SocialCounts";
 import { videoThumbnail } from "@/data/channelVideos";
 import { useChannelSite } from "@/hooks/useChannelSite";
 import { defaultChannelContent, type TopicCard } from "@/data/channelContent";
@@ -55,6 +56,8 @@ export default function Index() {
           {content.highlights.items.map((item, index) => <div key={`${item.title}-${index}`}><span aria-hidden="true">{["✦", "↗", "✳", "▷"][index % 4]}</span><strong>{item.title}</strong><small>{item.description}</small></div>)}
         </div>
       </section>
+
+      <SocialCounts content={content} />
 
       <section className="channel-section channel-featured-section">
         <div className="channel-shell">

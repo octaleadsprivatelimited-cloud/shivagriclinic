@@ -6,7 +6,7 @@ export type LegalSection = { heading: string; body: string };
 export type PartnerLogo = { name: string; logoUrl: string; website: string };
 
 export type ChannelCopy = {
-  brand: { name: string; tagline: string; logoUrl: string; youtubeUrl: string; email: string; phone: string; whatsappPhone: string; instagramUrl: string; developerName: string; developerUrl: string; copyrightText: string; developedByLabel: string; footerDescription: string; footerPoster: string; footerPosterAccent: string };
+  brand: { name: string; tagline: string; logoUrl: string; youtubeUrl: string; email: string; phone: string; whatsappPhone: string; instagramUrl: string; facebookUrl: string; developerName: string; developerUrl: string; copyrightText: string; developedByLabel: string; footerDescription: string; footerPoster: string; footerPosterAccent: string };
   nav: { home: string; videos: string; cropManagement: string; about: string; contact: string; youtube: string; exploreHeading: string; connectHeading: string; emailLabel: string; privacyLabel: string; termsLabel: string };
   hero: {
     eyebrow: string; title: string; accent: string; description: string;
@@ -16,6 +16,7 @@ export type ChannelCopy = {
     featuredLabel: string; watchLabel: string; scrollLabel: string;
   };
   highlights: { items: TextCard[] };
+  social: { eyebrow: string; title: string; youtubeSubscribers: string; facebookFollowers: string; instagramFollowers: string; subscribersLabel: string; followersLabel: string; unavailableLabel: string };
   partners: { eyebrow: string; title: string; items: PartnerLogo[] };
   featured: { eyebrow: string; title: string; description: string; viewAllLabel: string };
   library: { eyebrow: string; title: string; accent: string; description: string; searchLabel: string; allLabel: string; emptyTitle: string; emptyDescription: string; resetLabel: string };
@@ -56,6 +57,7 @@ export const defaultChannelContent: ChannelContent = {
     email: "info@shivaagriclinic.com",
     phone: "+91 70135 70447", whatsappPhone: "917013570447",
     instagramUrl: "https://www.instagram.com/shiva_agriclinic/",
+    facebookUrl: "",
     developerName: "Octaleads", developerUrl: "https://www.octaleads.com/",
     copyrightText: "All rights reserved.", developedByLabel: "Developed By",
     footerDescription: "Watch stories from the field and explore farming videos from Shiva Agri Clinic.",
@@ -82,6 +84,11 @@ export const defaultChannelContent: ChannelContent = {
     { title: "Curious minds", description: "Find a new perspective in each video." },
     { title: "Watch freely", description: "Explore here or on YouTube." },
   ] },
+  social: {
+    eyebrow: "FOLLOW THE FIELD STORIES", title: "Our growing community.",
+    youtubeSubscribers: "", facebookFollowers: "", instagramFollowers: "",
+    subscribersLabel: "Subscribers", followersLabel: "Followers", unavailableLabel: "Count not available",
+  },
   partners: {
     eyebrow: "LOGO SHOWCASE", title: "A few familiar marks.",
     items: [
@@ -196,6 +203,10 @@ export function mergeChannelContent(value: Partial<ChannelContent> | null | unde
   }
   if (value.translations && typeof value.translations === "object") merged.translations = value.translations;
   merged.brand.youtubeUrl = safeYouTubeHref(merged.brand.youtubeUrl) ?? defaultChannelContent.brand.youtubeUrl;
+  merged.brand.facebookUrl = safeFacebookHref(merged.brand.facebookUrl) ?? "";
+  merged.social.youtubeSubscribers = normalizeSocialCount(merged.social.youtubeSubscribers);
+  merged.social.facebookFollowers = normalizeSocialCount(merged.social.facebookFollowers);
+  merged.social.instagramFollowers = normalizeSocialCount(merged.social.instagramFollowers);
   return merged;
 }
 
@@ -224,12 +235,16 @@ export function resolveChannelContent(content: ChannelContent, language: Languag
   translated.brand.phone = content.brand.phone;
   translated.brand.whatsappPhone = content.brand.whatsappPhone;
   translated.brand.instagramUrl = content.brand.instagramUrl;
+  translated.brand.facebookUrl = content.brand.facebookUrl;
   translated.brand.developerName = content.brand.developerName;
   translated.brand.developerUrl = content.brand.developerUrl;
   translated.hero.backgroundUrl = content.hero.backgroundUrl;
   translated.hero.featuredVideoId = content.hero.featuredVideoId;
   translated.story.imageUrl = content.story.imageUrl;
   translated.partners.items = content.partners.items;
+  translated.social.youtubeSubscribers = content.social.youtubeSubscribers;
+  translated.social.facebookFollowers = content.social.facebookFollowers;
+  translated.social.instagramFollowers = content.social.instagramFollowers;
   return translated;
 }
 
@@ -239,6 +254,22 @@ export function safeInstagramHref(value: string): string | null {
     return url.protocol === "https:" && ["instagram.com", "www.instagram.com"].includes(url.hostname) && !url.username && !url.password
       ? url.href : null;
   } catch { return null; }
+}
+
+export function safeFacebookHref(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "https:" && ["facebook.com", "www.facebook.com", "m.facebook.com", "web.facebook.com", "fb.com", "www.fb.com"].includes(url.hostname) && !url.username && !url.password
+      ? url.href : null;
+  } catch { return null; }
+}
+
+export function normalizeSocialCount(value: unknown): string {
+  if (typeof value === "number") return Number.isSafeInteger(value) && value >= 0 ? String(value) : "";
+  if (typeof value !== "string" || !/^\d{1,12}$/.test(value.trim())) return "";
+  const count = Number(value.trim());
+  return Number.isSafeInteger(count) ? String(count) : "";
 }
 
 export function safeYouTubeHref(value: unknown): string | null {

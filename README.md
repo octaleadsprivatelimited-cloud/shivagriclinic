@@ -2,7 +2,7 @@
 
 A Vite, React and TypeScript website for the Shiva Agri Clinic YouTube channel. The original round green and gold logo is retained. The hero uses a farm landscape and a featured channel video.
 
-The homepage shows two continuously scrolling rows of partner logos immediately after the hero. The header links to YouTube and Instagram, every public page has a floating WhatsApp link, and the footer includes the current-year copyright and an Octaleads development credit. The main and partner logos, contact details, Instagram URL, WhatsApp number and credit link are editable in `/admin/content`.
+The homepage shows two continuously scrolling rows of partner logos immediately after the hero, plus YouTube subscriber, Facebook follower and Instagram follower cards. The header links to YouTube and Instagram, every public page has a floating WhatsApp link, and the footer includes the current-year copyright and an Octaleads development credit. The main and partner logos, contact details, social profile URLs, WhatsApp number, follower totals and credit link are editable in `/admin/content`. The server can fetch available counts from official platform APIs once credentials are configured; editor-entered totals remain a fallback. Until a total is available, its card shows a dash rather than an invented number.
 
 ## Run locally
 
@@ -24,6 +24,17 @@ Visitors can switch between English, Telugu and Hindi from the site header. Thei
 The latest uploads come from the official YouTube channel's public RSS feed through `GET /api/youtube`. Vite provides this endpoint locally. `api/youtube.ts` provides the same endpoint on Vercel. It is cached for five minutes and keeps the last good feed on transient errors. YouTube's RSS feed supplies only the latest 15 uploads. Automatic uploads are combined with `/admin/videos` records: editors can change title/topic, set display order, hide an upload, or add an older YouTube video by ID. Drones, pesticides, sprayers, equipment and product videos are excluded by default. If the feed is unavailable, saved YouTube video entries remain visible; there is no static sample video fallback.
 
 `npm run build` also generates distinct HTML metadata for the six non-root public routes in `dist/<route>/index.html`. Vercel and Firebase Hosting map those exact paths before the SPA fallback. Watch pages have a generic indexable HTML shell without a canonical; the browser updates metadata for each `/watch/:id` after loading, so non-JavaScript link-preview crawlers do not receive per-video titles or images. Unknown and admin paths use a noindex fallback shell. Changes to the built-in SEO text or `VITE_SITE_URL` canonical origin require a new deployment, while the public page copy and video list remain dynamic.
+
+### Weekly social counts
+
+`GET /api/social-counts` fetches YouTube subscribers and Facebook/Instagram followers from the [YouTube channels API](https://developers.google.com/youtube/data/reference/rest/v3/channels/list), [Facebook Page API](https://developers.facebook.com/docs/graph-api/reference/page/) and [Instagram User API](https://developers.facebook.com/docs/graph-api/reference/shadow-ig-user). Only counts are returned to visitors; keys and access tokens stay server-side. Configure these optional variables in `.env.local` for local development and in the host's server environment for deployment:
+
+- `YOUTUBE_API_KEY` for this channel's public subscriber count. `YOUTUBE_CHANNEL_ID` can override the built-in channel ID.
+- `META_PAGE_ID` and `META_PAGE_ACCESS_TOKEN` for the Facebook Page's `followers_count`.
+- `META_IG_USER_ID` and `META_IG_ACCESS_TOKEN` for an Instagram professional account's `followers_count` through Facebook Graph API. The token must be authorized to read that IG User. If the Facebook Page token already has that access, the Instagram token can be omitted.
+
+Meta access requires a valid app/token and the relevant Page or Instagram permissions. Set IDs to numeric platform IDs, and keep tokens out of `VITE_*` variables and Git. Restart the local Vite server after changing `.env.local`. The first request after a seven-day cache expires refreshes the counts; a site with no visitors does not run a scheduled refresh. Temporary platform failures preserve the last good count in a running server and retry after five minutes. Without credentials, the endpoint returns an empty object, so the admin-entered totals remain visible; if those are also blank, the cards show a dash. Static-only Firebase Hosting cannot run this endpoint without an additional function or proxy.
+YouTube reports its public subscriber count rounded to three significant figures, so the card shows that public figure rather than an exact private total.
 
 ## Production CMS setup
 
