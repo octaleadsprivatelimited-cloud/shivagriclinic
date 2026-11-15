@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDownRight, ArrowUpRight, Clapperboard, Flower2, Play, Sprout, Waves, Youtube, Apple } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Clapperboard, Flower2, Play, Sprout, Waves, Youtube, Apple, Carrot, PawPrint, Tractor } from "lucide-react";
 import { Layout } from "@/components/layout";
 import SEO from "@/components/SEO";
 import { VideoCard } from "@/components/channel/VideoCard";
@@ -10,17 +10,21 @@ import { PressMarquee } from "@/components/channel/PressMarquee";
 import { SocialCounts } from "@/components/channel/SocialCounts";
 import { Testimonials } from "@/components/channel/Testimonials";
 import { PhotoGallery } from "@/components/channel/PhotoGallery";
-import { videoThumbnail } from "@/data/channelVideos";
+import { videoThumbnail, videoTopics } from "@/data/channelVideos";
 import { useChannelSite } from "@/hooks/useChannelSite";
-import { defaultChannelContent, type TopicCard } from "@/data/channelContent";
+import { defaultChannelContent } from "@/data/channelContent";
 import "@/hero-appearance.css";
 
-const topicIcons = { flower: Flower2, story: Clapperboard, water: Waves, sprout: Sprout, fruit: Apple };
+const topicIcons = { flower: Flower2, story: Clapperboard, water: Waves, sprout: Sprout, fruit: Apple, vegetable: Carrot, animal: PawPrint, machinery: Tractor };
 
 export default function Index() {
   const { content, videos, featured } = useChannelSite();
   const remainingVideos = featured ? videos.filter((video) => video.id !== featured.id) : videos;
-  const topicCards = content.topics.items.filter((item): item is TopicCard => Boolean(item?.title));
+  const topicCards = videoTopics.map((_, index) => {
+    const fallback = defaultChannelContent.topics.items[index];
+    const configured = content.topics.items[index];
+    return { ...fallback, ...configured, title: configured?.title?.trim() || fallback.title };
+  });
   const desktopFade = content.appearance.heroFadeDesktop / 100;
   const mobileFade = content.appearance.heroFadeMobile / 100;
   const heroStyle = {
@@ -89,7 +93,7 @@ export default function Index() {
           <div className="channel-section-heading"><div><span className="channel-eyebrow channel-eyebrow-red">{content.topics.eyebrow}</span><h2>{content.topics.title}</h2></div><p>{content.topics.description}</p></div>
           <div className="channel-topic-grid">{topicCards.map((topic, index) => {
             const Icon = topicIcons[topic.icon] || Sprout;
-            return <Link key={`${topic.title}-${index}`} to={`/videos?topic=${encodeURIComponent(defaultChannelContent.topics.items[index]?.title || topic.title)}`} className="channel-topic-card"><span className="channel-topic-number">{String(index + 1).padStart(2, "0")}</span><ArrowUpRight size={21} aria-hidden="true" /><Icon className="channel-topic-icon" size={40} strokeWidth={1.7} aria-hidden="true" /><span><strong>{topic.title}</strong><small>{topic.description}</small></span></Link>;
+            return <Link key={`${topic.title}-${index}`} to={`/videos?topic=${encodeURIComponent(videoTopics[index])}`} className="channel-topic-card"><span className="channel-topic-number">{String(index + 1).padStart(2, "0")}</span><ArrowUpRight size={21} aria-hidden="true" /><Icon className="channel-topic-icon" size={40} strokeWidth={1.7} aria-hidden="true" /><span><strong>{topic.title}</strong><small>{topic.description}</small></span></Link>;
           })}</div>
         </div>
       </section>

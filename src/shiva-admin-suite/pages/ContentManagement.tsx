@@ -114,6 +114,23 @@ function AppearanceEditor({ appearance, heroBackgroundUrl, onChange }: { appeara
       {fontSelect("Site heading font", appearance.headingFont, ["appearance", "headingFont"])}
     </div>
     <div className="space-y-4">
+      <div><h4 className="text-base font-semibold">Header brand size</h4><p className="mt-1 text-sm text-muted-foreground">Adjust the header logo and name across screen sizes. The header height stays fixed.</p></div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block space-y-2 text-sm font-medium">
+          <span>Logo size: {appearance.headerLogoSize}px</span>
+          <input type="range" min="52" max="70" step="1" value={appearance.headerLogoSize} onChange={(event) => onChange(["appearance", "headerLogoSize"], Number(event.target.value))} className="w-full accent-primary" />
+        </label>
+        <label className="block space-y-2 text-sm font-medium">
+          <span>Brand name size: {appearance.headerBrandSize}px</span>
+          <input type="range" min="13" max="18" step="1" value={appearance.headerBrandSize} onChange={(event) => onChange(["appearance", "headerBrandSize"], Number(event.target.value))} className="w-full accent-primary" />
+        </label>
+      </div>
+      <Button type="button" variant="outline" onClick={() => {
+        onChange(["appearance", "headerLogoSize"], defaultChannelContent.appearance.headerLogoSize);
+        onChange(["appearance", "headerBrandSize"], defaultChannelContent.appearance.headerBrandSize);
+      }}>Restore header sizes</Button>
+    </div>
+    <div className="space-y-4">
       <div><h4 className="text-base font-semibold">Hero background and fade</h4><p className="mt-1 text-sm text-muted-foreground">Choose the farming photograph and how strongly the page color fades over it. The current look is the default at 100%.</p></div>
       <AdminImageUpload label="Hero background image" value={heroBackgroundUrl} onChange={(value) => onChange(["hero", "backgroundUrl"], value)} maxChars={180_000} helperText="Upload a compressed image or use an HTTPS image URL. This background appears behind the hero on desktop and mobile." />
       <Input aria-label="Hero background image URL" value={heroBackgroundUrl.startsWith("data:") ? "" : heroBackgroundUrl} onChange={(event) => onChange(["hero", "backgroundUrl"], event.target.value)} placeholder="/images/hero-farmland.jpg or https://..." />
@@ -376,6 +393,9 @@ export default function ContentManagement() {
     const clarityId = draft.analytics.clarityProjectId.trim();
     if (clarityId && !/^[a-z0-9]{4,32}$/.test(clarityId)) { toast.error("Enter a valid Microsoft Clarity project ID, or leave it blank."); return; }
     if (!/^#[\da-fA-F]{6}$/.test(draft.appearance.headerColor.trim())) { toast.error("Enter a six-digit hex header color, such as #f6f1e6."); return; }
+    if (![draft.appearance.headerLogoSize, draft.appearance.headerBrandSize].every((value) => typeof value === "number" && Number.isInteger(value)) || draft.appearance.headerLogoSize < 52 || draft.appearance.headerLogoSize > 70 || draft.appearance.headerBrandSize < 13 || draft.appearance.headerBrandSize > 18) {
+      toast.error("Choose a logo size from 52 to 70 and a brand name size from 13 to 18."); return;
+    }
     if (![draft.appearance.logoFont, draft.appearance.bodyFont, draft.appearance.headingFont].every(isFontId) || sectionFontOptions.some(({ id }) => draft.appearance.sectionFonts[id] !== "" && !isFontId(draft.appearance.sectionFonts[id]))) {
       toast.error("Choose fonts from the available list."); return;
     }

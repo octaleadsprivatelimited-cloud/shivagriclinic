@@ -6,12 +6,12 @@ import SEO from "@/components/SEO";
 import { VideoCard } from "@/components/channel/VideoCard";
 import { SubscribeBanner } from "@/components/channel/SubscribeBanner";
 import { useChannelSite } from "@/hooks/useChannelSite";
-import { defaultChannelContent } from "@/data/channelContent";
+import { videoTopics } from "@/data/channelVideos";
 import { topicLabel } from "@/i18n/channelI18n";
 
 export default function Videos() {
   const { content, videos } = useChannelSite();
-  const topics = ["", ...new Set([...defaultChannelContent.topics.items.map((topic) => topic.title), ...videos.map((video) => video.topic).filter((topic) => topic !== "Latest uploads")])];
+  const topics = ["", ...videoTopics];
   const [params, setParams] = useSearchParams();
   const selectedTopic = topics.includes(params.get("topic") || "") ? params.get("topic")! : "";
   const [search, setSearch] = useState("");

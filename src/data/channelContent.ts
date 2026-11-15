@@ -2,12 +2,14 @@ import seoPages from "./seoPages.json";
 import { defaultSectionFonts, isFontId, normalizeHeaderColor, sectionFontOptions, type FontId, type SectionFonts } from "./fontOptions";
 
 export type TextCard = { title: string; description: string };
-export type TopicCard = TextCard & { icon: "flower" | "story" | "water" | "sprout" | "fruit" };
+export type TopicCard = TextCard & { icon: "flower" | "story" | "water" | "sprout" | "fruit" | "vegetable" | "animal" | "machinery" };
 export type LegalSection = { heading: string; body: string };
 export type PartnerLogo = { name: string; logoUrl: string; website: string };
 export type FarmerTestimonial = { name: string; role: string; quote: string; imageUrl: string };
 export type ChannelAppearance = {
   headerColor: string;
+  headerLogoSize: number;
+  headerBrandSize: number;
   logoFont: FontId;
   bodyFont: FontId;
   headingFont: FontId;
@@ -68,6 +70,8 @@ export type ChannelContent = ChannelCopy & { translations?: Partial<Record<"te" 
 export const defaultChannelContent: ChannelContent = {
   appearance: {
     headerColor: "#f6f1e6",
+    headerLogoSize: 66,
+    headerBrandSize: 17,
     logoFont: "inter",
     bodyFont: "inter",
     headingFont: "anton",
@@ -158,10 +162,11 @@ export const defaultChannelContent: ChannelContent = {
     description: "Start with a subject and find videos worth sharing.",
     items: [
       { title: "Flower farming", description: "From jasmine fields to decorative crops.", icon: "flower" },
-      { title: "Farm stories", description: "A closer look at people and places.", icon: "story" },
-      { title: "Water & irrigation", description: "Practical ideas from working farms.", icon: "water" },
+      { title: "Vegetable farming", description: "Explore vegetable crops and growing methods.", icon: "vegetable" },
+      { title: "Animal Farming", description: "Stories and practical ideas from livestock farms.", icon: "animal" },
       { title: "Organic practices", description: "Natural methods and growing know-how.", icon: "sprout" },
       { title: "Fruit farming", description: "Explore fruit growing through video.", icon: "fruit" },
+      { title: "Farm machineries", description: "See useful farm machines at work.", icon: "machinery" },
     ],
   },
   story: {
@@ -238,6 +243,8 @@ export function normalizeAppearance(value: unknown): ChannelAppearance {
   }
   return {
     headerColor: normalizeHeaderColor(appearance.headerColor),
+    headerLogoSize: normalizeHeaderSize(appearance.headerLogoSize, 66, 52, 70),
+    headerBrandSize: normalizeHeaderSize(appearance.headerBrandSize, 17, 13, 18),
     logoFont: isFontId(appearance.logoFont) ? appearance.logoFont : defaultChannelContent.appearance.logoFont,
     bodyFont: isFontId(appearance.bodyFont) ? appearance.bodyFont : defaultChannelContent.appearance.bodyFont,
     headingFont: isFontId(appearance.headingFont) ? appearance.headingFont : defaultChannelContent.appearance.headingFont,
@@ -245,6 +252,10 @@ export function normalizeAppearance(value: unknown): ChannelAppearance {
     heroFadeMobile: normalizeHeroFade(appearance.heroFadeMobile),
     sectionFonts,
   };
+}
+
+function normalizeHeaderSize(value: unknown, fallback: number, minimum: number, maximum: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(minimum, Math.min(maximum, Math.round(value))) : fallback;
 }
 
 export function normalizeHeroFade(value: unknown): number {
@@ -260,6 +271,24 @@ export function mergeChannelContent(value: Partial<ChannelContent> | null | unde
       (merged as unknown as Record<string, unknown>)[key] = { ...defaultChannelContent[key], ...section };
     }
   }
+  // The original CMS document has five cards. Keep custom copy, but migrate its
+  // two retired defaults and always provide the new sixth category.
+  merged.topics.items = defaultChannelContent.topics.items.map((fallback, index) => {
+    const stored = Array.isArray(value.topics?.items) ? value.topics.items[index] : undefined;
+    if (!stored || typeof stored !== "object") return { ...fallback };
+    const card = { ...fallback, ...stored };
+    if (index === 1) {
+      if (card.title === "Farm stories") card.title = fallback.title;
+      if (card.description === "A closer look at people and places.") card.description = fallback.description;
+      if (card.icon === "story") card.icon = fallback.icon;
+    }
+    if (index === 2) {
+      if (card.title === "Water & irrigation") card.title = fallback.title;
+      if (card.description === "Practical ideas from working farms.") card.description = fallback.description;
+      if (card.icon === "water") card.icon = fallback.icon;
+    }
+    return card;
+  });
   // Stored documents can be old or manually edited. Keep all CSS values on a fixed allowlist.
   merged.appearance = normalizeAppearance(value.appearance);
   if (value.translations && typeof value.translations === "object") merged.translations = structuredClone(value.translations);
@@ -334,6 +363,17 @@ function deepOverlay<T>(base: T, patch: DeepPartial<T> | undefined): T {
 export function resolveChannelContent(content: ChannelContent, language: Language, builtIn: Partial<Record<"te" | "hi", DeepPartial<ChannelCopy>>>): ChannelCopy {
   if (language === "en") return { ...content, appearance: normalizeAppearance(content.appearance) };
   const translated = deepOverlay(deepOverlay(content, builtIn[language]), content.translations?.[language]);
+  const legacyTopicTitles = language === "te" ? ["రైతుల కథలు", "నీరు, సాగునీరు"] : ["किसानों की कहानियाँ", "पानी और सिंचाई"];
+  const legacyTopicDescriptions = language === "te"
+    ? ["రైతులను, వారి పొలాలను దగ్గరగా చూడండి.", "పొలాల్లో అమలు చేస్తున్న ఉపయోగకరమైన పద్ధతులు."]
+    : ["लोगों और उनके खेतों को करीब से देखें।", "खेतों में अपनाए जा रहे उपयोगी तरीके।"];
+  for (const [offset, index] of [1, 2].entries()) {
+    const card = translated.topics.items[index];
+    const localizedDefault = builtIn[language]?.topics?.items?.[index];
+    if (!card || !localizedDefault) continue;
+    if (card.title === legacyTopicTitles[offset] && localizedDefault.title) card.title = localizedDefault.title;
+    if (card.description === legacyTopicDescriptions[offset] && localizedDefault.description) card.description = localizedDefault.description;
+  }
   translated.appearance = normalizeAppearance(content.appearance);
   // Media and external destinations are global, so changing language never changes the logo, links, or featured video.
   translated.brand.logoUrl = content.brand.logoUrl;

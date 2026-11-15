@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useDeleteGalleryItem, useGalleryItems, useSaveGalleryItem } from "@/hooks/useCmsFirestore";
 import type { FirestoreGalleryItem } from "@/types/cms";
 import { MAX_IMAGE_DATA_URL_CHARS } from "@/lib/imageCompress";
+import { seedGalleryToFirestore } from "@/lib/seedCms";
 import { AdminImageUpload } from "../components/AdminImageUpload";
 
 const emptyItem = (): FirestoreGalleryItem => ({
@@ -34,6 +35,7 @@ const GalleryManagement = () => {
   const [form, setForm] = useState<FirestoreGalleryItem>(emptyItem());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [imageBusy, setImageBusy] = useState(false);
+  const [importBusy, setImportBusy] = useState(false);
 
   const openNew = () => {
     setEditingId(null);
@@ -88,6 +90,20 @@ const GalleryManagement = () => {
   };
 
   const images = items.filter((i) => i.type === "image");
+
+  const handleImport = async () => {
+    if (items.length !== 0 || importBusy) return;
+    setImportBusy(true);
+    try {
+      await seedGalleryToFirestore();
+      await refetch();
+      toast.success("Existing field photos added. You can now edit or remove each one.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not import the existing photos.");
+    } finally {
+      setImportBusy(false);
+    }
+  };
 
   const renderGrid = (list: typeof images) => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -149,9 +165,10 @@ const GalleryManagement = () => {
         {images.length > 0 && renderGrid(images)}
 
         {!isPending && images.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            No gallery images saved yet. Add an image to show it on the website.
-          </p>
+          <div className="rounded-lg border p-4 space-y-3">
+            <p className="text-sm text-muted-foreground">The current field photos are bundled with the site. Import them to edit or remove them here, or add a new image.</p>
+            {items.length === 0 && <Button type="button" variant="outline" disabled={importBusy} onClick={() => void handleImport()}>{importBusy ? "Importing…" : "Import existing field photos"}</Button>}
+          </div>
         )}
       </div>
 

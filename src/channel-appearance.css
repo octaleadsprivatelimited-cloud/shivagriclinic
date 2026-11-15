@@ -106,3 +106,52 @@
 .channel-site .channel-footer .channel-brand :where(*) {
   font-family: var(--channel-logo-font) !important;
 }
+
+/* The editor can enlarge the artwork and name without changing the header row height. */
+.channel-site .channel-header-inner {
+  height: 78px;
+  min-height: 78px;
+}
+.channel-site .channel-header .channel-brand {
+  min-width: 0;
+  flex-shrink: 1;
+  font-size: var(--channel-header-brand-size, 17px);
+}
+.channel-site .channel-header .channel-brand-logo-frame {
+  width: var(--channel-header-logo-size, 66px);
+  height: var(--channel-header-logo-size, 66px);
+}
+.channel-site .channel-header .channel-brand-copy {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.channel-site .channel-header .channel-brand-name,
+.channel-site .channel-header .channel-brand small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.channel-site .channel-header .channel-brand small {
+  font-size: clamp(7px, calc(var(--channel-header-brand-size, 17px) * .48), 9px);
+}
+@media (min-width: 761px) and (max-width: 1050px) {
+  .channel-site .channel-header-inner { height: 70px; min-height: 70px; }
+}
+@media (max-width: 760px) {
+  .channel-site .channel-header-inner { height: 72px; min-height: 72px; }
+  .channel-site .channel-header .channel-brand { font-size: calc(var(--channel-header-brand-size, 17px) - 3px); }
+  .channel-site .channel-header .channel-brand-logo-frame {
+    width: calc(var(--channel-header-logo-size, 66px) - 10px);
+    height: calc(var(--channel-header-logo-size, 66px) - 10px);
+  }
+}
+@media (max-width: 360px) {
+  .channel-site .channel-header .channel-brand { font-size: calc(var(--channel-header-brand-size, 17px) - 6px); }
+  .channel-site .channel-header .channel-brand-logo-frame {
+    width: calc(var(--channel-header-logo-size, 66px) - 23px);
+    height: calc(var(--channel-header-logo-size, 66px) - 23px);
+  }
+  .channel-site .channel-header .channel-brand small { font-size: 6px; }
+}

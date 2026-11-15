@@ -268,7 +268,13 @@ export function useGalleryItems() {
         id: d.id,
         ...(d.data() as FirestoreGalleryItem),
       }));
-      rows.sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+      rows.sort((a, b) => {
+        const dateOrder = (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0);
+        if (dateOrder) return dateOrder;
+        const aNumber = Number(a.id);
+        const bNumber = Number(b.id);
+        return Number.isFinite(aNumber) && Number.isFinite(bNumber) ? aNumber - bNumber : a.id.localeCompare(b.id);
+      });
       return rows;
     },
   });

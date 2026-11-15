@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { ArrowUpRight, Facebook, Instagram, Menu, X } from "lucide-react";
 import { useLocalizedChannelContent } from "@/i18n/channelI18n";
@@ -47,12 +47,17 @@ export function Header() {
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [open]);
 
+  const brandSizing = {
+    "--channel-header-logo-size": `${content.appearance.headerLogoSize}px`,
+    "--channel-header-brand-size": `${content.appearance.headerBrandSize}px`,
+  } as CSSProperties;
+
   return (
-    <header className="channel-header">
+    <header className="channel-header" style={brandSizing}>
       <div className="channel-shell channel-header-inner">
         <Link className="channel-brand" to="/" aria-label={`${content.brand.name} ${content.nav.home}`}>
           <span className={`channel-brand-logo-frame ${content.brand.logoUrl === "/images/shiva-logo.png" ? "is-padded-original" : ""}`}><img className="channel-brand-logo" src={content.brand.logoUrl} alt="" /></span>
-          <span>{content.brand.name}<small>{content.brand.tagline}</small></span>
+          <span className="channel-brand-copy"><span className="channel-brand-name">{content.brand.name}</span><small>{content.brand.tagline}</small></span>
         </Link>
         <nav className="channel-nav" aria-label={content.ui.mainNavLabel}>
           {nav.map((item) => <NavLink key={item.to} to={item.to} end={item.to === "/"} className={({ isActive }) => isActive ? "is-active" : ""}>{item.label}</NavLink>)}
