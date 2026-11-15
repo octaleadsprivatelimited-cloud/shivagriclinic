@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { channelStorageMode, useChannelContent, useSaveChannelContent } from "@/hooks/useChannelContent";
-import { defaultChannelContent, normalizeHeroFade, normalizeSocialCount, safeFacebookHref, safeInstagramHref, safeTelephoneHref, safeWhatsAppHref, type ChannelContent, type ChannelCopy, type Language } from "@/data/channelContent";
+import { defaultChannelContent, normalizeHeroFade, normalizeSocialCount, safeFacebookHref, safeInstagramHref, safeTelephoneHref, safeWhatsAppHref, type ChannelContent, type ChannelCopy, type Language, type SocialCountKey } from "@/data/channelContent";
 import { localizeContent } from "@/i18n/channelI18n";
 import { fontOptions, isFontId, normalizeHeaderColor, sectionFontOptions, type FontId } from "@/data/fontOptions";
 
@@ -169,6 +169,38 @@ function EditorField({ name, value, path, onChange, translationMode = false }: E
   </label>;
 }
 
+const socialCountFields: { key: SocialCountKey; label: string }[] = [
+  { key: "youtubeSubscribers", label: "YouTube subscribers" },
+  { key: "facebookFollowers", label: "Facebook followers" },
+  { key: "instagramFollowers", label: "Instagram followers" },
+];
+
+function SocialEditor({ social, copy, language, onChange, onCountChange, onModeChange }: {
+  social: ChannelCopy["social"];
+  copy: ChannelCopy["social"];
+  language: Language;
+  onChange: (path: Path, value: unknown) => void;
+  onCountChange: (key: SocialCountKey, value: string) => void;
+  onModeChange: (key: SocialCountKey, manual: boolean) => void;
+}) {
+  const translatedCopy = Object.fromEntries(Object.entries(copy).filter(([key]) =>
+    key !== "manualCounts" && !socialCountFields.some((field) => field.key === key),
+  ));
+  return <div className="space-y-6">
+    <p className="text-sm text-muted-foreground">These totals are shared across all languages. Automatic counts refresh weekly when the platform API is available. Edit a number to show your entered total immediately, or switch back to automatic updates.</p>
+    <div className="grid gap-4 sm:grid-cols-2">
+      {socialCountFields.map(({ key, label: fieldLabel }) => <div key={key} className="space-y-2 rounded-lg border p-4">
+        <label className="block space-y-1 text-sm font-medium"><span>{fieldLabel}</span>
+          <Input value={social[key]} inputMode="numeric" onChange={(event) => onCountChange(key, event.target.value)} />
+        </label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!social.manualCounts[key]} onChange={(event) => onModeChange(key, !event.target.checked)} />Use automatic count when available</label>
+        <small className="block text-muted-foreground">{social.manualCounts[key] ? "Your entered number appears on the website after saving." : "The API count appears when available; this number is the fallback estimate."}</small>
+      </div>)}
+    </div>
+    <EditorField name="social" value={translatedCopy} path={["social"]} onChange={onChange} translationMode={language !== "en"} />
+  </div>;
+}
+
 export default function ContentManagement() {
   const { data: saved = defaultChannelContent, isPending, isError, error } = useChannelContent();
   const saveContent = useSaveChannelContent();
@@ -181,6 +213,18 @@ export default function ContentManagement() {
 
   function onChange(path: Path, value: unknown) {
     setEditedDraft((current) => language === "en" || path[0] === "appearance" || path[0] === "hero" && path[1] === "backgroundUrl" ? updateAtPath(current ?? saved, path, value) : updateTranslationAtPath(current ?? saved, language, path, value));
+  }
+
+  function onSocialCountChange(key: SocialCountKey, value: string) {
+    setEditedDraft((current) => {
+      const next = updateAtPath(current ?? saved, ["social", key], value);
+      next.social.manualCounts[key] = true;
+      return next;
+    });
+  }
+
+  function onSocialModeChange(key: SocialCountKey, manual: boolean) {
+    setEditedDraft((current) => updateAtPath(current ?? saved, ["social", "manualCounts", key], manual));
   }
 
   async function save() {
@@ -249,7 +293,7 @@ export default function ContentManagement() {
     {isPending && <p className="text-sm text-muted-foreground">Loading content…</p>}
     <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
       <nav className="flex gap-2 overflow-x-auto lg:flex-col" aria-label="Content sections">{sections.map((item) => <button key={item.key} type="button" className={`whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm ${section === item.key ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70"}`} onClick={() => setSection(item.key)}>{item.name}</button>)}</nav>
-      <section className="min-w-0 rounded-xl border bg-card p-5 shadow-sm"><h3 className="mb-5 text-xl font-semibold">{sections.find((item) => item.key === section)?.name}</h3>{section === "appearance" ? <AppearanceEditor appearance={draft.appearance} heroBackgroundUrl={draft.hero.backgroundUrl} onChange={onChange} /> : <EditorField name={section} value={getAtPath(localizeContent(draft, language), [section])} path={[section]} onChange={onChange} translationMode={language !== "en"} />}</section>
+      <section className="min-w-0 rounded-xl border bg-card p-5 shadow-sm"><h3 className="mb-5 text-xl font-semibold">{sections.find((item) => item.key === section)?.name}</h3>{section === "appearance" ? <AppearanceEditor appearance={draft.appearance} heroBackgroundUrl={draft.hero.backgroundUrl} onChange={onChange} /> : section === "social" ? <SocialEditor social={draft.social} copy={localizeContent(draft, language).social} language={language} onChange={onChange} onCountChange={onSocialCountChange} onModeChange={onSocialModeChange} /> : <EditorField name={section} value={getAtPath(localizeContent(draft, language), [section])} path={[section]} onChange={onChange} translationMode={language !== "en"} />}</section>
     </div>
     <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4"><Button type="button" variant="outline" disabled={!dirty} onClick={() => setEditedDraft(null)}><RotateCcw className="mr-2 h-4 w-4" />Discard unsaved changes</Button><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}>Save changes</Button></div>
   </div></AdminLayout>;

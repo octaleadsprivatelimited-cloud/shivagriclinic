@@ -1,5 +1,5 @@
 import { ArrowUpRight, Facebook, Instagram, Youtube } from "lucide-react";
-import { safeFacebookHref, safeInstagramHref, type ChannelCopy } from "@/data/channelContent";
+import { safeFacebookHref, safeInstagramHref, type ChannelCopy, type SocialCountKey } from "@/data/channelContent";
 import { useSocialCounts } from "@/hooks/useSocialCounts";
 
 type SocialCountsProps = { content: ChannelCopy };
@@ -9,10 +9,18 @@ const formatCount = (value: string): string =>
 
 export function SocialCounts({ content }: SocialCountsProps) {
   const { data: liveCounts } = useSocialCounts();
+  const shownCount = (key: SocialCountKey) => {
+    const manual = content.social.manualCounts[key];
+    const live = liveCounts?.[key];
+    return {
+      count: manual ? content.social[key] : live ?? content.social[key],
+      estimate: !manual && !live,
+    };
+  };
   const cards = [
-    { platform: "YouTube", count: liveCounts?.youtubeSubscribers ?? content.social.youtubeSubscribers, estimate: !liveCounts?.youtubeSubscribers, label: content.social.subscribersLabel, href: content.brand.youtubeUrl, icon: Youtube },
-    { platform: "Facebook", count: liveCounts?.facebookFollowers ?? content.social.facebookFollowers, estimate: !liveCounts?.facebookFollowers, label: content.social.followersLabel, href: safeFacebookHref(content.brand.facebookUrl), icon: Facebook },
-    { platform: "Instagram", count: liveCounts?.instagramFollowers ?? content.social.instagramFollowers, estimate: !liveCounts?.instagramFollowers, label: content.social.followersLabel, href: safeInstagramHref(content.brand.instagramUrl), icon: Instagram },
+    { platform: "YouTube", ...shownCount("youtubeSubscribers"), label: content.social.subscribersLabel, href: content.brand.youtubeUrl, icon: Youtube },
+    { platform: "Facebook", ...shownCount("facebookFollowers"), label: content.social.followersLabel, href: safeFacebookHref(content.brand.facebookUrl), icon: Facebook },
+    { platform: "Instagram", ...shownCount("instagramFollowers"), label: content.social.followersLabel, href: safeInstagramHref(content.brand.instagramUrl), icon: Instagram },
   ];
 
   return <section className="channel-social-counts" aria-labelledby="channel-social-title">

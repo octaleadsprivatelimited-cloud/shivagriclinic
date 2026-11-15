@@ -28,7 +28,7 @@ export type ChannelCopy = {
     featuredLabel: string; watchLabel: string; scrollLabel: string;
   };
   highlights: { items: TextCard[] };
-  social: { eyebrow: string; title: string; youtubeSubscribers: string; facebookFollowers: string; instagramFollowers: string; subscribersLabel: string; followersLabel: string; unavailableLabel: string; approximateLabel: string; estimatesNote: string };
+  social: { eyebrow: string; title: string; youtubeSubscribers: string; facebookFollowers: string; instagramFollowers: string; manualCounts: Record<SocialCountKey, boolean>; subscribersLabel: string; followersLabel: string; unavailableLabel: string; approximateLabel: string; estimatesNote: string };
   analytics: { ga4MeasurementId: string; clarityProjectId: string; consentTitle: string; consentDescription: string; acceptLabel: string; rejectLabel: string; settingsLabel: string };
   partners: { eyebrow: string; title: string; items: PartnerLogo[] };
   testimonials: { eyebrow: string; title: string; items: FarmerTestimonial[] };
@@ -60,6 +60,7 @@ export type ChannelCopy = {
 };
 
 export type Language = "en" | "te" | "hi";
+export type SocialCountKey = "youtubeSubscribers" | "facebookFollowers" | "instagramFollowers";
 export type DeepPartial<T> = T extends (infer U)[] ? DeepPartial<U>[] : T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T;
 export type ChannelContent = ChannelCopy & { translations?: Partial<Record<"te" | "hi", DeepPartial<ChannelCopy>>> };
 
@@ -109,6 +110,7 @@ export const defaultChannelContent: ChannelContent = {
   social: {
     eyebrow: "FOLLOW THE FIELD STORIES", title: "Our growing community.",
     youtubeSubscribers: "338000", facebookFollowers: "159000", instagramFollowers: "190000",
+    manualCounts: { youtubeSubscribers: false, facebookFollowers: false, instagramFollowers: false },
     subscribersLabel: "Subscribers", followersLabel: "Followers", unavailableLabel: "Count not available", approximateLabel: "Approximately",
     estimatesNote: "Approximate figures from public profiles and the previous site. Official API totals replace them when connected.",
   },
@@ -298,6 +300,16 @@ export function mergeChannelContent(value: Partial<ChannelContent> | null | unde
   merged.social.youtubeSubscribers = normalizeSocialCount(merged.social.youtubeSubscribers);
   merged.social.facebookFollowers = normalizeSocialCount(merged.social.facebookFollowers);
   merged.social.instagramFollowers = normalizeSocialCount(merged.social.instagramFollowers);
+  const storedSocial = value.social as Partial<ChannelCopy["social"]> | undefined;
+  const storedManual = storedSocial?.manualCounts;
+  merged.social.manualCounts = { ...defaultChannelContent.social.manualCounts };
+  for (const key of ["youtubeSubscribers", "facebookFollowers", "instagramFollowers"] as const) {
+    // An older admin edit had no mode flag. Preserve it as a manual override.
+    merged.social.manualCounts[key] = typeof storedManual?.[key] === "boolean"
+      ? storedManual[key]
+      : storedSocial?.[key] !== undefined &&
+        normalizeSocialCount(storedSocial[key]) !== defaultChannelContent.social[key];
+  }
   return merged;
 }
 
@@ -340,6 +352,7 @@ export function resolveChannelContent(content: ChannelContent, language: Languag
   translated.social.youtubeSubscribers = content.social.youtubeSubscribers;
   translated.social.facebookFollowers = content.social.facebookFollowers;
   translated.social.instagramFollowers = content.social.instagramFollowers;
+  translated.social.manualCounts = content.social.manualCounts;
   return translated;
 }
 
