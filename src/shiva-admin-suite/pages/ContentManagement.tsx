@@ -9,9 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { channelStorageMode, useChannelContent, useSaveChannelContent } from "@/hooks/useChannelContent";
 import { defaultChannelContent, normalizeSocialCount, safeFacebookHref, safeInstagramHref, safeTelephoneHref, safeWhatsAppHref, type ChannelContent, type ChannelCopy, type Language } from "@/data/channelContent";
 import { localizeContent } from "@/i18n/channelI18n";
+import { fontOptions, isFontId, normalizeHeaderColor, sectionFontOptions, type FontId } from "@/data/fontOptions";
 
 type Path = (string | number)[];
 const sections: { key: keyof ChannelCopy; name: string }[] = [
+  { key: "appearance", name: "Appearance" },
   { key: "brand", name: "Brand & links" }, { key: "nav", name: "Navigation" },
   { key: "hero", name: "Hero" }, { key: "highlights", name: "Highlights" },
   { key: "social", name: "Social counts" },
@@ -73,9 +75,42 @@ function emptyItem(path: Path): Record<string, string> {
 }
 
 const sharedField = (path: Path) => {
+  if (path[0] === "appearance") return true;
   const last = String(path[path.length - 1]);
   return ["logoUrl", "youtubeUrl", "email", "phone", "whatsappPhone", "instagramUrl", "facebookUrl", "youtubeSubscribers", "facebookFollowers", "instagramFollowers", "ga4MeasurementId", "clarityProjectId", "developerName", "developerUrl", "backgroundUrl", "featuredVideoId", "imageUrl", "icon", "website"].includes(last) || path[0] === "partners" && path.includes("items");
 };
+
+function AppearanceEditor({ appearance, onChange }: { appearance: ChannelCopy["appearance"]; onChange: (path: Path, value: unknown) => void }) {
+  const fontSelect = (name: string, value: FontId | "", path: Path, optional = false) => <label className="block space-y-1.5 text-sm font-medium">
+    <span>{name}</span>
+    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={value} onChange={(event) => onChange(path, event.target.value)}>
+      {optional && <option value="">Use site fonts</option>}
+      {fontOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+    </select>
+  </label>;
+
+  return <div className="space-y-8">
+    <p className="text-sm text-muted-foreground">Appearance settings are shared by English, Telugu and Hindi. Each font includes Telugu and Hindi fallbacks. Section choices override both site body and heading fonts within that section.</p>
+    <div className="grid gap-4 sm:grid-cols-2">
+      <label className="block space-y-1.5 text-sm font-medium sm:col-span-2"><span>Header background color</span>
+        <div className="flex items-center gap-3">
+          <input type="color" aria-label="Pick header background color" className="h-10 w-14 cursor-pointer rounded border border-input bg-background p-1" value={normalizeHeaderColor(appearance.headerColor)} onChange={(event) => onChange(["appearance", "headerColor"], event.target.value)} />
+          <Input aria-label="Header background hex color" value={appearance.headerColor} onChange={(event) => onChange(["appearance", "headerColor"], event.target.value)} placeholder="#f6f1e6" maxLength={7} />
+        </div>
+        <small className="block text-muted-foreground">Enter a six-digit hex color. Header text switches automatically between dark and light for contrast.</small>
+      </label>
+      {fontSelect("Logo and brand name font", appearance.logoFont, ["appearance", "logoFont"])}
+      {fontSelect("Site body font", appearance.bodyFont, ["appearance", "bodyFont"])}
+      {fontSelect("Site heading font", appearance.headingFont, ["appearance", "headingFont"])}
+    </div>
+    <div className="space-y-4">
+      <div><h4 className="text-base font-semibold">Section fonts</h4><p className="mt-1 text-sm text-muted-foreground">Choose a font for a section, or leave it on the site fonts above.</p></div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {sectionFontOptions.map(({ id, label }) => <div key={id}>{fontSelect(label, appearance.sectionFonts[id], ["appearance", "sectionFonts", id], true)}</div>)}
+      </div>
+    </div>
+  </div>;
+}
 type EditorProps = { name: string; value: unknown; path: Path; onChange: (path: Path, value: unknown) => void; translationMode?: boolean };
 
 function EditorField({ name, value, path, onChange, translationMode = false }: EditorProps) {
@@ -122,7 +157,7 @@ export default function ContentManagement() {
   const mode = channelStorageMode();
 
   function onChange(path: Path, value: unknown) {
-    setEditedDraft((current) => language === "en" ? updateAtPath(current ?? saved, path, value) : updateTranslationAtPath(current ?? saved, language, path, value));
+    setEditedDraft((current) => language === "en" || path[0] === "appearance" ? updateAtPath(current ?? saved, path, value) : updateTranslationAtPath(current ?? saved, language, path, value));
   }
 
   async function save() {
@@ -166,6 +201,10 @@ export default function ContentManagement() {
     if (ga4Id && !/^G-[A-Z0-9]{4,20}$/.test(ga4Id)) { toast.error("Enter a valid GA4 measurement ID beginning G-, or leave it blank."); return; }
     const clarityId = draft.analytics.clarityProjectId.trim();
     if (clarityId && !/^[a-z0-9]{4,32}$/.test(clarityId)) { toast.error("Enter a valid Microsoft Clarity project ID, or leave it blank."); return; }
+    if (!/^#[\da-fA-F]{6}$/.test(draft.appearance.headerColor.trim())) { toast.error("Enter a six-digit hex header color, such as #f6f1e6."); return; }
+    if (![draft.appearance.logoFont, draft.appearance.bodyFont, draft.appearance.headingFont].every(isFontId) || sectionFontOptions.some(({ id }) => draft.appearance.sectionFonts[id] !== "" && !isFontId(draft.appearance.sectionFonts[id]))) {
+      toast.error("Choose fonts from the available list."); return;
+    }
     if (JSON.stringify(draft).length > 850_000) { toast.error("Content is too large for one Firestore document. Use smaller images or image URLs."); return; }
     try {
       await saveContent.mutateAsync(draft);
@@ -175,7 +214,7 @@ export default function ContentManagement() {
   }
 
   return <AdminLayout title="Website content"><div className="mx-auto max-w-6xl space-y-6">
-    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold">Edit the channel website</h2><p className="mt-1 text-sm text-muted-foreground">Use Brand & links for the main logo, contact details, social profile URLs and floating WhatsApp number. Use Social counts for subscriber and follower totals, Analytics tracking for GA4 and Clarity IDs, Logo showcase for partner logos, and Farmer testimonials for quotes and photos. The public site updates after saving.</p></div><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}><Save className="mr-2 h-4 w-4" />{saveContent.isPending ? "Saving…" : "Save changes"}</Button></div>
+    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold">Edit the channel website</h2><p className="mt-1 text-sm text-muted-foreground">Use Appearance for colors and fonts, Brand & links for the logo, contact details and social URLs, Social counts for subscriber and follower totals, Logo showcase for partners, and Farmer testimonials for quotes and photos. The public site updates after saving.</p></div><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}><Save className="mr-2 h-4 w-4" />{saveContent.isPending ? "Saving…" : "Save changes"}</Button></div>
     <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Content language">{(["en", "te", "hi"] as const).map((code) => <button key={code} type="button" aria-pressed={language === code} className={`rounded-lg border px-4 py-2 text-sm font-semibold ${language === code ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`} onClick={() => setLanguage(code)}>{code === "en" ? "English" : code === "te" ? "తెలుగు" : "हिन्दी"}</button>)}</div>
     {language !== "en" && <p className="text-sm text-muted-foreground">Edit translated text for {language === "te" ? "Telugu" : "Hindi"}. Links, images, video selection, and list structure are shared with English. Unedited text uses the built-in translation or English fallback.</p>}
     {mode === "local" && <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Local preview mode: edits are saved only in this browser on localhost. Configure Firebase for shared, persistent production editing.</p>}
@@ -183,7 +222,7 @@ export default function ContentManagement() {
     {isPending && <p className="text-sm text-muted-foreground">Loading content…</p>}
     <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
       <nav className="flex gap-2 overflow-x-auto lg:flex-col" aria-label="Content sections">{sections.map((item) => <button key={item.key} type="button" className={`whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm ${section === item.key ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70"}`} onClick={() => setSection(item.key)}>{item.name}</button>)}</nav>
-      <section className="min-w-0 rounded-xl border bg-card p-5 shadow-sm"><h3 className="mb-5 text-xl font-semibold">{sections.find((item) => item.key === section)?.name}</h3><EditorField name={section} value={getAtPath(localizeContent(draft, language), [section])} path={[section]} onChange={onChange} translationMode={language !== "en"} /></section>
+      <section className="min-w-0 rounded-xl border bg-card p-5 shadow-sm"><h3 className="mb-5 text-xl font-semibold">{sections.find((item) => item.key === section)?.name}</h3>{section === "appearance" ? <AppearanceEditor appearance={draft.appearance} onChange={onChange} /> : <EditorField name={section} value={getAtPath(localizeContent(draft, language), [section])} path={[section]} onChange={onChange} translationMode={language !== "en"} />}</section>
     </div>
     <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4"><Button type="button" variant="outline" disabled={!dirty} onClick={() => setEditedDraft(null)}><RotateCcw className="mr-2 h-4 w-4" />Discard unsaved changes</Button><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}>Save changes</Button></div>
   </div></AdminLayout>;

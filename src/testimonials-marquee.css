@@ -1,0 +1,99 @@
+.channel-site .channel-testimonials-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.channel-site .channel-testimonials-toggle {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 28px;
+  color: var(--ink);
+  background: var(--yellow);
+  border: 1px solid var(--ink);
+  border-radius: 7px;
+  box-shadow: 2px 3px 0 var(--ink);
+  cursor: pointer;
+}
+
+.channel-site .channel-testimonials-toggle:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.channel-site .channel-testimonials-viewport {
+  --testimonial-gap: 20px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.channel-site .channel-testimonials-track {
+  display: flex;
+  width: max-content;
+  animation-name: channel-testimonials-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.channel-site .channel-testimonials-viewport:focus-within .channel-testimonials-track,
+.channel-site .channel-testimonials-viewport.is-paused .channel-testimonials-track {
+  animation-play-state: paused;
+}
+
+@media (hover: hover) {
+  .channel-site .channel-testimonials-viewport:hover .channel-testimonials-track {
+    animation-play-state: paused;
+  }
+}
+
+.channel-site .channel-testimonials-set {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--testimonial-gap);
+  width: max-content;
+  padding-inline-end: var(--testimonial-gap);
+}
+
+.channel-site .channel-testimonials-set .channel-testimonial-card {
+  flex: 0 0 clamp(320px, 39vw, 520px);
+  width: clamp(320px, 39vw, 520px);
+}
+
+.channel-site .channel-testimonials-viewport.is-single .channel-testimonials-track,
+.channel-site .channel-testimonials-viewport.is-single .channel-testimonials-set {
+  width: 100%;
+  animation: none;
+}
+
+.channel-site .channel-testimonials-viewport.is-single .channel-testimonial-card {
+  flex-basis: min(100%, 620px);
+  width: min(100%, 620px);
+}
+
+@keyframes channel-testimonials-scroll {
+  to { transform: translateX(-50%); }
+}
+
+@media (max-width: 760px) {
+  .channel-site .channel-testimonials-viewport { --testimonial-gap: 14px; }
+  .channel-site .channel-testimonials-set .channel-testimonial-card {
+    flex-basis: min(84vw, 370px);
+    width: min(84vw, 370px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .channel-site .channel-testimonials-viewport {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+  }
+  .channel-site .channel-testimonials-track { animation: none; }
+  .channel-site .channel-testimonials-set-copy { display: none; }
+  .channel-site .channel-testimonial-card { scroll-snap-align: start; }
+  .channel-site .channel-testimonials-toggle { display: none; }
+}

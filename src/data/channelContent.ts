@@ -1,12 +1,21 @@
 import seoPages from "./seoPages.json";
+import { defaultSectionFonts, isFontId, normalizeHeaderColor, sectionFontOptions, type FontId, type SectionFonts } from "./fontOptions";
 
 export type TextCard = { title: string; description: string };
 export type TopicCard = TextCard & { icon: "flower" | "story" | "water" | "sprout" | "fruit" };
 export type LegalSection = { heading: string; body: string };
 export type PartnerLogo = { name: string; logoUrl: string; website: string };
 export type FarmerTestimonial = { name: string; role: string; quote: string; imageUrl: string };
+export type ChannelAppearance = {
+  headerColor: string;
+  logoFont: FontId;
+  bodyFont: FontId;
+  headingFont: FontId;
+  sectionFonts: SectionFonts;
+};
 
 export type ChannelCopy = {
+  appearance: ChannelAppearance;
   brand: { name: string; tagline: string; logoUrl: string; youtubeUrl: string; email: string; phone: string; whatsappPhone: string; instagramUrl: string; facebookUrl: string; developerName: string; developerUrl: string; copyrightText: string; developedByLabel: string; footerDescription: string; footerPoster: string; footerPosterAccent: string };
   nav: { home: string; videos: string; about: string; contact: string; youtube: string; exploreHeading: string; connectHeading: string; emailLabel: string; privacyLabel: string; termsLabel: string };
   hero: {
@@ -53,6 +62,13 @@ export type DeepPartial<T> = T extends (infer U)[] ? DeepPartial<U>[] : T extend
 export type ChannelContent = ChannelCopy & { translations?: Partial<Record<"te" | "hi", DeepPartial<ChannelCopy>>> };
 
 export const defaultChannelContent: ChannelContent = {
+  appearance: {
+    headerColor: "#f6f1e6",
+    logoFont: "inter",
+    bodyFont: "inter",
+    headingFont: "anton",
+    sectionFonts: { ...defaultSectionFonts },
+  },
   brand: {
     name: "Shiva Agri Clinic", tagline: "STORIES FROM THE FIELD", logoUrl: "/images/shiva-logo.png",
     youtubeUrl: "https://www.youtube.com/@ShivaAgriClinic",
@@ -203,6 +219,23 @@ export const defaultChannelContent: ChannelContent = {
   },
 };
 
+export function normalizeAppearance(value: unknown): ChannelAppearance {
+  const appearance = (value && typeof value === "object" && !Array.isArray(value) ? value : {}) as Partial<ChannelAppearance>;
+  const incomingSections = (appearance.sectionFonts && typeof appearance.sectionFonts === "object" && !Array.isArray(appearance.sectionFonts) ? appearance.sectionFonts : {}) as Partial<SectionFonts>;
+  const sectionFonts = { ...defaultSectionFonts };
+  for (const { id } of sectionFontOptions) {
+    const choice = incomingSections[id];
+    sectionFonts[id] = isFontId(choice) ? choice : "";
+  }
+  return {
+    headerColor: normalizeHeaderColor(appearance.headerColor),
+    logoFont: isFontId(appearance.logoFont) ? appearance.logoFont : defaultChannelContent.appearance.logoFont,
+    bodyFont: isFontId(appearance.bodyFont) ? appearance.bodyFont : defaultChannelContent.appearance.bodyFont,
+    headingFont: isFontId(appearance.headingFont) ? appearance.headingFont : defaultChannelContent.appearance.headingFont,
+    sectionFonts,
+  };
+}
+
 export function mergeChannelContent(value: Partial<ChannelContent> | null | undefined): ChannelContent {
   if (!value || typeof value !== "object") return defaultChannelContent;
   const merged = structuredClone(defaultChannelContent);
@@ -212,6 +245,8 @@ export function mergeChannelContent(value: Partial<ChannelContent> | null | unde
       (merged as unknown as Record<string, unknown>)[key] = { ...defaultChannelContent[key], ...section };
     }
   }
+  // Stored documents can be old or manually edited. Keep all CSS values on a fixed allowlist.
+  merged.appearance = normalizeAppearance(value.appearance);
   if (value.translations && typeof value.translations === "object") merged.translations = structuredClone(value.translations);
   // Older browser/Firebase drafts may still contain fields from the retired page.
   const removeRetiredField = (section: unknown, key: string) => {
@@ -272,8 +307,9 @@ function deepOverlay<T>(base: T, patch: DeepPartial<T> | undefined): T {
 }
 
 export function resolveChannelContent(content: ChannelContent, language: Language, builtIn: Partial<Record<"te" | "hi", DeepPartial<ChannelCopy>>>): ChannelCopy {
-  if (language === "en") return content;
+  if (language === "en") return { ...content, appearance: normalizeAppearance(content.appearance) };
   const translated = deepOverlay(deepOverlay(content, builtIn[language]), content.translations?.[language]);
+  translated.appearance = normalizeAppearance(content.appearance);
   // Media and external destinations are global, so changing language never changes the logo, links, or featured video.
   translated.brand.logoUrl = content.brand.logoUrl;
   translated.brand.youtubeUrl = content.brand.youtubeUrl;

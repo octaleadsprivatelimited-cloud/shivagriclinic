@@ -1,0 +1,106 @@
+/* Appearance values come from the validated, finite font list in fontOptions.ts. */
+.channel-site,
+.channel-site :where(*) {
+  font-family: var(--channel-body-font) !important;
+}
+
+.channel-site :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--channel-heading-font) !important;
+}
+
+.channel-site :is(.channel-feature-bottom strong, .channel-topic-card strong, .channel-about-preview span,
+  .channel-hero-feature-empty, .channel-handnote, .channel-mint-sticker, .channel-circle-sticker,
+  .channel-card-index, .channel-topic-number, .channel-step-card > span, .channel-footer-poster,
+  .channel-social-card-number, .channel-team-image > span, .channel-case-visual span,
+  .channel-testimonial-author > span) {
+  font-family: var(--channel-heading-font) !important;
+}
+
+.channel-site .channel-header {
+  background: var(--channel-header-background) !important;
+  color: var(--channel-header-foreground) !important;
+  border-color: color-mix(in srgb, var(--channel-header-foreground) 22%, transparent) !important;
+}
+.channel-site .channel-header :is(.channel-brand, .channel-brand small, .channel-brand strong, .channel-nav > a, .channel-nav-more > summary) {
+  color: var(--channel-header-foreground) !important;
+}
+.channel-site .channel-header :is(.channel-language-picker select, .channel-menu-toggle, .channel-social-link--desktop) {
+  background: #fffefa !important;
+  color: #101010 !important;
+  border-color: #101010 !important;
+}
+.channel-site .channel-header :is(.channel-header-cta, .channel-mobile-cta) {
+  background: var(--yellow) !important;
+  color: #101010 !important;
+  border-color: #101010 !important;
+}
+.channel-site .channel-header .channel-nav-more > div a {
+  color: #101010 !important;
+}
+.channel-site .channel-mobile-nav {
+  background: var(--channel-header-background) !important;
+  border-color: color-mix(in srgb, var(--channel-header-foreground) 22%, transparent) !important;
+}
+.channel-site .channel-mobile-nav a {
+  color: var(--channel-header-foreground) !important;
+}
+.channel-site .channel-mobile-nav a.active {
+  color: #101010 !important;
+}
+@media (max-width: 760px) {
+  .channel-site .channel-social-row,
+  .channel-site .channel-social-link--mobile {
+    background: var(--channel-header-background) !important;
+  }
+  .channel-site .channel-social-link--mobile {
+    color: var(--channel-header-foreground) !important;
+    border-color: color-mix(in srgb, var(--channel-header-foreground) 32%, transparent) !important;
+  }
+}
+
+.channel-site.has-font-hero .channel-hero,
+.channel-site.has-font-hero .channel-hero :where(*) { font-family: var(--channel-section-font-hero) !important; }
+.channel-site.has-font-partners .channel-partners-section,
+.channel-site.has-font-partners .channel-partners-section :where(*) { font-family: var(--channel-section-font-partners) !important; }
+.channel-site.has-font-highlights .channel-capabilities,
+.channel-site.has-font-highlights .channel-capabilities :where(*) { font-family: var(--channel-section-font-highlights) !important; }
+.channel-site.has-font-social .channel-social-counts,
+.channel-site.has-font-social .channel-social-counts :where(*) { font-family: var(--channel-section-font-social) !important; }
+.channel-site.has-font-featured .channel-featured-section,
+.channel-site.has-font-featured .channel-featured-section :where(*) { font-family: var(--channel-section-font-featured) !important; }
+.channel-site.has-font-topics .channel-topics-section,
+.channel-site.has-font-topics .channel-topics-section :where(*) { font-family: var(--channel-section-font-topics) !important; }
+.channel-site.has-font-story .channel-story-section,
+.channel-site.has-font-story .channel-story-section :where(*) { font-family: var(--channel-section-font-story) !important; }
+.channel-site.has-font-testimonials .channel-testimonials,
+.channel-site.has-font-testimonials .channel-testimonials :where(*) { font-family: var(--channel-section-font-testimonials) !important; }
+.channel-site.has-font-steps .channel-steps-section,
+.channel-site.has-font-steps .channel-steps-section :where(*) { font-family: var(--channel-section-font-steps) !important; }
+.channel-site.has-font-subscribe .channel-subscribe,
+.channel-site.has-font-subscribe .channel-subscribe :where(*) { font-family: var(--channel-section-font-subscribe) !important; }
+
+.channel-site.has-font-header .channel-header,
+.channel-site.has-font-header .channel-header :where(*) { font-family: var(--channel-section-font-header) !important; }
+.channel-site.has-font-footer .channel-footer,
+.channel-site.has-font-footer .channel-footer :where(*) { font-family: var(--channel-section-font-footer) !important; }
+
+.channel-site.page-videos.has-font-videos main,
+.channel-site.page-videos.has-font-videos main :where(*) { font-family: var(--channel-section-font-videos) !important; }
+.channel-site.page-about.has-font-about main,
+.channel-site.page-about.has-font-about main :where(*) { font-family: var(--channel-section-font-about) !important; }
+.channel-site.page-contact.has-font-contact main,
+.channel-site.page-contact.has-font-contact main :where(*) { font-family: var(--channel-section-font-contact) !important; }
+.channel-site.page-watch.has-font-watch main,
+.channel-site.page-watch.has-font-watch main :where(*) { font-family: var(--channel-section-font-watch) !important; }
+.channel-site.page-editorial.has-font-editorial main,
+.channel-site.page-editorial.has-font-editorial main :where(*) { font-family: var(--channel-section-font-editorial) !important; }
+.channel-site.page-legal.has-font-legal main,
+.channel-site.page-legal.has-font-legal main :where(*) { font-family: var(--channel-section-font-legal) !important; }
+
+/* The brand name and tagline use their own selector in every language and location. */
+.channel-site .channel-header .channel-brand,
+.channel-site .channel-header .channel-brand :where(*),
+.channel-site .channel-footer .channel-brand,
+.channel-site .channel-footer .channel-brand :where(*) {
+  font-family: var(--channel-logo-font) !important;
+}
