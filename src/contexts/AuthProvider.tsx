@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       );
     }
     const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ login_hint: ADMIN_EMAIL, prompt: "select_account" });
+    provider.setCustomParameters({ prompt: "select_account" });
     const credential = await signInWithPopup(auth, provider);
     let token: Awaited<ReturnType<typeof getIdTokenResult>>;
     try {

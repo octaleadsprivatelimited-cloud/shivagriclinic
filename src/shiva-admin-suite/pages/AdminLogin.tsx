@@ -3,11 +3,14 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/firebase";
+import { defaultChannelContent } from "@/data/channelContent";
+import { useChannelContent } from "@/hooks/useChannelContent";
 
 const AdminLogin = () => {
   const { signIn, signOut, user, isAdmin, loading } = useAuth();
+  const { data: channelContent = defaultChannelContent } = useChannelContent();
+  const logoUrl = channelContent.brand.logoUrl;
   const navigate = useNavigate();
   const location = useLocation();
   const requestedFrom = (location.state as { from?: string } | null)?.from;
@@ -39,6 +42,8 @@ const AdminLogin = () => {
       <div className="min-h-screen flex items-center justify-center bg-muted/40 p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center space-y-2">
+            <img src={logoUrl} alt={`${channelContent.brand.name} logo`} className="mx-auto h-28 w-28 object-contain" />
+            <p className="text-sm font-semibold">shivaagriclinic.com</p>
             <CardTitle>Cannot sign in</CardTitle>
             <CardDescription>
               Google administrator sign-in requires Firebase configuration. Add the <code className="text-xs">VITE_FIREBASE_*</code>{" "}
@@ -59,11 +64,9 @@ const AdminLogin = () => {
     <div className="min-h-screen flex items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Leaf className="h-7 w-7" />
-          </div>
+          <img src={logoUrl} alt={`${channelContent.brand.name} logo`} className="mx-auto h-28 w-28 object-contain" />
+          <p className="text-sm font-semibold">shivaagriclinic.com</p>
           <CardTitle>Admin sign in</CardTitle>
-          <CardDescription>Sign in with the verified Shiva Google account. Administrator access also requires the Firebase admin claim.</CardDescription>
         </CardHeader>
         <CardContent>
           {user && !isAdmin && !loading && <div role="alert" className="mb-4 rounded-lg border border-destructive/50 bg-destructive/5 p-3 text-sm text-destructive">This Google account is not the authorized Shiva administrator or is missing the admin claim. <button type="button" className="underline" onClick={() => void signOut()}>Sign out</button></div>}
