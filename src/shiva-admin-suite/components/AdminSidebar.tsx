@@ -1,4 +1,4 @@
-import { LayoutDashboard, LogOut, Video, ArrowUpRight, PanelsTopLeft, Users, Newspaper, BookOpen, FileText } from "lucide-react";
+import { LayoutDashboard, LogOut, Video, ArrowUpRight, PanelsTopLeft, Users, Newspaper, BookOpen, FileText, Images } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthProvider";
 import {
@@ -13,6 +13,7 @@ const items = [
   { title: "Overview", url: "/admin", icon: LayoutDashboard },
   { title: "Videos", url: "/admin/videos", icon: Video },
   { title: "Website content", url: "/admin/content", icon: PanelsTopLeft },
+  { title: "Gallery", url: "/admin/gallery", icon: Images },
   { title: "Team", url: "/admin/team", icon: Users },
   { title: "Featured In", url: "/admin/featured-in", icon: Newspaper },
   { title: "Blog", url: "/admin/blog", icon: BookOpen },

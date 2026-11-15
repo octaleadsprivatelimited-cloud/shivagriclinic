@@ -36,6 +36,14 @@ service cloud.firestore {
       allow read: if true;
       allow create, update, delete: if isAdmin();
     }
+    match /galleryItems/{itemId} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.type == 'image'
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.size() < 1000000;
+      allow delete: if isAdmin();
+    }
     match /caseStudies/{studyId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();

@@ -13,7 +13,7 @@ function pageFontGroup(pathname: string): string {
   if (pathname === "/about") return "about";
   if (pathname === "/contact") return "contact";
   if (pathname.startsWith("/watch/")) return "watch";
-  if (["/team", "/featured-in", "/blog", "/case-studies"].some((path) => pathname === path || pathname.startsWith(`${path}/`))) return "editorial";
+  if (["/team", "/gallery", "/featured-in", "/blog", "/case-studies"].some((path) => pathname === path || pathname.startsWith(`${path}/`))) return "editorial";
   return pathname === "/" ? "home" : "legal";
 }
 

@@ -29,6 +29,7 @@ export function Header() {
     { label: content.nav.contact, to: "/contact" },
   ];
   const editorialNav = [
+    { label: t.gallery, to: "/gallery" },
     { label: t.team, to: "/team" },
     { label: t.featuredIn, to: "/featured-in" },
     { label: t.blog, to: "/blog" },

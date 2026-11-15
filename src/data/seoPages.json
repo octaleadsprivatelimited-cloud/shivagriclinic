@@ -24,6 +24,11 @@
     "description": "Meet the people behind Shiva Agri Clinic and its farming stories from the field.",
     "keywords": "Shiva Agri Clinic team, G. Shiva Kumar, farming video team"
   },
+  "/gallery": {
+    "title": "Farming photo gallery",
+    "description": "Explore photos from Shiva Agri Clinic field visits, farms and farmer stories. Open each image to see it in full.",
+    "keywords": "Shiva Agri Clinic gallery, farming photos, field visit photos, farmer stories, agriculture images"
+  },
   "/featured-in": {
     "title": "Featured in the news",
     "description": "See news coverage and press clippings featuring Shiva Agri Clinic and its farming stories.",

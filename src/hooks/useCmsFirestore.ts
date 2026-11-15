@@ -17,6 +17,7 @@ import {
   type Timestamp,
 } from "firebase/firestore";
 import { getDb } from "@/lib/firebase";
+import { MAX_IMAGE_DATA_URL_CHARS } from "@/lib/imageCompress";
 import { defaultSiteSettings } from "@/lib/defaultSiteSettings";
 import { isLocalChannelPreview } from "@/hooks/useChannelContent";
 import { defaultCmsStats } from "@/data/defaultStats";
@@ -277,6 +278,16 @@ export function useSaveGalleryItem() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: { id?: string; data: FirestoreGalleryItem }) => {
+      if (payload.data.type === "image") {
+        const imageUrl = payload.data.imageUrl.trim();
+        if (!imageUrl) throw new Error("Upload an image before saving.");
+        // Uploaded images live in the Firestore document. Keep the encoded image
+        // comfortably below both the requested 1 MB limit and Firestore's 1 MiB limit.
+        if (imageUrl.length > MAX_IMAGE_DATA_URL_CHARS ||
+          (/^data:/i.test(imageUrl) && !/^data:image\/(?:jpeg|png|webp);base64,/i.test(imageUrl))) {
+          throw new Error("The image must be under 1 MB after compression. Choose a smaller photo.");
+        }
+      }
       const db = requireDb();
       if (payload.id) {
         await updateDoc(doc(db, "galleryItems", payload.id), {

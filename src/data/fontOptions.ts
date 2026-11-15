@@ -20,7 +20,7 @@ export const sectionFontOptions = [
   { id: "story", label: "Creator story" },
   { id: "testimonials", label: "Testimonials" },
   { id: "press", label: "News slider" },
-  { id: "steps", label: "A simple way in" },
+  { id: "steps", label: "Gallery preview" },
   { id: "subscribe", label: "Subscribe banner" },
   { id: "header", label: "Header and navigation" },
   { id: "footer", label: "Footer" },

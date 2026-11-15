@@ -24,11 +24,13 @@ const AdminLogin = lazy(() => import("@/shiva-admin-suite/pages/AdminLogin"));
 const AdminVideosManagement = lazy(() => import("@/shiva-admin-suite/pages/VideosManagement"));
 const ContentManagement = lazy(() => import("@/shiva-admin-suite/pages/ContentManagement"));
 const Team = lazy(() => import("@/pages/Team"));
+const Gallery = lazy(() => import("@/pages/Gallery"));
 const FeaturedIn = lazy(() => import("@/pages/FeaturedIn"));
 const Blog = lazy(() => import("@/pages/Blog"));
 const BlogPost = lazy(() => import("@/pages/BlogPost"));
 const CaseStudies = lazy(() => import("@/pages/CaseStudies"));
 const TeamManagement = lazy(() => import("@/shiva-admin-suite/pages/TeamManagement"));
+const GalleryManagement = lazy(() => import("@/shiva-admin-suite/pages/GalleryManagement"));
 const FeaturedInManagement = lazy(() => import("@/shiva-admin-suite/pages/FeaturedInManagement"));
 const BlogManagement = lazy(() => import("@/shiva-admin-suite/pages/BlogManagement"));
 const CaseStudiesManagement = lazy(() => import("@/shiva-admin-suite/pages/CaseStudiesManagement"));
@@ -68,6 +70,7 @@ const App = () => (
             <Route path="/services/crop-management" element={<Navigate to="/videos" replace />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/team" element={<Team />} />
+            <Route path="/gallery" element={<Gallery />} />
             <Route path="/featured-in" element={<FeaturedIn />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
@@ -80,7 +83,6 @@ const App = () => (
             <Route path="/products/*" element={<Navigate to="/videos" replace />} />
             <Route path="/solutions/*" element={<Navigate to="/videos" replace />} />
             <Route path="/resources" element={<Navigate to="/videos" replace />} />
-            <Route path="/gallery" element={<Navigate to="/videos" replace />} />
             <Route path="/knowledge-base" element={<Navigate to="/videos" replace />} />
             <Route path="/careers" element={<Navigate to="/about" replace />} />
 
@@ -90,6 +92,7 @@ const App = () => (
               <Route path="videos" element={<AdminVideosManagement />} />
               <Route path="content" element={<ContentManagement />} />
               <Route path="team" element={<TeamManagement />} />
+              <Route path="gallery" element={<GalleryManagement />} />
               <Route path="featured-in" element={<FeaturedInManagement />} />
               <Route path="blog" element={<BlogManagement />} />
               <Route path="case-studies" element={<CaseStudiesManagement />} />

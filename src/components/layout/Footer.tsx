@@ -34,6 +34,7 @@ export function Footer() {
             <h2>{content.nav.exploreHeading}</h2>
             <Link to="/">{content.nav.home}</Link>
             <Link to="/videos">{content.nav.videos}</Link>
+            <Link to="/gallery">{t.gallery}</Link>
             <Link to="/about">{content.nav.about}</Link>
             <Link to="/team">{t.team}</Link>
             <Link to="/featured-in">{t.featuredIn}</Link>

@@ -172,8 +172,8 @@ export const defaultChannelContent: ChannelContent = {
     imageCaption: "THE PERSON BEHIND THE CHANNEL", linkLabel: "More about the channel",
   },
   steps: {
-    eyebrow: "A SIMPLE WAY IN", title: "GOOD STORIES START HERE.",
-    description: "Find a subject you love, spend a few minutes in the field, and keep exploring on YouTube.",
+    eyebrow: "FIELD GALLERY", title: "MOMENTS FROM THE FIELD.",
+    description: "A closer look at farms, farmers, and the stories we share.",
     items: [
       { title: "Pick a topic.", description: "Browse videos by the subjects that interest you." },
       { title: "Watch a story.", description: "Meet people, places and practices through video." },

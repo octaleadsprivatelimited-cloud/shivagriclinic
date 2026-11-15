@@ -9,13 +9,13 @@ import { PartnerMarquee } from "@/components/channel/PartnerMarquee";
 import { PressMarquee } from "@/components/channel/PressMarquee";
 import { SocialCounts } from "@/components/channel/SocialCounts";
 import { Testimonials } from "@/components/channel/Testimonials";
+import { PhotoGallery } from "@/components/channel/PhotoGallery";
 import { videoThumbnail } from "@/data/channelVideos";
 import { useChannelSite } from "@/hooks/useChannelSite";
 import { defaultChannelContent, type TopicCard } from "@/data/channelContent";
 import "@/hero-appearance.css";
 
 const topicIcons = { flower: Flower2, story: Clapperboard, water: Waves, sprout: Sprout, fruit: Apple };
-const stepIcons = [Flower2, Play, Youtube];
 
 export default function Index() {
   const { content, videos, featured } = useChannelSite();
@@ -102,10 +102,7 @@ export default function Index() {
       <Testimonials content={content.testimonials} />
       <PressMarquee press={content.press} />
 
-      <section className="channel-steps-section" id="how-to-watch"><div className="channel-shell">
-        <div className="channel-section-heading"><div><span className="channel-eyebrow">{content.steps.eyebrow}</span><h2>{content.steps.title}</h2></div><p>{content.steps.description}</p></div>
-        <div className="channel-steps-grid">{content.steps.items.map((item, index) => { const Icon = stepIcons[index % stepIcons.length]; return <div className="channel-step-card" key={`${item.title}-${index}`}><span>{index + 1}</span><Icon size={42} strokeWidth={1.6} aria-hidden="true" /><h3>{item.title}</h3><p>{item.description}</p></div>; })}</div>
-      </div></section>
+      <PhotoGallery preview heading={content.steps} />
       <SubscribeBanner />
     </Layout>
   );
