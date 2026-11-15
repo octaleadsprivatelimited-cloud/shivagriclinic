@@ -1,7 +1,7 @@
 .channel-gallery-section { padding-block: 96px 108px; background: var(--blue, #d5e9f1); }
 .channel-gallery-section.is-page { min-height: 55vh; background: var(--paper); }
 .channel-gallery-heading { align-items: end; }
-.channel-gallery-heading h2 { margin: 10px 0 12px; font-size: clamp(38px, 4vw, 65px); line-height: 1.04; }
+.channel-gallery-heading :is(h1, h2) { margin: 10px 0 12px; font-size: clamp(38px, 4vw, 65px); line-height: 1.04; }
 .channel-gallery-heading p { max-width: 580px; margin: 0; }
 .channel-gallery-heading .channel-button { flex: 0 0 auto; }
 .channel-gallery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }

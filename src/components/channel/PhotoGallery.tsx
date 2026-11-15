@@ -47,7 +47,7 @@ export function PhotoGallery({ preview = false, heading }: { preview?: boolean; 
     <section className={`channel-gallery-section${preview ? " is-preview" : " is-page"}`} aria-label={title}>
       <div className="channel-shell">
         <div className="channel-section-heading channel-gallery-heading">
-          <div><span className="channel-eyebrow">{eyebrow}</span><h2>{title}</h2><p>{intro}</p></div>
+          <div><span className="channel-eyebrow">{eyebrow}</span>{preview ? <h2>{title}</h2> : <h1>{title}</h1>}<p>{intro}</p></div>
           {preview && <Link className="channel-button channel-button-white" to="/gallery">{t.viewAll} <ArrowUpRight size={18} aria-hidden="true" /></Link>}
         </div>
         {shownPhotos.length ? <div className="channel-gallery-grid">
