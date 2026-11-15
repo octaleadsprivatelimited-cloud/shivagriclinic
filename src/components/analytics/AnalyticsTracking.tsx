@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { Analytics, type BeforeSendEvent } from "@vercel/analytics/react";
 import { useLocalizedChannelContent } from "@/i18n/channelI18n";
 import "./analytics.css";
 
 const CONSENT_KEY = "shiva-agri-analytics-consent-v1";
 type Consent = "accepted" | "rejected" | null;
+let sessionConsent: Consent = null;
 type AnalyticsSettings = {
   ga4MeasurementId: string;
   clarityProjectId: string;
@@ -26,11 +28,12 @@ function readConsent(): Consent {
     const stored = window.localStorage.getItem(CONSENT_KEY);
     return stored === "accepted" || stored === "rejected" ? stored : null;
   } catch {
-    return null;
+    return sessionConsent;
   }
 }
 
 function writeConsent(value: Exclude<Consent, null>) {
+  sessionConsent = value;
   try {
     window.localStorage.setItem(CONSENT_KEY, value);
   } catch {
@@ -46,6 +49,12 @@ function validGa4Id(value: string): string {
 function validClarityId(value: string): string {
   const id = value.trim();
   return /^[a-z0-9]{4,32}$/.test(id) ? id : "";
+}
+
+function allowVercelEvent(event: BeforeSendEvent) {
+  const path = new URL(event.url, window.location.origin).pathname;
+  if (path === "/admin" || path.startsWith("/admin/") || readConsent() !== "accepted") return null;
+  return event;
 }
 
 function loadGa4(id: string) {
@@ -105,7 +114,7 @@ export default function AnalyticsTracking() {
   const [showChoice, setShowChoice] = useState(false);
   const ga4Id = validGa4Id(analytics?.ga4MeasurementId ?? "");
   const clarityId = validClarityId(analytics?.clarityProjectId ?? "");
-  const configured = Boolean(ga4Id || clarityId);
+  const configured = Boolean(ga4Id || clarityId || import.meta.env.PROD);
   const accepted = configured && consent === "accepted";
   const isAdmin = location.pathname === "/admin" || location.pathname.startsWith("/admin/");
 
@@ -148,6 +157,7 @@ export default function AnalyticsTracking() {
 
   return (
     <>
+      {import.meta.env.PROD && accepted && !isAdmin && <Analytics beforeSend={allowVercelEvent} />}
       {(consent === null || showChoice) && (
         <section className="analytics-consent" role="region" aria-label={analytics.consentTitle}>
           <div className="analytics-consent-copy">

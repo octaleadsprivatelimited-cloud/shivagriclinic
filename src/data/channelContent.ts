@@ -119,7 +119,7 @@ export const defaultChannelContent: ChannelContent = {
   analytics: {
     ga4MeasurementId: "G-FJ3MP87NPS", clarityProjectId: "zdx0tofpqx",
     consentTitle: "Help us improve this website",
-    consentDescription: "With your permission, Google Analytics and Microsoft Clarity help us understand how visitors use this site. You can change your choice at any time.",
+    consentDescription: "With your permission, Google Analytics, Microsoft Clarity, and Vercel Analytics help us understand how visitors use this site. You can change your choice at any time.",
     acceptLabel: "Accept analytics", rejectLabel: "Reject analytics", settingsLabel: "Analytics settings",
   },
   partners: {
@@ -208,7 +208,7 @@ export const defaultChannelContent: ChannelContent = {
     privacy: { title: "Privacy policy.", intro: "Last updated: 14 November 2026", sections: [
       { heading: "How this website works", body: "This website presents Shiva Agri Clinic videos and channel information. The public video library may load entries from Firebase or the public YouTube channel. The website does not offer an account for visitors or a contact form." },
       { heading: "Video content", body: "Video thumbnails are loaded from YouTube. When you choose to play a video, the embedded YouTube player loads from YouTube's privacy-enhanced domain. YouTube may process information about your visit according to its own policies." },
-      { heading: "Analytics and local storage", body: "If configured, Google Analytics 4 and Microsoft Clarity load only after you accept analytics. They may process usage and interaction data under their privacy terms. You can change your choice using Analytics settings. This website stores your language and analytics choices in your browser." },
+      { heading: "Analytics and local storage", body: "Google Analytics 4, Microsoft Clarity, and Vercel Analytics load only after you accept analytics, when configured. They may process usage and interaction data under their privacy terms. You can change your choice using Analytics settings. This website stores your language and analytics choices in your browser." },
       { heading: "Questions", body: "For privacy questions, use the email address in the footer." },
     ] },
     terms: { title: "Terms of use.", intro: "Last updated: 14 November 2026", sections: [
