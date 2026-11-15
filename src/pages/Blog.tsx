@@ -1,119 +1,35 @@
-import { useMemo } from "react";
+import { Link } from "react-router-dom";
+import { ArrowUpRight, BookOpen } from "lucide-react";
 import { Layout } from "@/components/layout";
 import SEO from "@/components/SEO";
-import { Link } from "react-router-dom";
-import { Calendar, User, Clock } from "lucide-react";
-import { blogPosts } from "@/data/blogPosts";
-import heroImage from "@/assets/gallery/farm-visit-1.jpg";
+import { editorialText } from "@/components/channel/editorialCopy";
 import { usePublishedFirestoreBlogPosts } from "@/hooks/useCmsFirestore";
+import { useLanguage } from "@/i18n/LanguageContext";
 
-type BlogCard = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  image: string;
-  date: string;
-  author: string;
-  readTime: string;
-  category: string;
-};
-
-const Blog = () => {
-  const { data: fsPosts = [] } = usePublishedFirestoreBlogPosts();
-
-  const cards: BlogCard[] = useMemo(() => {
-    const fromFs: BlogCard[] = fsPosts.map((row) => ({
-      slug: row.slug,
-      title: row.title,
-      excerpt: row.excerpt,
-      image: row.imageUrl,
-      date: row.date,
-      author: row.author,
-      readTime: row.readTime,
-      category: row.category,
-    }));
-    const slugSet = new Set(fromFs.map((c) => c.slug));
-    const fromStatic: BlogCard[] = blogPosts
-      .filter((p) => !slugSet.has(p.slug))
-      .map((p) => ({
-        slug: p.slug,
-        title: p.title,
-        excerpt: p.excerpt,
-        image: typeof p.image === "string" ? p.image : String(p.image),
-        date: p.date,
-        author: p.author,
-        readTime: p.readTime,
-        category: p.category,
-      }));
-    return [...fromFs, ...fromStatic];
-  }, [fsPosts]);
+export default function Blog() {
+  const { language } = useLanguage();
+  const t = editorialText(language);
+  const { data: posts = [], isPending, isError } = usePublishedFirestoreBlogPosts();
+  const published = posts.filter((post) => post.status === "published" && post.slug && post.title);
 
   return (
     <Layout>
-      <SEO
-        title="Blog"
-        description="Latest agricultural insights, farming tips, and expert knowledge from Shiva Agri Clinic. Stay updated with crop management, pest control, organic farming, and smart farming technologies."
-        keywords="agricultural blog, farming tips, crop management blog, agricultural knowledge, farming insights India"
-      />
-      <section className="relative pt-32 pb-20 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${heroImage})` }} />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-primary/70" />
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold mb-6">Blog</h1>
-          <p className="text-xl text-white/90">Latest insights and agricultural knowledge.</p>
-        </div>
+      <SEO title={t.blog} description="Read field notes, farming stories and agriculture ideas from Shiva Agri Clinic." keywords="Shiva Agri Clinic blog, farming stories, agriculture field notes, farmer videos" />
+      <section className="channel-editorial-hero channel-editorial-hero-yellow">
+        <div className="channel-shell"><span className="channel-eyebrow">{t.blogEyebrow}</span><h1>{t.blog}</h1><p>{t.blogIntro}</p></div>
       </section>
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cards.map((post) => (
-              <Link
-                key={post.slug}
-                to={`/blog/${post.slug}`}
-                className="group bg-card rounded-2xl border border-border overflow-hidden hover:border-accent hover:shadow-lg transition-all block h-full"
-              >
-                <div className="aspect-video overflow-hidden bg-muted">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src =
-                        "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&h=400&fit=crop&q=80";
-                    }}
-                  />
-                </div>
-                <div className="p-6">
-                  <span className="text-xs font-semibold text-accent bg-accent/10 px-3 py-1 rounded-full">
-                    {post.category}
-                  </span>
-                  <h3 className="text-lg font-heading font-semibold mt-3 mb-2 group-hover:text-accent transition-colors line-clamp-2">
-                    {post.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{post.excerpt}</p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      {post.author}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {post.date}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {post.readTime}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+      <section className="channel-editorial-content">
+        <div className="channel-shell">
+          {isPending ? <p className="channel-editorial-empty" role="status">{t.loading}</p> : isError ? <p className="channel-editorial-empty" role="alert">{t.unable}</p> : published.length ? (
+            <div className="channel-blog-grid">
+              {published.map((post) => <Link className="channel-blog-card" key={post.slug} to={`/blog/${encodeURIComponent(post.slug)}`}>
+                <div className="channel-blog-image">{post.imageUrl ? <img src={post.imageUrl} alt="" loading="lazy" /> : <BookOpen size={54} aria-hidden="true" />}</div>
+                <div className="channel-blog-body"><span className="channel-blog-kicker">{post.category || t.blogEyebrow}</span><h2>{post.title}</h2>{post.excerpt && <p>{post.excerpt}</p>}<div className="channel-blog-card-footer"><span>{[post.date, post.author].filter(Boolean).join(" · ")}</span><span>{t.readArticle} <ArrowUpRight size={17} aria-hidden="true" /></span></div></div>
+              </Link>)}
+            </div>
+          ) : <p className="channel-editorial-empty">{t.blogEmpty}</p>}
         </div>
       </section>
     </Layout>
   );
-};
-
-export default Blog;
+}

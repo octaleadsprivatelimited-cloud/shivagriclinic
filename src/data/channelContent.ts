@@ -4,6 +4,7 @@ export type TextCard = { title: string; description: string };
 export type TopicCard = TextCard & { icon: "flower" | "story" | "water" | "sprout" | "fruit" };
 export type LegalSection = { heading: string; body: string };
 export type PartnerLogo = { name: string; logoUrl: string; website: string };
+export type FarmerTestimonial = { name: string; role: string; quote: string; imageUrl: string };
 
 export type ChannelCopy = {
   brand: { name: string; tagline: string; logoUrl: string; youtubeUrl: string; email: string; phone: string; whatsappPhone: string; instagramUrl: string; facebookUrl: string; developerName: string; developerUrl: string; copyrightText: string; developedByLabel: string; footerDescription: string; footerPoster: string; footerPosterAccent: string };
@@ -18,6 +19,7 @@ export type ChannelCopy = {
   highlights: { items: TextCard[] };
   social: { eyebrow: string; title: string; youtubeSubscribers: string; facebookFollowers: string; instagramFollowers: string; subscribersLabel: string; followersLabel: string; unavailableLabel: string };
   partners: { eyebrow: string; title: string; items: PartnerLogo[] };
+  testimonials: { eyebrow: string; title: string; items: FarmerTestimonial[] };
   featured: { eyebrow: string; title: string; description: string; viewAllLabel: string };
   library: { eyebrow: string; title: string; accent: string; description: string; searchLabel: string; allLabel: string; emptyTitle: string; emptyDescription: string; resetLabel: string };
   topics: { eyebrow: string; title: string; description: string; items: TopicCard[] };
@@ -101,6 +103,15 @@ export const defaultChannelContent: ChannelContent = {
       { name: "Laxmi Seeds", logoUrl: "/images/partners/laxmi-seeds.jpg", website: "" },
       { name: "Bayer", logoUrl: "/images/partners/bayer.jpg", website: "" },
       { name: "VPR Agro Tech", logoUrl: "/images/partners/vpr-agro-tech.jpg", website: "" },
+    ],
+  },
+  testimonials: {
+    eyebrow: "TESTIMONIALS", title: "Hear from our farmers.",
+    items: [
+      { name: "Ashok", role: "Flower Farmer - Vikarabad District, Telangana", imageUrl: "/images/testimonials/Ashok.jpeg", quote: "Shiva Agri Clinic played an important role in showcasing my flower farming practices to many fellow farmers. Through their efforts, my colour flower cultivation was shared as a practical example, creating awareness about the potential of flower crops. This exposure encouraged other farmers to explore flower farming as a profitable option. I am grateful to Shiva Agri Clinic for highlighting my work and helping spread knowledge that supports better farming practices and improved farmer income." },
+      { name: "Buchi Reddy", role: "Fruit Farmer - Rangareddy District, Telangana", imageUrl: "/images/testimonials/Buchi Reddy.jpeg", quote: "Shiva Agri Clinic actively promoted my unique Gac fruit farming through video coverage, which gave my cultivation strong visibility among farmers and buyers. This promotion helped create awareness about the value and market potential of Gac fruit. With better marketing and increased interest, I was able to reach more people and improve my income. I appreciate Shiva Agri Clinic for supporting innovative crops and helping farmers benefit through knowledge, promotion, and market exposure." },
+      { name: "Ajay Kumar Reddy", role: "Palm oil Farmer - Mahabubnagar District, Telangana", imageUrl: "/images/testimonials/Ajay Kumar Reddy.jpeg", quote: "Shiva Agri Clinic gave me the opportunity to share my palm oil farming experience through their videos. By showcasing practical techniques, daily farm practices, and tips for higher yield, I was able to reach many fellow farmers. It feels rewarding to know that my knowledge is helping others improve their farming, manage crops better, and increase their income. I sincerely thank Shiva Agri Clinic for creating this platform that connects farmers and spreads valuable, practical guidance." },
+      { name: "Ramu", role: "Dragon Fruit Farmer - Rangareddy District, Telangana", imageUrl: "/images/testimonials/Ramu.jpeg", quote: "Growing dragon fruit was a new experience for me, and I wasn't sure how to reach the market. Shiva Agri Clinic guided me not only in cultivation techniques but also in connecting directly with customers. This helped me sell my fruits at better prices and build a loyal customer base. I am also happy that my plants and knowledge could reach other farmers, encouraging them to start dragon fruit cultivation. Thanks to Shiva Agri Clinic, my farming has become more profitable, organized, and inspiring for others." },
     ],
   },
   featured: { eyebrow: "FROM THE CHANNEL", title: "Watch the stories.", description: "A selection from the Shiva Agri Clinic video library.", viewAllLabel: "View all videos" },
@@ -242,6 +253,7 @@ export function resolveChannelContent(content: ChannelContent, language: Languag
   translated.hero.featuredVideoId = content.hero.featuredVideoId;
   translated.story.imageUrl = content.story.imageUrl;
   translated.partners.items = content.partners.items;
+  translated.testimonials.items = content.testimonials.items.map((item, index) => ({ ...item, ...(translated.testimonials.items[index] ?? {}), imageUrl: item.imageUrl }));
   translated.social.youtubeSubscribers = content.social.youtubeSubscribers;
   translated.social.facebookFollowers = content.social.facebookFollowers;
   translated.social.instagramFollowers = content.social.instagramFollowers;

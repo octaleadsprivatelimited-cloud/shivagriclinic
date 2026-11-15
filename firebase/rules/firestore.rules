@@ -19,8 +19,29 @@ service cloud.firestore {
         && videoId.matches('[A-Za-z0-9_-]{11}');
     }
 
-    // Legacy product, inquiry, blog, staff, and seed collections are not used by
-    // the new site. Do not deploy these narrowed rules until the old site is retired.
+    // Published editorial content is public. Drafts are visible only to admins.
+    match /blogPosts/{slug} {
+      allow read: if isAdmin() || resource.data.status == 'published';
+      allow create, update, delete: if isAdmin()
+        && slug.matches('[a-z0-9]+(-[a-z0-9]+)*');
+    }
+
+    // These collections are edited by the admin panel and displayed publicly.
+    match /teamMembers/{memberId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    match /caseStudies/{studyId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    match /featuredIn/{clippingId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Legacy product, inquiry, and seed collections remain closed to this site.
+    // Do not deploy these narrowed rules until the old site is retired.
     match /{document=**} {
       allow read, write: if false;
     }

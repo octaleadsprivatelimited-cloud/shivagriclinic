@@ -46,15 +46,22 @@ for (const [route, page] of Object.entries(pages)) {
   await writeFile(output, renderPage(route, page));
 }
 
-function renderFallback({ watch }) {
-  const title = watch ? "Watch a farming video | Shiva Agri Clinic" : "Shiva Agri Clinic";
-  const description = watch
+function renderFallback({ kind }) {
+  const indexable = kind !== "generic";
+  const title = kind === "watch"
+    ? "Watch a farming video | Shiva Agri Clinic"
+    : kind === "blog"
+      ? "Read a field note | Shiva Agri Clinic"
+      : "Shiva Agri Clinic";
+  const description = kind === "watch"
     ? "Watch a farming video and explore more stories from the Shiva Agri Clinic YouTube channel."
-    : "Explore farming videos and field stories from Shiva Agri Clinic.";
+    : kind === "blog"
+      ? "Read a published field note from Shiva Agri Clinic."
+      : "Explore farming videos and field stories from Shiva Agri Clinic.";
   let html = sourceHtml.replace(/<title>[^<]*<\/title>/i, `<title>${escapeHtml(title)}</title>`);
   html = replaceMeta(html, "name", "description", description);
-  html = replaceMeta(html, "name", "keywords", watch ? "Shiva Agri Clinic farming video" : "Shiva Agri Clinic");
-  html = replaceMeta(html, "name", "robots", watch ? "index, follow" : "noindex, nofollow");
+  html = replaceMeta(html, "name", "keywords", kind === "watch" ? "Shiva Agri Clinic farming video" : "Shiva Agri Clinic");
+  html = replaceMeta(html, "name", "robots", indexable ? "index, follow" : "noindex, nofollow");
   html = replaceMeta(html, "property", "og:title", title);
   html = replaceMeta(html, "property", "og:description", description);
   html = replaceMeta(html, "name", "twitter:title", title);
@@ -66,9 +73,11 @@ function renderFallback({ watch }) {
 }
 
 await mkdir(path.join(distRoot, "watch"), { recursive: true });
-await writeFile(path.join(distRoot, "watch", "index.html"), renderFallback({ watch: true }));
-const fallback = renderFallback({ watch: false });
+await writeFile(path.join(distRoot, "watch", "index.html"), renderFallback({ kind: "watch" }));
+await mkdir(path.join(distRoot, "blog-post"), { recursive: true });
+await writeFile(path.join(distRoot, "blog-post", "index.html"), renderFallback({ kind: "blog" }));
+const fallback = renderFallback({ kind: "generic" });
 await writeFile(path.join(distRoot, "spa-fallback.html"), fallback);
 await writeFile(path.join(distRoot, "404.html"), fallback);
 
-console.log(`Generated ${Object.keys(pages).length} SEO page shells and two SPA fallbacks`);
+console.log(`Generated ${Object.keys(pages).length} SEO page shells, two dynamic shells, and two SPA fallbacks`);

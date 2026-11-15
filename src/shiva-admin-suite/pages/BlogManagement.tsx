@@ -90,10 +90,6 @@ const BlogManagement = () => {
       toast.error("Add a title or slug.");
       return;
     }
-    if (!form.imageUrl?.trim()) {
-      toast.error("Upload a cover image (auto-compressed JPEG stored in Firestore).");
-      return;
-    }
     try {
       await saveBlog.mutateAsync({ ...form, slug });
       toast.success(editingId ? "Post updated" : "Post created");
@@ -160,17 +156,19 @@ const BlogManagement = () => {
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                      <Link to={`/blog/${post.slug}`} target="_blank" rel="noreferrer">
+                      <Link to={`/blog/${post.slug}`} target="_blank" rel="noreferrer" aria-label={`View ${post.title}`} title={`View ${post.title}`}>
                         <Eye className="h-4 w-4" />
                       </Link>
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(post)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Edit ${post.title}`} title={`Edit ${post.title}`} onClick={() => openEdit(post)}>
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-destructive hover:text-destructive"
+                      aria-label={`Delete ${post.title}`}
+                      title={`Delete ${post.title}`}
                       onClick={() => handleDelete(post.id)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -184,8 +182,7 @@ const BlogManagement = () => {
 
         {!isPending && sortedRows.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            No posts in Firestore yet. Use <strong>Settings → Import defaults</strong> to copy existing website
-            articles, or create a post here.
+            No blog posts have been added yet.
           </p>
         )}
       </div>
@@ -223,7 +220,7 @@ const BlogManagement = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="content">Content (HTML)</Label>
+              <Label htmlFor="content">Content (plain text)</Label>
               <Textarea
                 id="content"
                 rows={8}
@@ -264,7 +261,7 @@ const BlogManagement = () => {
               </div>
             </div>
             <AdminImageUpload
-              label="Cover image"
+              label="Cover image (optional)"
               value={form.imageUrl}
               onChange={(v) => setForm((f) => ({ ...f, imageUrl: v }))}
               onClear={() => setForm((f) => ({ ...f, imageUrl: "" }))}

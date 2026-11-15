@@ -154,13 +154,15 @@ const CaseStudiesManagement = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(study.id, study)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Edit ${study.title}`} title={`Edit ${study.title}`} onClick={() => openEdit(study.id, study)}>
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-destructive hover:text-destructive"
+                      aria-label={`Delete ${study.title}`}
+                      title={`Delete ${study.title}`}
                       onClick={() => void handleDelete(study.id)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -174,7 +176,7 @@ const CaseStudiesManagement = () => {
 
         {!isPending && caseStudies.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            No case studies in Firestore. Use <strong>Settings → Import defaults</strong> to seed standard success stories, or add them here.
+            No case studies have been added yet.
           </p>
         )}
       </div>
@@ -223,7 +225,7 @@ const CaseStudiesManagement = () => {
               <Label>Results (one per line)</Label>
               <Textarea
                 rows={3}
-                placeholder="200% yield increase&#10;50% water savings"
+                placeholder="Add a verified result on each line"
                 value={resultsText}
                 onChange={(e) => setResultsText(e.target.value)}
               />

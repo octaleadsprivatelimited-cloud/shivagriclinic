@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight, Youtube } from "lucide-react";
 import { useLocalizedChannelContent } from "@/i18n/channelI18n";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { editorialText } from "@/components/channel/editorialCopy";
 
 function safeDeveloperUrl(value: string): string {
   try {
@@ -12,6 +14,8 @@ function safeDeveloperUrl(value: string): string {
 
 export function Footer() {
   const content = useLocalizedChannelContent();
+  const { language } = useLanguage();
+  const t = editorialText(language);
   const developerUrl = safeDeveloperUrl(content.brand.developerUrl);
   return (
     <footer className="channel-footer">
@@ -31,6 +35,10 @@ export function Footer() {
             <Link to="/videos">{content.nav.videos}</Link>
             <Link to="/crop-management">{content.nav.cropManagement}</Link>
             <Link to="/about">{content.nav.about}</Link>
+            <Link to="/team">{t.team}</Link>
+            <Link to="/featured-in">{t.featuredIn}</Link>
+            <Link to="/blog">{t.blog}</Link>
+            <Link to="/case-studies">{t.caseStudies}</Link>
             <Link to="/contact">{content.nav.contact}</Link>
           </div>
           <div>

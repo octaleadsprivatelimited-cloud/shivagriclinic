@@ -34,10 +34,72 @@ import type {
   FirestoreStat,
   StatRow,
   FirestoreBrandPartner,
+  FirestoreFeaturedIn,
 } from "@/types/cms";
 
 const SETTINGS_COL = "settings";
 const SITE_DOC_ID = "site";
+const LOCAL_EDITORIAL_PREFIX = "shiva-editorial-v1:";
+
+function localEditorialMode() {
+  return !getDb() && isLocalChannelPreview();
+}
+
+function readLocalRows<T>(collectionName: string): T[] {
+  if (!localEditorialMode() || typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(`${LOCAL_EDITORIAL_PREFIX}${collectionName}`);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed as T[] : [];
+  } catch { return []; }
+}
+
+function writeLocalRows<T extends { id: string }>(collectionName: string, rows: T[]) {
+  if (!localEditorialMode() || typeof window === "undefined") throw new Error("Local editing is available only on localhost.");
+  window.localStorage.setItem(`${LOCAL_EDITORIAL_PREFIX}${collectionName}`, JSON.stringify(rows));
+}
+
+function useEditorialStorageSync(collectionName: string) {
+  const qc = useQueryClient();
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === `${LOCAL_EDITORIAL_PREFIX}${collectionName}`) {
+        void qc.invalidateQueries({ queryKey: ["cms", collectionName] });
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [collectionName, qc]);
+}
+
+function safeDocumentId(id: string) {
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new Error("Invalid document ID.");
+  return id;
+}
+
+function safeImageSource(value: string, optional = false) {
+  if (!value.trim()) {
+    if (optional) return "";
+    throw new Error("Add an image.");
+  }
+  if (/^\/images\/[A-Za-z0-9/_ .-]+$/.test(value) && !value.includes("..")) return value;
+  if (/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(value) && value.length <= 800_000) return value;
+  try {
+    const url = new URL(value);
+    if (url.protocol === "https:" && !url.username && !url.password) return url.href;
+  } catch { /* rejected below */ }
+  throw new Error("Use an HTTPS image URL or upload an image.");
+}
+
+function safeOptionalHttpsUrl(value: string | undefined) {
+  if (!value?.trim()) return "";
+  try {
+    const url = new URL(value);
+    if (url.protocol === "https:" && !url.username && !url.password) return url.href;
+  } catch { /* rejected below */ }
+  throw new Error("Use an HTTPS link URL.");
+}
 
 function requireDb() {
   const db = getDb();
@@ -77,11 +139,12 @@ export function useSaveSiteSettings() {
 }
 
 export function usePublishedFirestoreBlogPosts() {
+  useEditorialStorageSync("blogPosts");
   return useQuery({
     queryKey: ["cms", "blogPosts", "published"],
     queryFn: async () => {
       const db = getDb();
-      if (!db) return [];
+      if (!db) return readLocalRows<AdminBlogRow>("blogPosts").filter((row) => row.status === "published");
       const q = query(collection(db, "blogPosts"), where("status", "==", "published"));
       const snap = await getDocs(q);
       return snap.docs.map((d) => ({ id: d.id, ...(d.data() as FirestoreBlogPost) }));
@@ -91,13 +154,14 @@ export function usePublishedFirestoreBlogPosts() {
 }
 
 export function useFirestoreBlogPost(slug: string | undefined) {
+  useEditorialStorageSync("blogPosts");
   return useQuery({
     queryKey: ["cms", "blogPosts", "one", slug],
     enabled: !!slug,
     queryFn: async () => {
       if (!slug) return null;
       const db = getDb();
-      if (!db) return null;
+      if (!db) return readLocalRows<AdminBlogRow>("blogPosts").find((row) => row.slug === slug && row.status === "published") ?? null;
       try {
         const snap = await getDoc(doc(db, "blogPosts", slug));
         if (!snap.exists()) return null;
@@ -115,11 +179,12 @@ export function useFirestoreBlogPost(slug: string | undefined) {
 export type AdminBlogRow = FirestoreBlogPost & { id: string };
 
 export function useAdminBlogPosts() {
+  useEditorialStorageSync("blogPosts");
   return useQuery({
     queryKey: ["cms", "blogPosts", "admin"],
     queryFn: async () => {
       const db = getDb();
-      if (!db) return [];
+      if (!db) return readLocalRows<AdminBlogRow>("blogPosts");
       const snap = await getDocs(collection(db, "blogPosts"));
       const rows: AdminBlogRow[] = snap.docs.map((d) => ({
         id: d.id,
@@ -135,8 +200,17 @@ export function useSaveBlogPost() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: FirestoreBlogPost) => {
-      const db = requireDb();
       const id = payload.slug.trim();
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) throw new Error("Use a lowercase URL slug with letters, numbers and hyphens.");
+      if (!payload.title.trim() || !payload.content.trim()) throw new Error("Title and content are required.");
+      safeImageSource(payload.imageUrl, true);
+      if (payload.status !== "draft" && payload.status !== "published") throw new Error("Invalid post status.");
+      if (localEditorialMode()) {
+        const rows = readLocalRows<AdminBlogRow>("blogPosts");
+        writeLocalRows("blogPosts", [{ ...payload, id, slug: id }, ...rows.filter((row) => row.id !== id)]);
+        return;
+      }
+      const db = requireDb();
       const ref = doc(db, "blogPosts", id);
       const existing = await getDoc(ref);
       const data: Record<string, unknown> = {
@@ -166,6 +240,11 @@ export function useDeleteBlogPost() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      safeDocumentId(id);
+      if (localEditorialMode()) {
+        writeLocalRows("blogPosts", readLocalRows<AdminBlogRow>("blogPosts").filter((row) => row.id !== id));
+        return;
+      }
       const db = requireDb();
       await deleteDoc(doc(db, "blogPosts", id));
     },
@@ -402,11 +481,12 @@ export function useDeleteCareer() {
 export type TeamMemberRow = FirestoreTeamMember & { id: string };
 
 export function useTeamMembers() {
+  useEditorialStorageSync("teamMembers");
   return useQuery({
     queryKey: ["cms", "teamMembers"],
     queryFn: async () => {
       const db = getDb();
-      if (!db) return [];
+      if (!db) return readLocalRows<TeamMemberRow>("teamMembers");
       const snap = await getDocs(collection(db, "teamMembers"));
       const rows: TeamMemberRow[] = snap.docs.map((d) => ({
         id: d.id,
@@ -422,6 +502,15 @@ export function useSaveTeamMember() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: { id?: string; data: FirestoreTeamMember }) => {
+      if (!payload.data.name.trim() || !payload.data.role.trim()) throw new Error("Name and role are required.");
+      if (payload.data.image) safeImageSource(payload.data.image, true);
+      for (const value of Object.values(payload.data.social ?? {})) if (value) safeOptionalHttpsUrl(value);
+      if (payload.id) safeDocumentId(payload.id);
+      if (localEditorialMode()) {
+        const id = payload.id ?? crypto.randomUUID();
+        writeLocalRows("teamMembers", [{ ...payload.data, id }, ...readLocalRows<TeamMemberRow>("teamMembers").filter((row) => row.id !== id)]);
+        return;
+      }
       const db = requireDb();
       const docData: Record<string, unknown> = {
         name: payload.data.name,
@@ -451,6 +540,11 @@ export function useDeleteTeamMember() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      safeDocumentId(id);
+      if (localEditorialMode()) {
+        writeLocalRows("teamMembers", readLocalRows<TeamMemberRow>("teamMembers").filter((row) => row.id !== id));
+        return;
+      }
       const db = requireDb();
       await deleteDoc(doc(db, "teamMembers", id));
     },
@@ -621,11 +715,12 @@ export function useDeleteVideo() {
 export type CaseStudyRow = FirestoreCaseStudy & { id: string };
 
 export function useCaseStudies() {
+  useEditorialStorageSync("caseStudies");
   return useQuery({
     queryKey: ["cms", "caseStudies"],
     queryFn: async () => {
       const db = getDb();
-      if (!db) return [];
+      if (!db) return readLocalRows<CaseStudyRow>("caseStudies");
       const snap = await getDocs(collection(db, "caseStudies"));
       const rows: CaseStudyRow[] = snap.docs.map((d) => ({
         id: d.id,
@@ -641,6 +736,14 @@ export function useSaveCaseStudy() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: { id?: string; data: FirestoreCaseStudy }) => {
+      if (!payload.data.title.trim()) throw new Error("Title is required.");
+      safeImageSource(payload.data.imageUrl ?? "", true);
+      if (payload.id) safeDocumentId(payload.id);
+      if (localEditorialMode()) {
+        const id = payload.id ?? crypto.randomUUID();
+        writeLocalRows("caseStudies", [{ ...payload.data, id }, ...readLocalRows<CaseStudyRow>("caseStudies").filter((row) => row.id !== id)]);
+        return;
+      }
       const db = requireDb();
       if (payload.id) {
         await updateDoc(doc(db, "caseStudies", payload.id), {
@@ -670,12 +773,78 @@ export function useDeleteCaseStudy() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      safeDocumentId(id);
+      if (localEditorialMode()) {
+        writeLocalRows("caseStudies", readLocalRows<CaseStudyRow>("caseStudies").filter((row) => row.id !== id));
+        return;
+      }
       const db = requireDb();
       await deleteDoc(doc(db, "caseStudies", id));
     },
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["cms", "caseStudies"] });
     },
+  });
+}
+
+export type FeaturedInRow = FirestoreFeaturedIn & { id: string };
+
+export function useFeaturedIn() {
+  useEditorialStorageSync("featuredIn");
+  return useQuery({
+    queryKey: ["cms", "featuredIn"],
+    queryFn: async (): Promise<FeaturedInRow[]> => {
+      const db = getDb();
+      if (!db) return readLocalRows<FeaturedInRow>("featuredIn");
+      const snap = await getDocs(collection(db, "featuredIn"));
+      const rows: FeaturedInRow[] = snap.docs.map((item) => ({ id: item.id, ...(item.data() as FirestoreFeaturedIn) }));
+      rows.sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+      return rows;
+    },
+  });
+}
+
+export function useSaveFeaturedIn() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { id?: string; data: FirestoreFeaturedIn }) => {
+      const title = payload.data.title.trim();
+      const source = payload.data.source.trim();
+      if (!title || !source) throw new Error("Title and source are required.");
+      const imageUrl = safeImageSource(payload.data.imageUrl.trim());
+      const linkUrl = safeOptionalHttpsUrl(payload.data.linkUrl);
+      const date = payload.data.date?.trim() ?? "";
+      if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("Use a valid date.");
+      const data: FirestoreFeaturedIn = { title, source, imageUrl, linkUrl, date };
+      if (payload.id) safeDocumentId(payload.id);
+      if (localEditorialMode()) {
+        const id = payload.id ?? crypto.randomUUID();
+        writeLocalRows("featuredIn", [{ ...data, id }, ...readLocalRows<FeaturedInRow>("featuredIn").filter((row) => row.id !== id)]);
+        return;
+      }
+      const db = requireDb();
+      if (payload.id) {
+        await updateDoc(doc(db, "featuredIn", payload.id), data);
+      } else {
+        await addDoc(collection(db, "featuredIn"), { ...data, createdAt: serverTimestamp() });
+      }
+    },
+    onSuccess: async () => { await qc.invalidateQueries({ queryKey: ["cms", "featuredIn"] }); },
+  });
+}
+
+export function useDeleteFeaturedIn() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      safeDocumentId(id);
+      if (localEditorialMode()) {
+        writeLocalRows("featuredIn", readLocalRows<FeaturedInRow>("featuredIn").filter((row) => row.id !== id));
+        return;
+      }
+      await deleteDoc(doc(requireDb(), "featuredIn", id));
+    },
+    onSuccess: async () => { await qc.invalidateQueries({ queryKey: ["cms", "featuredIn"] }); },
   });
 }
 

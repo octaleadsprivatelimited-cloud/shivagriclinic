@@ -112,6 +112,15 @@ export type FirestoreCaseStudy = {
   createdAt?: Timestamp;
 };
 
+export type FirestoreFeaturedIn = {
+  title: string;
+  source: string;
+  imageUrl: string;
+  linkUrl?: string;
+  date?: string;
+  createdAt?: Timestamp;
+};
+
 export type FirestoreKnowledgeBaseArticle = {
   title: string;
   category: string;

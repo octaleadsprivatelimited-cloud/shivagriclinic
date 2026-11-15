@@ -23,6 +23,15 @@ const AdminDashboard = lazy(() => import("@/shiva-admin-suite/pages/Dashboard"))
 const AdminLogin = lazy(() => import("@/shiva-admin-suite/pages/AdminLogin"));
 const AdminVideosManagement = lazy(() => import("@/shiva-admin-suite/pages/VideosManagement"));
 const ContentManagement = lazy(() => import("@/shiva-admin-suite/pages/ContentManagement"));
+const Team = lazy(() => import("@/pages/Team"));
+const FeaturedIn = lazy(() => import("@/pages/FeaturedIn"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const BlogPost = lazy(() => import("@/pages/BlogPost"));
+const CaseStudies = lazy(() => import("@/pages/CaseStudies"));
+const TeamManagement = lazy(() => import("@/shiva-admin-suite/pages/TeamManagement"));
+const FeaturedInManagement = lazy(() => import("@/shiva-admin-suite/pages/FeaturedInManagement"));
+const BlogManagement = lazy(() => import("@/shiva-admin-suite/pages/BlogManagement"));
+const CaseStudiesManagement = lazy(() => import("@/shiva-admin-suite/pages/CaseStudiesManagement"));
 
 const queryClient = new QueryClient({
   mutationCache: new MutationCache({ onSuccess: () => broadcastCmsChange() }),
@@ -57,6 +66,11 @@ const App = () => (
             <Route path="/services/crop-advisory" element={<Navigate to="/crop-management" replace />} />
             <Route path="/services/crop-management" element={<Navigate to="/crop-management" replace />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/team" element={<Team />} />
+            <Route path="/featured-in" element={<FeaturedIn />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/case-studies" element={<CaseStudies />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<Terms />} />
 
@@ -64,12 +78,9 @@ const App = () => (
             <Route path="/services/*" element={<Navigate to="/videos" replace />} />
             <Route path="/products/*" element={<Navigate to="/videos" replace />} />
             <Route path="/solutions/*" element={<Navigate to="/videos" replace />} />
-            <Route path="/blog/*" element={<Navigate to="/videos" replace />} />
             <Route path="/resources" element={<Navigate to="/videos" replace />} />
             <Route path="/gallery" element={<Navigate to="/videos" replace />} />
             <Route path="/knowledge-base" element={<Navigate to="/videos" replace />} />
-            <Route path="/case-studies" element={<Navigate to="/videos" replace />} />
-            <Route path="/team" element={<Navigate to="/about" replace />} />
             <Route path="/careers" element={<Navigate to="/about" replace />} />
 
             <Route path="/admin/login" element={<AdminLogin />} />
@@ -77,6 +88,10 @@ const App = () => (
               <Route index element={<AdminDashboard />} />
               <Route path="videos" element={<AdminVideosManagement />} />
               <Route path="content" element={<ContentManagement />} />
+              <Route path="team" element={<TeamManagement />} />
+              <Route path="featured-in" element={<FeaturedInManagement />} />
+              <Route path="blog" element={<BlogManagement />} />
+              <Route path="case-studies" element={<CaseStudiesManagement />} />
               <Route path="*" element={<Navigate to="/admin/videos" replace />} />
             </Route>
             <Route path="*" element={<NotFound />} />

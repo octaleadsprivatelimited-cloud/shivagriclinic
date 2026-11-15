@@ -16,6 +16,7 @@ const sections: { key: keyof ChannelCopy; name: string }[] = [
   { key: "hero", name: "Hero" }, { key: "highlights", name: "Highlights" },
   { key: "social", name: "Social counts" },
   { key: "partners", name: "Logo showcase" },
+  { key: "testimonials", name: "Farmer testimonials" },
   { key: "featured", name: "Featured videos" }, { key: "library", name: "Video library" },
   { key: "topics", name: "Topics" }, { key: "story", name: "Creator story" },
   { key: "steps", name: "Steps" }, { key: "subscribe", name: "Subscribe" },
@@ -66,6 +67,7 @@ function emptyItem(path: Path): Record<string, string> {
   if (path[0] === "topics") return { title: "", description: "", icon: "sprout" };
   if (path[0] === "legal") return { heading: "", body: "" };
   if (path[0] === "partners") return { name: "", logoUrl: "", website: "" };
+  if (path[0] === "testimonials") return { name: "", role: "", quote: "", imageUrl: "" };
   return { title: "", description: "" };
 }
 
@@ -80,7 +82,7 @@ function EditorField({ name, value, path, onChange, translationMode = false }: E
     return <fieldset className="space-y-4 rounded-xl border bg-muted/30 p-4">
       <legend className="px-2 text-sm font-semibold">{label(name)}</legend>
       {value.map((item, index) => <div key={index} className="rounded-lg border bg-card p-4">
-        <div className="mb-3 flex items-center justify-between gap-2"><strong className="text-sm">Item {index + 1}</strong>{!translationMode && <div className="flex flex-wrap gap-1">{path[0] === "partners" && <><Button type="button" variant="outline" size="sm" disabled={index === 0} onClick={() => { const next = [...value]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(path, next); }}>Up</Button><Button type="button" variant="outline" size="sm" disabled={index === value.length - 1} onClick={() => { const next = [...value]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; onChange(path, next); }}>Down</Button></>}<Button type="button" variant="outline" size="sm" onClick={() => onChange(path, value.filter((_, itemIndex) => itemIndex !== index))}>Remove</Button></div>}</div>
+        <div className="mb-3 flex items-center justify-between gap-2"><strong className="text-sm">Item {index + 1}</strong>{!translationMode && <div className="flex flex-wrap gap-1">{["partners", "testimonials"].includes(String(path[0])) && <><Button type="button" variant="outline" size="sm" disabled={index === 0} onClick={() => { const next = [...value]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(path, next); }}>Up</Button><Button type="button" variant="outline" size="sm" disabled={index === value.length - 1} onClick={() => { const next = [...value]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; onChange(path, next); }}>Down</Button></>}<Button type="button" variant="outline" size="sm" onClick={() => onChange(path, value.filter((_, itemIndex) => itemIndex !== index))}>Remove</Button></div>}</div>
         <EditorField name={`${name} ${index + 1}`} value={item} path={[...path, index]} onChange={onChange} translationMode={translationMode} />
       </div>)}
       {!translationMode && <Button type="button" variant="outline" size="sm" onClick={() => onChange(path, [...value, emptyItem(path)])}>Add item</Button>}
@@ -166,7 +168,7 @@ export default function ContentManagement() {
   }
 
   return <AdminLayout title="Website content"><div className="mx-auto max-w-6xl space-y-6">
-    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold">Edit the channel website</h2><p className="mt-1 text-sm text-muted-foreground">Use Brand & links for the main logo, contact details, social profile URLs and floating WhatsApp number. Use Social counts for subscriber and follower totals. Use Logo showcase for partner logos. The public site updates after saving.</p></div><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}><Save className="mr-2 h-4 w-4" />{saveContent.isPending ? "Saving…" : "Save changes"}</Button></div>
+    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold">Edit the channel website</h2><p className="mt-1 text-sm text-muted-foreground">Use Brand & links for the main logo, contact details, social profile URLs and floating WhatsApp number. Use Social counts for subscriber and follower totals, Logo showcase for partner logos, and Farmer testimonials for quotes and photos. The public site updates after saving.</p></div><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}><Save className="mr-2 h-4 w-4" />{saveContent.isPending ? "Saving…" : "Save changes"}</Button></div>
     <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Content language">{(["en", "te", "hi"] as const).map((code) => <button key={code} type="button" aria-pressed={language === code} className={`rounded-lg border px-4 py-2 text-sm font-semibold ${language === code ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`} onClick={() => setLanguage(code)}>{code === "en" ? "English" : code === "te" ? "తెలుగు" : "हिन्दी"}</button>)}</div>
     {language !== "en" && <p className="text-sm text-muted-foreground">Edit translated text for {language === "te" ? "Telugu" : "Hindi"}. Links, images, video selection, and list structure are shared with English. Unedited text uses the built-in translation or English fallback.</p>}
     {mode === "local" && <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Local preview mode: edits are saved only in this browser on localhost. Configure Firebase for shared, persistent production editing.</p>}

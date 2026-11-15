@@ -14,6 +14,7 @@ export const builtInTranslations = {
     ] },
     social: { eyebrow: "పొలం కథలను అనుసరించండి", title: "పెరుగుతున్న మా సమూహం.", subscribersLabel: "సబ్‌స్క్రైబర్లు", followersLabel: "ఫాలోవర్లు", unavailableLabel: "సంఖ్య అందుబాటులో లేదు" },
     partners: { eyebrow: "లోగో ప్రదర్శన", title: "కొన్ని పరిచయమైన లోగోలు." },
+    testimonials: { eyebrow: "రైతుల మాటలు", title: "మా రైతుల అనుభవాలు." },
     featured: { eyebrow: "ఛానల్ నుంచి", title: "ఈ కథలు చూడండి.", description: "శివ అగ్రి క్లినిక్ వీడియోల నుంచి కొన్ని ఎంపికలు.", viewAllLabel: "అన్ని వీడియోలు" },
     library: { eyebrow: "వీడియో లైబ్రరీ", title: "చూడటానికి", accent: "మంచి వీడియోలు.", description: "శివ అగ్రి క్లినిక్ వీడియోలను అంశాలవారీగా, మీకు నచ్చినప్పుడు చూడండి.", searchLabel: "వీడియోలు వెతకండి", allLabel: "అన్ని వీడియోలు", emptyTitle: "వీడియోలు దొరకలేదు.", emptyDescription: "మరో పదం లేదా అంశంతో వెతకండి.", resetLabel: "అన్ని వీడియోలు చూడండి" },
     topics: { eyebrow: "మీ తదుపరి వీడియో", title: "అంశాలవారీగా చూడండి.", description: "మీకు నచ్చిన అంశాన్ని ఎంచుకుని వీడియోలు చూడండి.", items: [
@@ -61,6 +62,7 @@ export const builtInTranslations = {
     ] },
     social: { eyebrow: "खेतों की कहानियों से जुड़ें", title: "हमारा बढ़ता समुदाय.", subscribersLabel: "सब्सक्राइबर", followersLabel: "फ़ॉलोअर", unavailableLabel: "संख्या उपलब्ध नहीं है" },
     partners: { eyebrow: "लोगो प्रदर्शनी", title: "कुछ परिचित लोगो." },
+    testimonials: { eyebrow: "किसानों की आवाज़", title: "हमारे किसानों के अनुभव।" },
     featured: { eyebrow: "चैनल से", title: "ये कहानियाँ देखें.", description: "शिवा एग्री क्लिनिक की वीडियो लाइब्रेरी से कुछ चुनिंदा वीडियो।", viewAllLabel: "सभी वीडियो" },
     library: { eyebrow: "वीडियो लाइब्रेरी", title: "देखने के लिए", accent: "कुछ अच्छा.", description: "शिवा एग्री क्लिनिक के वीडियो विषय चुनकर अपनी सुविधा से देखें।", searchLabel: "वीडियो खोजें", allLabel: "सभी वीडियो", emptyTitle: "कोई वीडियो नहीं मिला.", emptyDescription: "दूसरा शब्द या विषय आज़माएँ।", resetLabel: "सभी वीडियो देखें" },
     topics: { eyebrow: "अगला वीडियो चुनें", title: "विषय के अनुसार देखें.", description: "अपनी रुचि का विषय चुनें और वीडियो देखें।", items: [

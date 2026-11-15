@@ -9,12 +9,9 @@
     { "source": "/services/(.*)", "destination": "/videos", "permanent": true },
     { "source": "/products/(.*)", "destination": "/videos", "permanent": true },
     { "source": "/solutions/(.*)", "destination": "/videos", "permanent": true },
-    { "source": "/blog/(.*)", "destination": "/videos", "permanent": true },
     { "source": "/resources", "destination": "/videos", "permanent": true },
     { "source": "/gallery", "destination": "/videos", "permanent": true },
     { "source": "/knowledge-base", "destination": "/videos", "permanent": true },
-    { "source": "/case-studies", "destination": "/videos", "permanent": true },
-    { "source": "/team", "destination": "/about", "permanent": true },
     { "source": "/careers", "destination": "/about", "permanent": true }
   ],
   "headers": [
@@ -33,9 +30,14 @@
     { "source": "/about", "destination": "/about/index.html" },
     { "source": "/crop-management", "destination": "/crop-management/index.html" },
     { "source": "/contact", "destination": "/contact/index.html" },
+    { "source": "/team", "destination": "/team/index.html" },
+    { "source": "/featured-in", "destination": "/featured-in/index.html" },
+    { "source": "/blog", "destination": "/blog/index.html" },
+    { "source": "/case-studies", "destination": "/case-studies/index.html" },
     { "source": "/privacy-policy", "destination": "/privacy-policy/index.html" },
     { "source": "/terms", "destination": "/terms/index.html" },
     { "source": "/watch/(.*)", "destination": "/watch/index.html" },
+    { "source": "/blog/(.*)", "destination": "/blog-post/index.html" },
     { "source": "/(.*)", "destination": "/spa-fallback.html" }
   ]
 }

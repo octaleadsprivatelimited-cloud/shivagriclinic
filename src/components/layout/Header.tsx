@@ -4,6 +4,7 @@ import { ArrowUpRight, Instagram, Menu, X } from "lucide-react";
 import { useLocalizedChannelContent } from "@/i18n/channelI18n";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { safeInstagramHref, type Language } from "@/data/channelContent";
+import { editorialText } from "@/components/channel/editorialCopy";
 import "@/social-contact.css";
 
 function YouTubeMark() {
@@ -17,6 +18,7 @@ export function Header() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const content = useLocalizedChannelContent();
   const { language, setLanguage } = useLanguage();
+  const t = editorialText(language);
   const instagramHref = safeInstagramHref(content.brand.instagramUrl);
   const nav = [
     { label: content.nav.home, to: "/" },
@@ -25,6 +27,13 @@ export function Header() {
     { label: content.nav.about, to: "/about" },
     { label: content.nav.contact, to: "/contact" },
   ];
+  const editorialNav = [
+    { label: t.team, to: "/team" },
+    { label: t.featuredIn, to: "/featured-in" },
+    { label: t.blog, to: "/blog" },
+    { label: t.caseStudies, to: "/case-studies" },
+  ];
+  const moreLabel = { en: "Stories", te: "కథలు", hi: "कहानियाँ" }[language];
   useEffect(() => {
     if (!open) return;
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -45,6 +54,7 @@ export function Header() {
         </Link>
         <nav className="channel-nav" aria-label={content.ui.mainNavLabel}>
           {nav.map((item) => <NavLink key={item.to} to={item.to} end={item.to === "/"} className={({ isActive }) => isActive ? "is-active" : ""}>{item.label}</NavLink>)}
+          <details className="channel-nav-more" key={location.pathname}><summary>{moreLabel}</summary><div>{editorialNav.map((item) => <NavLink key={item.to} to={item.to} className={({ isActive }) => isActive ? "is-active" : ""}>{item.label}</NavLink>)}</div></details>
         </nav>
         <label className="channel-language-picker"><span className="sr-only">{content.ui.languageLabel}</span>
           <select aria-label={content.ui.languageLabel} value={language} onChange={(event) => setLanguage(event.target.value as Language)}>
@@ -66,6 +76,7 @@ export function Header() {
       {open && (
         <nav id="channel-mobile-nav" className="channel-mobile-nav" aria-label={content.ui.mobileNavLabel}>
           {nav.map((item) => <NavLink key={item.to} to={item.to} end={item.to === "/"}>{item.label}</NavLink>)}
+          {editorialNav.map((item) => <NavLink key={item.to} to={item.to}>{item.label}</NavLink>)}
           <a href={content.brand.youtubeUrl} target="_blank" rel="noopener noreferrer">{content.nav.youtube} <ArrowUpRight size={16} /></a>
         </nav>
       )}

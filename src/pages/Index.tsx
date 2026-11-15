@@ -6,6 +6,7 @@ import { VideoCard } from "@/components/channel/VideoCard";
 import { SubscribeBanner } from "@/components/channel/SubscribeBanner";
 import { PartnerMarquee } from "@/components/channel/PartnerMarquee";
 import { SocialCounts } from "@/components/channel/SocialCounts";
+import { Testimonials } from "@/components/channel/Testimonials";
 import { videoThumbnail } from "@/data/channelVideos";
 import { useChannelSite } from "@/hooks/useChannelSite";
 import { defaultChannelContent, type TopicCard } from "@/data/channelContent";
@@ -80,6 +81,8 @@ export default function Index() {
         <div className="channel-story-image"><img src={content.story.imageUrl} alt={content.story.imageAlt} loading="lazy" /><span>{content.story.imageCaption}</span></div>
         <div className="channel-story-copy"><span className="channel-eyebrow channel-eyebrow-red">{content.story.eyebrow}</span><h2>{content.story.title}</h2><p>{content.story.paragraphOne}</p><p>{content.story.paragraphTwo}</p><Link className="channel-text-link" to="/about">{content.story.linkLabel} <ArrowUpRight size={18} /></Link></div>
       </div></section>
+
+      <Testimonials content={content.testimonials} />
 
       <section className="channel-steps-section" id="how-to-watch"><div className="channel-shell">
         <div className="channel-section-heading"><div><span className="channel-eyebrow">{content.steps.eyebrow}</span><h2>{content.steps.title}</h2></div><p>{content.steps.description}</p></div>

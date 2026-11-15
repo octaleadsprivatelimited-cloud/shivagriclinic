@@ -21,7 +21,7 @@ import { AdminImageUpload } from "../components/AdminImageUpload";
 const emptyTeamMember = (): FirestoreTeamMember => ({
   name: "",
   role: "",
-  image: "👨‍🌾",
+  image: "",
   bio: "",
   social: {
     youtube: "",
@@ -91,7 +91,7 @@ const TeamManagement = () => {
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm text-muted-foreground">
-            Manage your agricultural clinic expert list shown on the <strong>/team</strong> page.
+            Manage the people shown on the <strong>/team</strong> page.
           </p>
           <Button className="gap-2" onClick={openNew}>
             <Plus className="h-4 w-4" />
@@ -134,13 +134,15 @@ const TeamManagement = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(member.id, member)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Edit ${member.name}`} title={`Edit ${member.name}`} onClick={() => openEdit(member.id, member)}>
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-destructive hover:text-destructive"
+                    aria-label={`Delete ${member.name}`}
+                    title={`Delete ${member.name}`}
                     onClick={() => void handleDelete(member.id)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -153,7 +155,7 @@ const TeamManagement = () => {
 
         {!isPending && teamMembers.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            No team members in Firestore. Use <strong>Settings → Import defaults</strong> to seed standard experts, or add them here.
+            No team members have been added yet.
           </p>
         )}
       </div>

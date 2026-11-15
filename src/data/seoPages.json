@@ -24,6 +24,26 @@
     "description": "Connect with Shiva Agri Clinic about its farming videos by phone, email, WhatsApp, Instagram or YouTube.",
     "keywords": "contact Shiva Agri Clinic, Shiva Agri Clinic phone, farming YouTube channel contact"
   },
+  "/team": {
+    "title": "Our team",
+    "description": "Meet the people behind Shiva Agri Clinic and its farming stories from the field.",
+    "keywords": "Shiva Agri Clinic team, G. Shiva Kumar, farming video team"
+  },
+  "/featured-in": {
+    "title": "Featured in the news",
+    "description": "See news coverage and press clippings featuring Shiva Agri Clinic and its farming stories.",
+    "keywords": "Shiva Agri Clinic news, Shiva Agri Clinic press, agriculture media coverage"
+  },
+  "/blog": {
+    "title": "Field notes and blog",
+    "description": "Read published stories and updates from Shiva Agri Clinic about farming and the people behind its videos.",
+    "keywords": "Shiva Agri Clinic blog, farming stories, agriculture articles"
+  },
+  "/case-studies": {
+    "title": "Farmer case studies",
+    "description": "Explore published farmer case studies and field experiences shared by Shiva Agri Clinic.",
+    "keywords": "Shiva Agri Clinic case studies, farmer stories, crop management examples"
+  },
   "/privacy-policy": {
     "title": "Privacy policy",
     "description": "Read how the Shiva Agri Clinic video website handles site data, embedded videos and contact links.",
