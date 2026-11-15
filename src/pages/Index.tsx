@@ -6,6 +6,7 @@ import SEO from "@/components/SEO";
 import { VideoCard } from "@/components/channel/VideoCard";
 import { SubscribeBanner } from "@/components/channel/SubscribeBanner";
 import { PartnerMarquee } from "@/components/channel/PartnerMarquee";
+import { PressMarquee } from "@/components/channel/PressMarquee";
 import { SocialCounts } from "@/components/channel/SocialCounts";
 import { Testimonials } from "@/components/channel/Testimonials";
 import { videoThumbnail } from "@/data/channelVideos";
@@ -99,6 +100,7 @@ export default function Index() {
       </div></section>
 
       <Testimonials content={content.testimonials} />
+      <PressMarquee press={content.press} />
 
       <section className="channel-steps-section" id="how-to-watch"><div className="channel-shell">
         <div className="channel-section-heading"><div><span className="channel-eyebrow">{content.steps.eyebrow}</span><h2>{content.steps.title}</h2></div><p>{content.steps.description}</p></div>

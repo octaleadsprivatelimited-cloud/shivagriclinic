@@ -16,6 +16,7 @@ export const builtInTranslations = {
     analytics: { consentTitle: "ఈ వెబ్‌సైట్‌ను మెరుగుపరచడంలో సహాయపడండి", consentDescription: "మీ అనుమతితో Google Analytics మరియు Microsoft Clarity సందర్శకులు ఈ సైట్‌ను ఎలా ఉపయోగిస్తున్నారో తెలుసుకోవడానికి సహాయపడతాయి. మీ ఎంపికను ఎప్పుడైనా మార్చవచ్చు.", acceptLabel: "విశ్లేషణలను అనుమతించండి", rejectLabel: "విశ్లేషణలను తిరస్కరించండి", settingsLabel: "విశ్లేషణల సెట్టింగ్‌లు" },
     partners: { eyebrow: "లోగో ప్రదర్శన", title: "కొన్ని పరిచయమైన లోగోలు." },
     testimonials: { eyebrow: "రైతుల మాటలు", title: "మా రైతుల అనుభవాలు." },
+    press: { eyebrow: "వార్తల్లో", title: "వార్తల్లో శివ అగ్రి క్లినిక్." },
     featured: { eyebrow: "ఛానల్ నుంచి", title: "ఈ కథలు చూడండి.", description: "శివ అగ్రి క్లినిక్ వీడియోల నుంచి కొన్ని ఎంపికలు.", viewAllLabel: "అన్ని వీడియోలు" },
     library: { eyebrow: "వీడియో లైబ్రరీ", title: "చూడటానికి", accent: "మంచి వీడియోలు.", description: "శివ అగ్రి క్లినిక్ వీడియోలను అంశాలవారీగా, మీకు నచ్చినప్పుడు చూడండి.", searchLabel: "వీడియోలు వెతకండి", allLabel: "అన్ని వీడియోలు", emptyTitle: "వీడియోలు దొరకలేదు.", emptyDescription: "మరో పదం లేదా అంశంతో వెతకండి.", resetLabel: "అన్ని వీడియోలు చూడండి" },
     topics: { eyebrow: "మీ తదుపరి వీడియో", title: "అంశాలవారీగా చూడండి.", description: "మీకు నచ్చిన అంశాన్ని ఎంచుకుని వీడియోలు చూడండి.", items: [
@@ -64,6 +65,7 @@ export const builtInTranslations = {
     analytics: { consentTitle: "इस वेबसाइट को बेहतर बनाने में मदद करें", consentDescription: "आपकी अनुमति से Google Analytics और Microsoft Clarity हमें समझने में मदद करते हैं कि लोग इस साइट का उपयोग कैसे करते हैं। आप अपनी पसंद कभी भी बदल सकते हैं।", acceptLabel: "एनालिटिक्स स्वीकार करें", rejectLabel: "एनालिटिक्स अस्वीकार करें", settingsLabel: "एनालिटिक्स सेटिंग्स" },
     partners: { eyebrow: "लोगो प्रदर्शनी", title: "कुछ परिचित लोगो." },
     testimonials: { eyebrow: "किसानों की आवाज़", title: "हमारे किसानों के अनुभव।" },
+    press: { eyebrow: "खबरों में", title: "खबरों में शिवा एग्री क्लिनिक।" },
     featured: { eyebrow: "चैनल से", title: "ये कहानियाँ देखें.", description: "शिवा एग्री क्लिनिक की वीडियो लाइब्रेरी से कुछ चुनिंदा वीडियो।", viewAllLabel: "सभी वीडियो" },
     library: { eyebrow: "वीडियो लाइब्रेरी", title: "देखने के लिए", accent: "कुछ अच्छा.", description: "शिवा एग्री क्लिनिक के वीडियो विषय चुनकर अपनी सुविधा से देखें।", searchLabel: "वीडियो खोजें", allLabel: "सभी वीडियो", emptyTitle: "कोई वीडियो नहीं मिला.", emptyDescription: "दूसरा शब्द या विषय आज़माएँ।", resetLabel: "सभी वीडियो देखें" },
     topics: { eyebrow: "अगला वीडियो चुनें", title: "विषय के अनुसार देखें.", description: "अपनी रुचि का विषय चुनें और वीडियो देखें।", items: [

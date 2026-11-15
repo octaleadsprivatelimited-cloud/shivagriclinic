@@ -74,6 +74,8 @@
 .channel-site.has-font-story .channel-story-section :where(*) { font-family: var(--channel-section-font-story) !important; }
 .channel-site.has-font-testimonials .channel-testimonials,
 .channel-site.has-font-testimonials .channel-testimonials :where(*) { font-family: var(--channel-section-font-testimonials) !important; }
+.channel-site.has-font-press .channel-press-section,
+.channel-site.has-font-press .channel-press-section :where(*) { font-family: var(--channel-section-font-press) !important; }
 .channel-site.has-font-steps .channel-steps-section,
 .channel-site.has-font-steps .channel-steps-section :where(*) { font-family: var(--channel-section-font-steps) !important; }
 .channel-site.has-font-subscribe .channel-subscribe,

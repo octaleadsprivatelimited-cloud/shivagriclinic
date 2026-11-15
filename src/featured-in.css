@@ -1,0 +1,102 @@
+.channel-site .channel-feature-clipping {
+  width: 100%;
+  height: clamp(270px, 33vw, 420px);
+  aspect-ratio: auto;
+  padding: 12px;
+}
+
+.channel-site .channel-feature-clipping img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.channel-site .channel-feature-image-button {
+  position: relative;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  cursor: zoom-in;
+}
+
+.channel-site .channel-feature-expand {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--ink);
+  background: var(--yellow);
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+}
+
+.channel-site .channel-feature-image-button:focus-visible,
+.channel-site .channel-feature-article-link:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: -4px;
+}
+
+.channel-site .channel-feature-article-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin-top: auto;
+  padding-top: 15px;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.channel-feature-lightbox {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(1080px, calc(100vw - 24px));
+  max-width: none;
+  max-height: min(94dvh, 1100px);
+  padding: 18px;
+}
+
+.channel-feature-lightbox-image {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  overflow: auto;
+  background: #eeeae2;
+}
+
+.channel-feature-lightbox-image img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(74dvh, 900px);
+  object-fit: contain;
+}
+
+.channel-feature-lightbox-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.channel-feature-lightbox-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+  .channel-site .channel-feature-clipping { height: min(80vw, 390px); }
+  .channel-feature-lightbox { padding: 12px; }
+}

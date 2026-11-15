@@ -116,6 +116,8 @@ export type FirestoreFeaturedIn = {
   title: string;
   source: string;
   imageUrl: string;
+  logoUrl?: string;
+  showInSlider?: boolean;
   linkUrl?: string;
   date?: string;
   createdAt?: Timestamp;

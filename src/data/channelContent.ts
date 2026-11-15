@@ -32,6 +32,7 @@ export type ChannelCopy = {
   analytics: { ga4MeasurementId: string; clarityProjectId: string; consentTitle: string; consentDescription: string; acceptLabel: string; rejectLabel: string; settingsLabel: string };
   partners: { eyebrow: string; title: string; items: PartnerLogo[] };
   testimonials: { eyebrow: string; title: string; items: FarmerTestimonial[] };
+  press: { eyebrow: string; title: string };
   featured: { eyebrow: string; title: string; description: string; viewAllLabel: string };
   library: { eyebrow: string; title: string; accent: string; description: string; searchLabel: string; allLabel: string; emptyTitle: string; emptyDescription: string; resetLabel: string };
   topics: { eyebrow: string; title: string; description: string; items: TopicCard[] };
@@ -143,6 +144,7 @@ export const defaultChannelContent: ChannelContent = {
       { name: "Ramu", role: "Dragon Fruit Farmer - Rangareddy District, Telangana", imageUrl: "/images/testimonials/Ramu.jpeg", quote: "Growing dragon fruit was a new experience for me, and I wasn't sure how to reach the market. Shiva Agri Clinic guided me not only in cultivation techniques but also in connecting directly with customers. This helped me sell my fruits at better prices and build a loyal customer base. I am also happy that my plants and knowledge could reach other farmers, encouraging them to start dragon fruit cultivation. Thanks to Shiva Agri Clinic, my farming has become more profitable, organized, and inspiring for others." },
     ],
   },
+  press: { eyebrow: "IN THE NEWS", title: "Shiva Agri Clinic in the news." },
   featured: { eyebrow: "FROM THE CHANNEL", title: "Watch the stories.", description: "A selection from the Shiva Agri Clinic video library.", viewAllLabel: "View all videos" },
   library: {
     eyebrow: "THE VIDEO LIBRARY", title: "Something good", accent: "to watch.",

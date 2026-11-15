@@ -1,0 +1,21 @@
+.channel-press-section .channel-partners-heading .channel-eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--red);
+}
+
+.channel-press-section .channel-partner-tile img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.channel-press-section .channel-partner-name {
+  padding-inline: 4px;
+  font-family: "Anton", Impact, sans-serif;
+  font-size: 19px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}

@@ -1,7 +1,9 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { Link } from "react-router-dom";
 import type { ChannelCopy, PartnerLogo } from "@/data/channelContent";
 
 function safeWebsite(value: string): string | null {
+  if (value === "/featured-in") return value;
   try {
     const url = new URL(value);
     return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
@@ -14,11 +16,12 @@ function PartnerTile({ partner, duplicate }: { partner: PartnerLogo; duplicate: 
   const [imageFailed, setImageFailed] = useState(false);
   const website = safeWebsite(partner.website);
   const content = <>
-    {imageFailed ? <span className="channel-partner-name">{partner.name}</span> : <img src={partner.logoUrl} alt={partner.name} loading="lazy" onError={() => setImageFailed(true)} />}
+    {!partner.logoUrl || imageFailed ? <span className="channel-partner-name">{partner.name}</span> : <img src={partner.logoUrl} alt={partner.name} loading="lazy" onError={() => setImageFailed(true)} />}
   </>;
 
-  if (!website || duplicate) return <div className="channel-partner-tile" aria-hidden={duplicate || undefined}>{content}</div>;
-  return <a className="channel-partner-tile" href={website} target="_blank" rel="noopener noreferrer">{content}</a>;
+  if (!website) return <div className="channel-partner-tile" aria-hidden={duplicate || undefined}>{content}</div>;
+  if (website.startsWith("/")) return <Link className="channel-partner-tile" to={website} aria-hidden={duplicate || undefined} tabIndex={duplicate ? -1 : undefined}>{content}</Link>;
+  return <a className="channel-partner-tile" href={website} target="_blank" rel="noopener noreferrer" aria-hidden={duplicate || undefined} tabIndex={duplicate ? -1 : undefined}>{content}</a>;
 }
 
 function PartnerRow({ partners, reverse }: { partners: PartnerLogo[]; reverse: boolean }) {
@@ -54,20 +57,21 @@ function PartnerRow({ partners, reverse }: { partners: PartnerLogo[]; reverse: b
   return <div ref={railRef} className={`channel-partner-rail ${reverse ? "is-reverse" : ""}`}>
     <div className="channel-partner-track" style={trackStyle}>
       {[false, true].map((duplicate) => <div className="channel-partner-group" key={String(duplicate)} aria-hidden={duplicate || undefined}>
-        {row.map((partner, index) => <PartnerTile key={`${partner.logoUrl}-${index}`} partner={partner} duplicate={duplicate || index >= partners.length} />)}
+        {row.map((partner, index) => <PartnerTile key={`${partner.name}-${index}`} partner={partner} duplicate={duplicate || index >= partners.length} />)}
       </div>)}
     </div>
   </div>;
 }
 
-export function PartnerMarquee({ partners }: { partners: ChannelCopy["partners"] }) {
-  const logos = partners.items.filter((item) => item?.name?.trim() && item?.logoUrl?.trim());
+export function PartnerMarquee({ partners, className = "", showEyebrow = false, allowTextOnly = false }: { partners: ChannelCopy["partners"]; className?: string; showEyebrow?: boolean; allowTextOnly?: boolean }) {
+  const logos = partners.items.filter((item) => item?.name?.trim() && (allowTextOnly || item?.logoUrl?.trim()));
   if (!logos.length) return null;
   const firstRow = logos.filter((_, index) => index % 2 === 0);
   const secondRow = logos.filter((_, index) => index % 2 === 1);
 
-  return <section className="channel-partners-section" aria-label={partners.title}>
+  return <section className={`channel-partners-section ${className}`.trim()} aria-label={partners.title}>
     <div className="channel-shell channel-partners-heading">
+      {showEyebrow && partners.eyebrow && <span className="channel-eyebrow">{partners.eyebrow}</span>}
       <h2>{partners.title}</h2>
     </div>
     <div className="channel-partner-rows">

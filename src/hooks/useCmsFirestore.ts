@@ -801,6 +801,8 @@ export function useFeaturedIn() {
       rows.sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
       return rows;
     },
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -811,11 +813,16 @@ export function useSaveFeaturedIn() {
       const title = payload.data.title.trim();
       const source = payload.data.source.trim();
       if (!title || !source) throw new Error("Title and source are required.");
-      const imageUrl = safeImageSource(payload.data.imageUrl.trim());
+      // Uploaded images are stored inline in this document. Clearing or replacing
+      // the field removes the previous upload when the document is saved.
+      const imageUrl = safeImageSource(payload.data.imageUrl.trim(), true);
+      const logoUrl = safeImageSource(payload.data.logoUrl?.trim() ?? "", true);
+      const showInSlider = payload.data.showInSlider !== false;
       const linkUrl = safeOptionalHttpsUrl(payload.data.linkUrl);
       const date = payload.data.date?.trim() ?? "";
       if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("Use a valid date.");
-      const data: FirestoreFeaturedIn = { title, source, imageUrl, linkUrl, date };
+      const data: FirestoreFeaturedIn = { title, source, imageUrl, logoUrl, showInSlider, linkUrl, date };
+      if (JSON.stringify(data).length > 900_000) throw new Error("These two images are too large together. Use a smaller logo or clipping.");
       if (payload.id) safeDocumentId(payload.id);
       if (localEditorialMode()) {
         const id = payload.id ?? crypto.randomUUID();

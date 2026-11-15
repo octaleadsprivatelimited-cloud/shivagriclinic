@@ -1,14 +1,19 @@
-import { ArrowUpRight, Newspaper } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpRight, Maximize2, Newspaper } from "lucide-react";
 import { Layout } from "@/components/layout";
 import SEO from "@/components/SEO";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { editorialText, safeEditorialLink } from "@/components/channel/editorialCopy";
-import { useFeaturedIn } from "@/hooks/useCmsFirestore";
+import { useFeaturedIn, type FeaturedInRow } from "@/hooks/useCmsFirestore";
 import { useLanguage } from "@/i18n/LanguageContext";
+import "@/featured-in.css";
 
 export default function FeaturedIn() {
   const { language } = useLanguage();
   const t = editorialText(language);
   const { data: features = [], isPending, isError } = useFeaturedIn();
+  const [openClipping, setOpenClipping] = useState<FeaturedInRow | null>(null);
+  const articleUrl = safeEditorialLink(openClipping?.linkUrl);
 
   return (
     <Layout>
@@ -22,16 +27,32 @@ export default function FeaturedIn() {
             <div className="channel-feature-grid">
               {features.map((feature) => {
                 const href = safeEditorialLink(feature.linkUrl);
-                const contents = <>
-                  <div className="channel-feature-clipping">{feature.imageUrl ? <img src={feature.imageUrl} alt={`${feature.title} — ${feature.source}`} loading="lazy" /> : <Newspaper size={54} aria-hidden="true" />}</div>
-                  <div className="channel-feature-caption"><span>{feature.source}{feature.date ? ` · ${feature.date}` : ""}</span><h2>{feature.title}</h2>{href && <span className="channel-feature-link-label">{t.viewFeature} <ArrowUpRight size={16} aria-hidden="true" /></span>}</div>
-                </>;
-                return href ? <a className="channel-feature-card" key={feature.id} href={href} target="_blank" rel="noopener noreferrer" aria-label={`${t.viewFeature}: ${feature.title}`}>{contents}</a> : <article className="channel-feature-card" key={feature.id}>{contents}</article>;
+                return <article className="channel-feature-card" key={feature.id}>
+                  {feature.imageUrl ? <button className="channel-feature-clipping channel-feature-image-button" type="button" onClick={() => setOpenClipping(feature)} aria-label={`${t.openClipping}: ${feature.title}`}>
+                    <img src={feature.imageUrl} alt={`${feature.title} — ${feature.source}`} loading="lazy" />
+                    <span className="channel-feature-expand" aria-hidden="true"><Maximize2 size={17} /></span>
+                  </button> : <div className="channel-feature-clipping"><Newspaper size={54} aria-hidden="true" /></div>}
+                  <div className="channel-feature-caption">
+                    <span>{feature.source}{feature.date ? ` · ${feature.date}` : ""}</span>
+                    <h2>{feature.title}</h2>
+                    {href && <a className="channel-feature-article-link" href={href} target="_blank" rel="noopener noreferrer">{t.originalArticle} <ArrowUpRight size={16} aria-hidden="true" /></a>}
+                  </div>
+                </article>;
               })}
             </div>
           ) : <p className="channel-editorial-empty">{t.featuredEmpty}</p>}
         </div>
       </section>
+      <Dialog open={openClipping !== null} onOpenChange={(open) => { if (!open) setOpenClipping(null); }}>
+        <DialogContent className="channel-feature-lightbox">
+          <DialogTitle>{openClipping?.title}</DialogTitle>
+          {openClipping?.imageUrl && <div className="channel-feature-lightbox-image"><img src={openClipping.imageUrl} alt={`${openClipping.title} — ${openClipping.source}`} /></div>}
+          <div className="channel-feature-lightbox-footer">
+            <span>{openClipping?.source}{openClipping?.date ? ` · ${openClipping.date}` : ""}</span>
+            {articleUrl && <a href={articleUrl} target="_blank" rel="noopener noreferrer">{t.originalArticle} <ArrowUpRight size={16} aria-hidden="true" /></a>}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }

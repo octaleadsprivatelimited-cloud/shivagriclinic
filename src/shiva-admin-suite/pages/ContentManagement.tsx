@@ -20,6 +20,7 @@ const sections: { key: keyof ChannelCopy; name: string }[] = [
   { key: "analytics", name: "Analytics tracking" },
   { key: "partners", name: "Logo showcase" },
   { key: "testimonials", name: "Farmer testimonials" },
+  { key: "press", name: "News slider" },
   { key: "featured", name: "Featured videos" }, { key: "library", name: "Video library" },
   { key: "topics", name: "Topics" }, { key: "story", name: "Creator story" },
   { key: "steps", name: "Steps" }, { key: "subscribe", name: "Subscribe" },
