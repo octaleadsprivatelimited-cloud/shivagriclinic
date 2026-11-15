@@ -16,6 +16,7 @@ const stepIcons = [Flower2, Play, Youtube];
 
 export default function Index() {
   const { content, videos, featured } = useChannelSite();
+  const remainingVideos = featured ? videos.filter((video) => video.id !== featured.id) : videos;
   const topicCards = content.topics.items.filter((item): item is TopicCard => Boolean(item?.title));
 
   return (
@@ -63,7 +64,7 @@ export default function Index() {
       <section className="channel-section channel-featured-section">
         <div className="channel-shell">
           <div className="channel-section-heading"><div><span className="channel-eyebrow channel-eyebrow-red">{content.featured.eyebrow}</span><h2>{content.featured.title}</h2></div><Link className="channel-button channel-button-white" to="/videos">{content.featured.viewAllLabel} <ArrowUpRight size={18} /></Link></div>
-          {videos.length ? <div className="channel-video-grid">{videos.slice(0, 6).map((video, index) => <VideoCard key={video.id} video={video} index={index} />)}</div> : <p className="channel-empty">{content.ui.emptyVideosLabel}</p>}
+          {remainingVideos.length ? <div className="channel-video-grid">{remainingVideos.slice(0, 6).map((video, index) => <VideoCard key={video.id} video={video} index={index} />)}</div> : <p className="channel-empty">{content.ui.emptyVideosLabel}</p>}
         </div>
       </section>
 
