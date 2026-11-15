@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { useDeleteTeamMember, useTeamMembers, useSaveTeamMember } from "@/hooks/useCmsFirestore";
 import type { FirestoreTeamMember } from "@/types/cms";
 import { AdminImageUpload } from "../components/AdminImageUpload";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const emptyTeamMember = (): FirestoreTeamMember => ({
   name: "",
@@ -38,6 +39,7 @@ const TeamManagement = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<FirestoreTeamMember>(emptyTeamMember());
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const isImageSource = (value: string) => value.startsWith("data:image/") || value.startsWith("http");
 
   const openNew = () => {
@@ -77,10 +79,10 @@ const TeamManagement = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this team member?")) return;
     try {
       await deleteTeamMember.mutateAsync(id);
       toast.success("Deleted");
+      setDeleteTarget(null);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not delete");
     }
@@ -143,7 +145,7 @@ const TeamManagement = () => {
                     className="h-8 w-8 text-destructive hover:text-destructive"
                     aria-label={`Delete ${member.name}`}
                     title={`Delete ${member.name}`}
-                    onClick={() => void handleDelete(member.id)}
+                    onClick={() => setDeleteTarget({ id: member.id, name: member.name })}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -244,6 +246,19 @@ const TeamManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(isOpen) => { if (!isOpen) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete team member?</AlertDialogTitle>
+            <AlertDialogDescription>{deleteTarget?.name} will be removed from the public team page.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction disabled={deleteTeamMember.isPending} onClick={() => { if (deleteTarget) void handleDelete(deleteTarget.id); }}>Delete member</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 };
