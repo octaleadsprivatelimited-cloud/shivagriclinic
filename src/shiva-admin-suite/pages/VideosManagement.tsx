@@ -40,7 +40,9 @@ export default function VideosManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<FirestoreVideo>(emptyVideo());
   const [editingDocId, setEditingDocId] = useState<string | undefined>();
-  const visible = new Set(getChannelVideos(saved, feed).map((video) => video.id));
+  const [activeTopic, setActiveTopic] = useState("");
+  const publicVideos = getChannelVideos(saved, feed);
+  const visible = new Set(publicVideos.map((video) => video.id));
   const feedIds = new Set(feed.map((item) => item.id));
   const list = [
     ...feed.map((item) => ({
@@ -50,10 +52,11 @@ export default function VideosManagement() {
     })),
     ...saved.filter((row) => !feedIds.has(row.id)).map((row) => ({ id: row.id, title: row.title, category: normalizeVideoTopic(row.category, row.title), thumbnail: undefined as string | undefined, row, source: "Manually added" })),
   ];
+  const displayed = activeTopic ? list.filter((item) => item.category === activeTopic) : list;
 
   function edit(item?: { id: string; title: string; category: string; row?: VideoRow }) {
     setEditingDocId(item?.row?.docId || item?.row?.id);
-    setForm(item ? { id: item.id, title: item.title, category: item.category, hidden: item.row?.hidden || false, order: item.row?.order } : emptyVideo());
+    setForm(item ? { id: item.id, title: item.title, category: item.category, hidden: item.row?.hidden || false, order: item.row?.order } : { ...emptyVideo(), category: activeTopic });
     setDialogOpen(true);
   }
 
@@ -83,14 +86,22 @@ export default function VideosManagement() {
 
   return <AdminLayout title="Video management"><div className="mx-auto max-w-6xl space-y-5">
     <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-2xl font-bold">YouTube uploads & site videos</h2><p className="mt-1 max-w-3xl text-sm text-muted-foreground">New public uploads sync automatically and are categorized from their titles. Choose a topic for any video to place it in a specific Explore by topic collection. Drones, pesticides and sprayers remain excluded.</p></div><Button onClick={() => edit()}><Plus className="mr-2 h-4 w-4" />Add video</Button></div>
+    <section aria-label="Explore by topic collections" className="space-y-3 rounded-xl border bg-card p-4">
+      <div><h3 className="text-lg font-semibold">Explore by topic collections</h3><p className="text-sm text-muted-foreground">Choose a collection to review its videos. Add a YouTube link while a collection is selected to place it there. The matching homepage block opens that filtered collection.</p></div>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{videoTopics.map((topic) => {
+        const count = publicVideos.filter((video) => video.topic === topic).length;
+        return <button key={topic} type="button" aria-pressed={activeTopic === topic} onClick={() => setActiveTopic(activeTopic === topic ? "" : topic)} className={`rounded-lg border p-3 text-left transition-colors hover:bg-accent ${activeTopic === topic ? "border-primary bg-accent ring-1 ring-primary" : "bg-background"}`}><strong className="block text-sm">{topic}</strong><span className="mt-1 block text-xs text-muted-foreground">{count} visible {count === 1 ? "video" : "videos"}</span></button>;
+      })}</div>
+      {activeTopic && <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3"><p className="text-sm">Showing <strong>{activeTopic}</strong> videos</p><div className="flex gap-2"><Button type="button" variant="outline" size="sm" onClick={() => setActiveTopic("")}>Show all</Button><Button type="button" size="sm" onClick={() => edit()}><Plus className="mr-1 h-3 w-3" />Add to {activeTopic}</Button></div></div>}
+    </section>
     {feedError && <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">The YouTube feed is unavailable. Saved videos can still be edited. <button type="button" className="underline" onClick={() => void refetch()}>Retry</button></p>}
     {(loadingFeed || loadingSaved) && <p className="text-sm text-muted-foreground">Loading videos…</p>}
     {savedError && <p role="alert" className="text-sm text-destructive">Saved video entries could not be loaded.</p>}
-    <div className="grid gap-3 sm:grid-cols-2">{list.map((item) => <article key={item.id} className="flex gap-3 rounded-xl border bg-card p-3 shadow-sm">
+    <div className="grid gap-3 sm:grid-cols-2">{displayed.map((item) => <article key={item.id} className="flex gap-3 rounded-xl border bg-card p-3 shadow-sm">
       <img src={videoThumbnail(item.id, item.thumbnail)} alt="" className="aspect-video w-28 shrink-0 rounded-md object-cover" />
       <div className="min-w-0 flex-1"><p className="text-xs text-muted-foreground">{item.source} · {visible.has(item.id) ? "Visible" : "Hidden or filtered"}</p><h3 className="mt-1 line-clamp-2 text-sm font-semibold">{item.title}</h3><p className="mt-1 text-xs text-muted-foreground">{item.category}{item.row?.order != null ? ` · Order ${item.row.order}` : ""}</p><div className="mt-3 flex flex-wrap gap-2"><Button type="button" variant="outline" size="sm" onClick={() => edit(item)}><Edit className="mr-1 h-3 w-3" /> Edit</Button><Button type="button" variant="outline" size="sm" onClick={() => void hide(item)}><EyeOff className="mr-1 h-3 w-3" />{item.row?.hidden ? "Show" : "Hide"}</Button>{item.row && <Button type="button" variant="ghost" size="sm" onClick={() => void remove(item.row!)}><Trash2 className="mr-1 h-3 w-3" />Remove override</Button>}</div></div>
     </article>)}</div>
-    {!list.length && !loadingFeed && !loadingSaved && <p className="rounded-lg border p-5 text-sm text-muted-foreground">No videos yet. Add a video or check the YouTube feed connection.</p>}
+    {!displayed.length && !loadingFeed && !loadingSaved && <p className="rounded-lg border p-5 text-sm text-muted-foreground">{activeTopic ? `No videos in ${activeTopic} yet. Add a YouTube link to this collection.` : "No videos yet. Add a video or check the YouTube feed connection."}</p>}
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}><DialogContent className="max-h-[90vh] overflow-auto"><DialogHeader><DialogTitle>{editingDocId ? "Edit video" : "Add or customize video"}</DialogTitle></DialogHeader><div className="space-y-4 py-2">
       <label className="block space-y-1"><Label htmlFor="video-id">YouTube video link or ID</Label><Input id="video-id" value={form.id} onChange={(event) => setForm({ ...form, id: event.target.value })} placeholder="https://www.youtube.com/watch?v=..." /></label>
       <label className="block space-y-1"><Label htmlFor="video-title">Title</Label><Input id="video-title" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} /></label>

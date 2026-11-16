@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthProvider";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import ScrollToTop from "@/components/ScrollToTop";
 import AnalyticsTracking from "@/components/analytics/AnalyticsTracking";
+import { PublicFloatingVideo } from "@/components/channel/FloatingYouTubePlayer";
 import Index from "@/pages/Index";
 import Videos from "@/pages/Videos";
 import Watch from "@/pages/Watch";
@@ -58,6 +59,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AnalyticsTracking />
+          <PublicFloatingVideo />
           <ScrollToTop />
           <Suspense fallback={<div className="channel-loading" role="status">Loading...</div>}>
           <Routes>

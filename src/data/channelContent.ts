@@ -1,5 +1,6 @@
 import seoPages from "./seoPages.json";
 import { defaultSectionFonts, isFontId, normalizeHeaderColor, sectionFontOptions, type FontId, type SectionFonts } from "./fontOptions";
+import { youtubeVideoId } from "@/lib/youtubeVideoId";
 
 export type TextCard = { title: string; description: string };
 export type TopicCard = TextCard & { icon: "flower" | "story" | "water" | "sprout" | "fruit" | "vegetable" | "animal" | "machinery" };
@@ -29,6 +30,7 @@ export type ChannelCopy = {
     handnoteTop: string; handnoteBottom: string; circleSticker: string; browserLabel: string;
     featuredLabel: string; watchLabel: string; scrollLabel: string;
   };
+  floatingVideo: { enabled: boolean; videoId: string };
   highlights: { items: TextCard[] };
   social: { eyebrow: string; title: string; youtubeSubscribers: string; facebookFollowers: string; instagramFollowers: string; manualCounts: Record<SocialCountKey, boolean>; subscribersLabel: string; followersLabel: string; unavailableLabel: string; approximateLabel: string; estimatesNote: string };
   analytics: { ga4MeasurementId: string; clarityProjectId: string; consentTitle: string; consentDescription: string; acceptLabel: string; rejectLabel: string; settingsLabel: string };
@@ -107,6 +109,7 @@ export const defaultChannelContent: ChannelContent = {
     circleSticker: "STAY\nCURIOUS", browserLabel: "THE VIDEO CHANNEL",
     featuredLabel: "FEATURED VIDEO", watchLabel: "Watch now", scrollLabel: "SCROLL TO EXPLORE",
   },
+  floatingVideo: { enabled: true, videoId: "" },
   highlights: { items: [
     { title: "Field stories", description: "Meet the people behind the work." },
     { title: "Real places", description: "See farms and ideas up close." },
@@ -291,6 +294,10 @@ export function mergeChannelContent(value: Partial<ChannelContent> | null | unde
   });
   // Stored documents can be old or manually edited. Keep all CSS values on a fixed allowlist.
   merged.appearance = normalizeAppearance(value.appearance);
+  merged.floatingVideo = {
+    enabled: typeof value.floatingVideo?.enabled === "boolean" ? value.floatingVideo.enabled : defaultChannelContent.floatingVideo.enabled,
+    videoId: youtubeVideoId(value.floatingVideo?.videoId) ?? "",
+  };
   if (value.translations && typeof value.translations === "object") merged.translations = structuredClone(value.translations);
   // Older browser/Firebase drafts may still contain fields from the retired page.
   const removeRetiredField = (section: unknown, key: string) => {
@@ -390,6 +397,7 @@ export function resolveChannelContent(content: ChannelContent, language: Languag
   translated.brand.developerUrl = content.brand.developerUrl;
   translated.hero.backgroundUrl = content.hero.backgroundUrl;
   translated.hero.featuredVideoId = content.hero.featuredVideoId;
+  translated.floatingVideo = content.floatingVideo;
   translated.story.imageUrl = content.story.imageUrl;
   translated.partners.items = content.partners.items;
   translated.testimonials.items = content.testimonials.items.map((item, index) => ({ ...item, ...(translated.testimonials.items[index] ?? {}), imageUrl: item.imageUrl }));

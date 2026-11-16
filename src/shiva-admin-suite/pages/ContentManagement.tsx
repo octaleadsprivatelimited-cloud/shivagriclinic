@@ -13,12 +13,13 @@ import type { FirestoreFeaturedIn } from "@/types/cms";
 import { defaultChannelContent, normalizeHeroFade, normalizeSocialCount, safeFacebookHref, safeInstagramHref, safeTelephoneHref, safeWhatsAppHref, type ChannelContent, type ChannelCopy, type Language, type SocialCountKey } from "@/data/channelContent";
 import { localizeContent } from "@/i18n/channelI18n";
 import { fontOptions, isFontId, normalizeHeaderColor, sectionFontOptions, type FontId } from "@/data/fontOptions";
+import { youtubeVideoId } from "@/lib/youtubeVideoId";
 
 type Path = (string | number)[];
 const sections: { key: keyof ChannelCopy; name: string }[] = [
   { key: "appearance", name: "Appearance" },
   { key: "brand", name: "Brand & links" }, { key: "nav", name: "Navigation" },
-  { key: "hero", name: "Hero" }, { key: "highlights", name: "Highlights" },
+  { key: "hero", name: "Hero" }, { key: "floatingVideo", name: "Floating video" }, { key: "highlights", name: "Highlights" },
   { key: "social", name: "Social counts" },
   { key: "analytics", name: "Analytics tracking" },
   { key: "partners", name: "Logo showcase" },
@@ -86,6 +87,7 @@ function emptyItem(path: Path): Record<string, string> {
 
 const sharedField = (path: Path) => {
   if (path[0] === "appearance") return true;
+  if (path[0] === "floatingVideo") return true;
   const last = String(path[path.length - 1]);
   return ["logoUrl", "youtubeUrl", "email", "phone", "whatsappPhone", "instagramUrl", "facebookUrl", "gstin", "youtubeSubscribers", "facebookFollowers", "instagramFollowers", "ga4MeasurementId", "clarityProjectId", "developerName", "developerUrl", "backgroundUrl", "featuredVideoId", "imageUrl", "icon", "website"].includes(last) || path[0] === "partners" && path.includes("items");
 };
@@ -153,6 +155,20 @@ function AppearanceEditor({ appearance, heroBackgroundUrl, onChange }: { appeara
         {sectionFontOptions.map(({ id, label }) => <div key={id}>{fontSelect(label, appearance.sectionFonts[id], ["appearance", "sectionFonts", id], true)}</div>)}
       </div>
     </div>
+  </div>;
+}
+
+function FloatingVideoEditor({ value, onChange }: { value: ChannelCopy["floatingVideo"]; onChange: (path: Path, next: unknown) => void }) {
+  const previewId = youtubeVideoId(value.videoId);
+  return <div className="space-y-5">
+    <p className="text-sm text-muted-foreground">Show a compact YouTube player at the lower left of the website. It first attempts to autoplay with sound. When the visitor's browser blocks sound autoplay, it starts muted and shows an unmute control.</p>
+    <label className="flex items-center gap-3 text-sm font-medium"><input type="checkbox" checked={value.enabled} onChange={(event) => onChange(["floatingVideo", "enabled"], event.target.checked)} />Show floating video</label>
+    <label className="block space-y-2 text-sm font-medium"><span>YouTube video URL or ID</span>
+      <Input value={value.videoId} onChange={(event) => onChange(["floatingVideo", "videoId"], event.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
+      <small className="block text-muted-foreground">Leave this blank to use the newest eligible YouTube upload automatically. Paste a video URL or its 11-character ID to pin a specific video.</small>
+    </label>
+    {value.videoId.trim() && !previewId && <p role="alert" className="text-sm text-destructive">Enter a valid YouTube watch, Shorts, live, embed, or youtu.be URL.</p>}
+    {previewId && <div className="max-w-xs overflow-hidden rounded-lg border"><img className="aspect-video w-full object-cover" src={`https://img.youtube.com/vi/${previewId}/hqdefault.jpg`} alt="Selected YouTube video preview" loading="lazy" /><p className="p-2 text-xs text-muted-foreground">Selected video ID: {previewId}</p></div>}
   </div>;
 }
 type EditorProps = { name: string; value: unknown; path: Path; onChange: (path: Path, value: unknown) => void; translationMode?: boolean };
@@ -403,6 +419,7 @@ export default function ContentManagement() {
       toast.error("Choose hero fade values from 0 to 100%."); return;
     }
     if (!validHeroBackgroundUrl(draft.hero.backgroundUrl)) { toast.error("Use a hero background image from this site, an HTTPS URL, or an uploaded image."); return; }
+    if (draft.floatingVideo.videoId.trim() && !youtubeVideoId(draft.floatingVideo.videoId)) { toast.error("Enter a valid floating YouTube video URL or 11-character ID."); return; }
     if (JSON.stringify(draft).length > 850_000) { toast.error("Content is too large for one Firestore document. Use smaller images or image URLs."); return; }
     try {
       await saveContent.mutateAsync(draft);
@@ -420,7 +437,7 @@ export default function ContentManagement() {
     {isPending && <p className="text-sm text-muted-foreground">Loading content…</p>}
     <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
       <nav className="flex gap-2 overflow-x-auto lg:flex-col" aria-label="Content sections">{sections.map((item) => <button key={item.key} type="button" className={`whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm ${section === item.key ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70"}`} onClick={() => setSection(item.key)}>{item.name}</button>)}</nav>
-      <section className="min-w-0 rounded-xl border bg-card p-5 shadow-sm"><h3 className="mb-5 text-xl font-semibold">{sections.find((item) => item.key === section)?.name}</h3>{section === "appearance" ? <AppearanceEditor appearance={draft.appearance} heroBackgroundUrl={draft.hero.backgroundUrl} onChange={onChange} /> : section === "social" ? <SocialEditor social={draft.social} copy={localizeContent(draft, language).social} language={language} onChange={onChange} onCountChange={onSocialCountChange} onModeChange={onSocialModeChange} /> : section === "press" ? <NewsSliderEditor copy={localizeContent(draft, language).press} language={language} onChange={onChange} /> : section === "steps" ? <div className="space-y-4"><p className="text-sm text-muted-foreground">Edit this section's text here. Add and replace its photos in Gallery.</p><EditorField name="steps" value={((({ eyebrow, title, description }) => ({ eyebrow, title, description }))(localizeContent(draft, language).steps))} path={["steps"]} onChange={onChange} translationMode={language !== "en"} /></div> : <EditorField name={section} value={getAtPath(localizeContent(draft, language), [section])} path={[section]} onChange={onChange} translationMode={language !== "en"} />}</section>
+      <section className="min-w-0 rounded-xl border bg-card p-5 shadow-sm"><h3 className="mb-5 text-xl font-semibold">{sections.find((item) => item.key === section)?.name}</h3>{section === "appearance" ? <AppearanceEditor appearance={draft.appearance} heroBackgroundUrl={draft.hero.backgroundUrl} onChange={onChange} /> : section === "floatingVideo" ? <FloatingVideoEditor value={draft.floatingVideo} onChange={onChange} /> : section === "social" ? <SocialEditor social={draft.social} copy={localizeContent(draft, language).social} language={language} onChange={onChange} onCountChange={onSocialCountChange} onModeChange={onSocialModeChange} /> : section === "press" ? <NewsSliderEditor copy={localizeContent(draft, language).press} language={language} onChange={onChange} /> : section === "steps" ? <div className="space-y-4"><p className="text-sm text-muted-foreground">Edit this section's text here. Add and replace its photos in Gallery.</p><EditorField name="steps" value={((({ eyebrow, title, description }) => ({ eyebrow, title, description }))(localizeContent(draft, language).steps))} path={["steps"]} onChange={onChange} translationMode={language !== "en"} /></div> : <EditorField name={section} value={getAtPath(localizeContent(draft, language), [section])} path={[section]} onChange={onChange} translationMode={language !== "en"} />}</section>
     </div>
     <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4"><Button type="button" variant="outline" disabled={!dirty} onClick={() => setEditedDraft(null)}><RotateCcw className="mr-2 h-4 w-4" />Discard unsaved changes</Button><Button onClick={() => void save()} disabled={!dirty || saveContent.isPending || mode === "readonly"}>Save changes</Button></div>
   </div></AdminLayout>;
