@@ -133,6 +133,12 @@ export default function AnalyticsTracking() {
   }, [consent]);
 
   useEffect(() => {
+    const openSettings = () => setShowChoice(true);
+    window.addEventListener("shiva:open-analytics-settings", openSettings);
+    return () => window.removeEventListener("shiva:open-analytics-settings", openSettings);
+  }, []);
+
+  useEffect(() => {
     if (!accepted || isAdmin) return;
     if (ga4Id) loadGa4(ga4Id);
     if (clarityId) loadClarity(clarityId);
@@ -169,16 +175,6 @@ export default function AnalyticsTracking() {
             <button type="button" onClick={() => choose("accepted")}>{analytics.acceptLabel}</button>
           </div>
         </section>
-      )}
-      {consent !== null && !showChoice && (
-        <button
-          type="button"
-          className="analytics-settings"
-          onClick={() => setShowChoice(true)}
-          aria-label={analytics.settingsLabel}
-        >
-          {analytics.settingsLabel}
-        </button>
       )}
     </>
   );

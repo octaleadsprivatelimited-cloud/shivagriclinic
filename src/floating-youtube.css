@@ -3,7 +3,7 @@
   z-index: 65;
   bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   left: calc(18px + env(safe-area-inset-left, 0px));
-  width: min(292px, calc(100vw - 124px));
+  width: 292px;
   overflow: hidden;
   border: 1px solid #101010;
   border-radius: 12px;
@@ -11,30 +11,39 @@
   box-shadow: 4px 5px 0 #101010, 0 10px 28px #0005;
   color: #fff;
 }
-.channel-floating-video-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 32px;
-  padding: 3px 5px 3px 10px;
+.channel-floating-video-screen {
+  position: relative;
+  min-height: 200px;
+  background: #000;
+}
+.channel-floating-video-embed,
+.channel-floating-video-embed iframe {
+  display: block;
+  width: 100%;
+  height: 200px;
+  border: 0;
 }
 .channel-floating-video-title {
-  min-width: 0;
+  position: absolute;
+  top: 0;
+  right: 38px;
+  left: 0;
+  z-index: 1;
   overflow: hidden;
+  padding: 10px 8px 18px;
+  background: linear-gradient(#000b, #0000);
   font-size: 11px;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease;
 }
-.channel-floating-video-close { margin-left: auto; }
-.channel-floating-video-screen {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  background: #000;
-}
-.channel-floating-video-embed, .channel-floating-video-embed iframe { width: 100%; height: 100%; border: 0; }
-.channel-floating-video-controls { display: flex; align-items: center; gap: 3px; min-height: 38px; padding: 3px 6px; }
-.channel-floating-video-controls button, .channel-floating-video-close, .channel-floating-video-youtube {
+.channel-floating-video:hover .channel-floating-video-title,
+.channel-floating-video:focus-within .channel-floating-video-title { opacity: 1; }
+.channel-floating-video-close,
+.channel-floating-video-controls :is(button, a) {
   display: inline-grid;
   flex: 0 0 auto;
   place-items: center;
@@ -42,19 +51,72 @@
   height: 30px;
   border: 0;
   border-radius: 7px;
-  background: transparent;
+  background: #101010bd;
   color: #fff;
   cursor: pointer;
 }
-.channel-floating-video-controls button:hover, .channel-floating-video-close:hover, .channel-floating-video-youtube:hover { background: #ffffff25; }
-.channel-floating-video-controls :is(button, a):focus-visible, .channel-floating-video-close:focus-visible { outline: 2px solid #ffda53; outline-offset: 2px; }
-.channel-floating-video-hint { overflow: hidden; font-size: 10px; font-weight: 700; white-space: nowrap; }
-.channel-floating-video-youtube { margin-left: auto; }
-.channel-floating-video-error { display: grid; place-content: center; height: 100%; padding: 12px; text-align: center; font-size: 12px; }
-.channel-floating-video-error a { display: inline-flex; align-items: center; gap: 4px; justify-content: center; margin-top: 6px; color: #ffda53; }
+.channel-floating-video-close {
+  position: absolute;
+  z-index: 2;
+  top: 6px;
+  right: 6px;
+}
+.channel-floating-video-controls {
+  position: absolute;
+  z-index: 2;
+  right: 6px;
+  bottom: 6px;
+  left: 6px;
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+.channel-floating-video-controls :is(button, a) { pointer-events: auto; }
+.channel-floating-video-volume {
+  flex: 0 1 70px;
+  width: 70px;
+  min-width: 40px;
+  height: 30px;
+  margin: 0 2px;
+  accent-color: #ffda53;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.channel-floating-video-controls .channel-floating-video-youtube { margin-left: auto; }
+.channel-floating-video-close:hover,
+.channel-floating-video-controls :is(button, a):hover { background: #101010ed; }
+.channel-floating-video-close:focus-visible,
+.channel-floating-video-controls :is(button, a, input):focus-visible {
+  outline: 2px solid #ffda53;
+  outline-offset: 2px;
+}
+.channel-floating-video-error {
+  display: grid;
+  place-content: center;
+  min-height: 200px;
+  padding: 40px 12px;
+  text-align: center;
+  font-size: 12px;
+}
+.channel-floating-video-error a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 6px;
+  color: #ffda53;
+}
 @media (max-width: 540px) {
-  .channel-floating-video { bottom: calc(12px + env(safe-area-inset-bottom, 0px)); left: calc(10px + env(safe-area-inset-left, 0px)); width: min(210px, calc(100vw - 106px)); }
-  .channel-floating-video-head { min-height: 28px; }
+  .channel-floating-video {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: calc(10px + env(safe-area-inset-left, 0px));
+    width: min(210px, calc(100vw - 20px));
+  }
   .channel-floating-video-title { font-size: 10px; }
-  .channel-floating-video-controls { min-height: 34px; }
+}
+@media (max-width: 330px) {
+  .channel-floating-video { bottom: calc(82px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .channel-floating-video-title { transition: none; }
 }

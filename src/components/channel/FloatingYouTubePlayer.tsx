@@ -74,6 +74,7 @@ export function FloatingYouTubePlayer({ videoId, title }: { videoId: string | un
   });
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [volume, setVolume] = useState(100);
   const [blocked, setBlocked] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -137,29 +138,36 @@ export function FloatingYouTubePlayer({ videoId, title }: { videoId: string | un
   const videoTitle = title?.trim() || "Shiva Agri Clinic video";
 
   return <aside className="channel-floating-video" aria-label="Floating YouTube video">
-    <div className="channel-floating-video-head">
-      <span className="channel-floating-video-title" title={videoTitle}>{videoTitle}</span>
-      <button type="button" className="channel-floating-video-close" onClick={() => { try { sessionStorage.setItem(dismissedKey, "1"); } catch { /* Dismiss in memory when storage is unavailable. */ } setDismissed(true); }} aria-label="Close floating video"><X size={16} /></button>
-    </div>
     <div className="channel-floating-video-screen">
       {failed ? <div className="channel-floating-video-error">Video unavailable. <a href={videoUrl} target="_blank" rel="noopener noreferrer">Watch on YouTube <ExternalLink size={13} /></a></div> : <div ref={targetRef} className="channel-floating-video-embed" />}
+      <span className="channel-floating-video-title" title={videoTitle}>{videoTitle}</span>
+      <button type="button" className="channel-floating-video-close" onClick={() => { try { sessionStorage.setItem(dismissedKey, "1"); } catch { /* Dismiss in memory when storage is unavailable. */ } setDismissed(true); }} aria-label="Close floating video" title="Close video"><X size={16} /></button>
+      {!failed && <div className="channel-floating-video-controls" role="group" aria-label="Floating video controls">
+        <button type="button" onClick={() => {
+          const player = playerRef.current;
+          if (!player) return;
+          if (playing) { player.pauseVideo(); setPlaying(false); }
+          else { const restoredVolume = volume || 100; player.unMute(); player.setVolume(restoredVolume); player.playVideo(); setVolume(restoredVolume); setMuted(false); setBlocked(false); }
+        }} aria-label={playing ? "Pause floating video" : "Play floating video with sound"} title={playing ? "Pause" : "Play with sound"}>{playing ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}</button>
+        <button type="button" onClick={() => {
+          const player = playerRef.current;
+          if (!player) return;
+          if (muted) { const restoredVolume = volume || 100; player.unMute(); player.setVolume(restoredVolume); setVolume(restoredVolume); setMuted(false); setBlocked(false); }
+          else { player.mute(); setMuted(true); }
+        }} aria-label={muted ? "Unmute floating video" : "Mute floating video"} title={muted ? "Unmute" : "Mute"}>{muted ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
+        <input className="channel-floating-video-volume" type="range" min="0" max="100" step="5" value={muted ? 0 : volume} onChange={(event) => {
+          const nextVolume = Number(event.target.value);
+          const player = playerRef.current;
+          if (!player) return;
+          setVolume(nextVolume);
+          player.setVolume(nextVolume);
+          if (nextVolume === 0) { player.mute(); setMuted(true); }
+          else { player.unMute(); setMuted(false); setBlocked(false); }
+        }} aria-label="Floating video volume" title="Volume" />
+        {blocked && <span className="sr-only" role="status">Autoplay with sound was blocked. Use the unmute control to turn on sound.</span>}
+        <a className="channel-floating-video-youtube" href={videoUrl} target="_blank" rel="noopener noreferrer" aria-label="Open this video on YouTube" title="Watch on YouTube"><ExternalLink size={17} /></a>
+      </div>}
     </div>
-    {!failed && <div className="channel-floating-video-controls">
-      <button type="button" onClick={() => {
-        const player = playerRef.current;
-        if (!player) return;
-        if (playing) { player.pauseVideo(); setPlaying(false); }
-        else { player.unMute(); player.setVolume(100); player.playVideo(); setMuted(false); setBlocked(false); }
-      }} aria-label={playing ? "Pause floating video" : "Play floating video with sound"} title={playing ? "Pause" : "Play with sound"}>{playing ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}</button>
-      <button type="button" onClick={() => {
-        const player = playerRef.current;
-        if (!player) return;
-        if (muted) { player.unMute(); player.setVolume(100); setMuted(false); setBlocked(false); }
-        else { player.mute(); setMuted(true); }
-      }} aria-label={muted ? "Unmute floating video" : "Mute floating video"} title={muted ? "Unmute" : "Mute"}>{muted ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
-      {blocked && <span className="channel-floating-video-hint">Tap for sound</span>}
-      <a className="channel-floating-video-youtube" href={videoUrl} target="_blank" rel="noopener noreferrer" aria-label="Open this video on YouTube" title="Watch on YouTube"><ExternalLink size={17} /></a>
-    </div>}
   </aside>;
 }
 

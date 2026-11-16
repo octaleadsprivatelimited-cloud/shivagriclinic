@@ -19,8 +19,7 @@
 .analytics-consent-copy strong { display: block; font-weight: 800; }
 .analytics-consent-copy p { margin: 0.35rem 0 0; font-size: 0.875rem; line-height: 1.45; }
 .analytics-consent-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.analytics-consent-actions button,
-.analytics-settings {
+.analytics-consent-actions button {
   min-height: 2.5rem;
   padding: 0.5rem 0.8rem;
   border: 1px solid #171717;
@@ -34,15 +33,7 @@
 }
 .analytics-consent-actions button:last-child { background: #ffdc54; }
 .analytics-consent-actions button:focus-visible,
-.analytics-settings:focus-visible { outline: 3px solid #2878ff; outline-offset: 2px; }
-.analytics-settings {
-  position: fixed;
-  z-index: 999;
-  left: 1rem;
-  bottom: 1rem;
-  background: #fffdf5;
-  box-shadow: 2px 2px 0 #171717;
-}
+.channel-privacy-analytics:focus-visible { outline: 3px solid #2878ff; outline-offset: 2px; }
 
 @media (max-width: 640px) {
   .analytics-consent {
@@ -52,5 +43,4 @@
     align-items: stretch;
   }
   .analytics-consent-actions button { flex: 1; }
-  .analytics-settings { left: 0.75rem; bottom: 0.75rem; }
 }

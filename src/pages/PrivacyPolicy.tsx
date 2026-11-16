@@ -10,6 +10,7 @@ export default function PrivacyPolicy() {
       <span className="channel-eyebrow channel-eyebrow-red">{content.ui.siteInformationLabel}</span>
       <h1>{page.title}</h1><p>{page.intro}</p>
       {page.sections.map((section, index) => <div key={`${section.heading}-${index}`}><h2>{section.heading}</h2><p>{section.body}</p></div>)}
+      <button type="button" className="channel-button channel-button-yellow channel-privacy-analytics" onClick={() => window.dispatchEvent(new Event("shiva:open-analytics-settings"))}>{content.analytics.settingsLabel}</button>
     </div></section>
   </Layout>;
 }
